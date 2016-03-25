@@ -14,7 +14,7 @@ Interested in contributing to the vsts-vscode project? There are plenty of ways 
 ### Node and npm
 **Windows and Mac OSX**: Download and install node from [nodejs.org](http://nodejs.org/)
 
-**Linux**: Install [using package manager](https://github.com/joyent/node/wiki/Installing-Node.js-via-package-manager)
+**Linux**: Install [using package manager](https://nodejs.org/en/download/package-manager/)
 
 From a terminal ensure at least node 5.4.1 and npm 3:
 ```bash
