@@ -18,14 +18,14 @@ To create the token and add it to your user settings:
      - If you would rather not use *All Scopes*, you can enable **Build (read)**, **Code (read)** and **Work items (read)**.  If you do this, note that the Build Status indicator will not function properly until an upcoming update to Team Services.  Once that update is available, the Build Status indicator will begin to function normally and we will update these instructions.
 2. Open Visual Studio Code's user settings (**File > Preferences > User Settings**) and add an entry similar to the one below.
 
-```javascript
+  ```javascript
     "team.accessTokens": [
         {
             "account": "your-account-name",
             "token": "access-token"
         }
     ]
-```
+  ```
 
 3. Replace **your-account-name** with the name of your Team Services account.  For example, if your Team Services URL is `https://fabrikam.visualstudio.com`, your account name is **fabrikam**.
 4. Replace **access-token** with the token you created earlier.
