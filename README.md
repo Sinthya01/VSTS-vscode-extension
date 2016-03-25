@@ -12,6 +12,7 @@ First, you will need to install [Visual Studio Code](https://code.visualstudio.c
 You'll also need to create a personal access token on your Team Services account and add it to Visual Studio Code's user settings.  The extension uses basic authentication with your personal access token in the password field to authenticate you with Team Services.
 
 To create the token and add it to your user settings:
+
 1. Go [here](https://www.visualstudio.com/en-us/get-started/setup/use-personal-access-tokens-to-authenticate) to learn how to create a personal access token for your account.
      - When you create your token, ensure you create it for **All Scopes**.
      - If you would rather not use *All Scopes*, you can enable **Build (read)**, **Code (read)** and **Work items (read)**.  If you do this, note that the Build Status indicator will not function properly until an upcoming update to Team Services.  Once that update is available, the Build Status indicator will begin to function normally and we will update these instructions.
