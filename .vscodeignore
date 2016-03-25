@@ -1,0 +1,12 @@
+.vscode/**
+typings/**
+out/test/**
+test/**
+src/**
+**/*.map
+.gitignore
+tsconfig.json
+gulpfile.js
+tsd.json
+tslint.json
+team-extension.log

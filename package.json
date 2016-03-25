@@ -1,0 +1,140 @@
+{
+  "name": "team",
+  "displayName": "Visual Studio Team Services",
+  "description": "Monitor your builds and manage your pull requests and work items for your Team Services Git repositories",
+  "version": "1.98.0",
+  "publisher": "ms-vsts",
+  "icon": "assets/team.png",
+  "galleryBanner": {
+    "color": "#65217C",
+    "theme": "dark"
+  },
+  "keywords": [
+    "ALM",
+    "Git",
+    "Team Services",
+    "Visual Studio Online",
+    "Visual Studio Team Services",
+    "VSO",
+    "VSTS"
+  ],
+  "categories": [
+    "Other"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Microsoft/vsts-vscode.git"
+  },
+  "bugs": "https://github.com/Microsoft/vsts-vscode/issues",
+  "license": "SEE LICENSE IN LICENSE.txt",
+  "homepage": "https://github.com/Microsoft/vsts-vscode/blob/master/README.md",
+  "engines": {
+    "vscode": "^0.10.7"
+  },
+  "activationEvents": [
+    "*"
+  ],
+  "main": "./out/src/extension",
+  "contributes": {
+    "configuration": {
+      "type": "object",
+      "title": "Team Services extension options",
+      "properties": {
+        "team.appInsights.enabled": {
+          "type": "boolean",
+          "default": "true",
+          "description": "Enables Application Insights telemetry collection for the Team Services extension."
+        },
+        "team.logging.level": {
+          "type": "string",
+          "default": "",
+          "description": "Set the logging level for the extension (error, warn, info, verbose, debug)."
+        },
+        "team.pollingInterval": {
+          "type": "number",
+          "default": 5,
+          "description": "Specify the number of minutes to wait when polling for new builds and pull requests."
+        }
+      }
+    },
+    "commands": [
+      {
+        "command": "team.OpenNewTask",
+        "title": "team create task"
+      },
+      {
+        "command": "team.OpenNewBug",
+        "title": "team create bug"
+      },
+      {
+        "command": "team.OpenFileHistory",
+        "title": "team view history"
+      },
+      {
+        "command": "team.OpenBlamePage",
+        "title": "team view blame"
+      },
+      {
+        "command": "team.OpenNewPullRequest",
+        "title": "team create pull request"
+      },
+      {
+        "command": "team.OpenNewWorkItem",
+        "title": "team create work item"
+      },
+      {
+        "command": "team.GetPullRequests",
+        "title": "team view pull requests"
+      },
+      {
+        "command": "team.OpenBuildSummaryPage",
+        "title": "team view build summary"
+      },
+      {
+        "command": "team.OpenTeamSite",
+        "title": "team view website"
+      },
+      {
+        "command": "team.ViewWorkItems",
+        "title": "team view work items"
+      },
+      {
+        "command": "team.ViewWorkItemQueries",
+        "title": "team view work item queries"
+      },
+      {
+        "command": "team.SendFeedback",
+        "title": "team send feedback"
+      }
+    ]
+  },
+  "scripts": {
+    "vscode:prepublish": "node ./node_modules/vscode/bin/compile",
+    "compile": "node ./node_modules/vscode/bin/compile -watch -p ./",
+    "postinstall": "node ./node_modules/vscode/bin/install"
+  },
+  "devDependencies": {
+    "chai": "^3.4.1",
+    "gulp": "^3.9.0",
+    "gulp-mocha": "^2.2.0",
+    "gulp-tslint": "^3.2.0",
+    "gulp-util": "^3.0.7",
+    "should": "^8.1.1",
+    "tslint": "^2.5.0",
+    "typescript": "^1.7.5",
+    "vscode": "^0.11.x"
+  },
+  "dependencies": {
+    "applicationinsights": "^0.15.11",
+    "fs": "0.0.2",
+    "git-repo-info": "^1.1.2",
+    "node-uuid": "^1.4.7",
+    "open": "0.0.5",
+    "opener": "^1.4.1",
+    "parse-git-config": "^0.3.1",
+    "path": "^0.12.7",
+    "url": "^0.11.0",
+    "vso-node-api": "^3.0.1",
+    "winston": "^2.1.1"
+  }
+}
