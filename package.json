@@ -42,7 +42,7 @@
       "properties": {
         "team.appInsights.enabled": {
           "type": "boolean",
-          "default": "true",
+          "default": true,
           "description": "Enables Application Insights telemetry collection for the Team Services extension."
         },
         "team.logging.level": {
