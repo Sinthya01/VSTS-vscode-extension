@@ -109,6 +109,9 @@ There may be times when you need to enable file logging to troubleshoot an issue
 ```
 The log file will be placed at the root of your workspace and will be named `team-extension.log`.
 
+## Support
+Support for this extension is provided on our [GitHub Issue Tracker](https://github.com/Microsoft/vsts-vscode/issues).  You can submit a [bug report](https://github.com/Microsoft/vsts-vscode/issues/new), a [feature request](https://github.com/Microsoft/vsts-vscode/issues/new) or participate in [discussions](https://github.com/Microsoft/vsts-vscode/issues). 
+
 ## Contributing to the Extension
 See the [developer documentation](CONTRIBUTING.md) for details on how to contribute to this extension.
 
