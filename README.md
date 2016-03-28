@@ -3,6 +3,8 @@ The extension allows you to manage your pull requests for your Team Services Git
 
 ![Visual Studio Team Services extension](assets/vscode.png)
 
+Here is the [Walkthrough of the Team Services extension for Visual Studio Code](https://www.youtube.com/watch?v=tpjj5i8f6BE) video that shows many of the features of the extension.
+
 ## Ensure you have a Team Services account
 If you do not already have a Team Services account, [sign up for Team Services](https://www.visualstudio.com/en-us/get-started/setup/sign-up-for-visual-studio-team-services).
 
@@ -44,6 +46,8 @@ The extension also supports a *global access token*.  A global access token is o
 - Replace **global-access-token** with the global token you created.
 
 If the extension doesn't find an *account-specific* access token, it'll look for the *global* token.
+
+Here is the [Set up the Team Services extension for Visual Studio Code](https://www.youtube.com/watch?v=NUVbn7gGLvA) video that shows how to create a PAT on your Team Services account and how to properly set it in the User Settings.
 
 ## Open a local Team Services Repository folder
 After adding your personal access token and restarting Visual Studio Code, open either the root folder or sub-folder of the Team Services repository.  Once a Team Services repository is detected by the extension, the status bar indicators will be active and the commands will be ready.
