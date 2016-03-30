@@ -11,7 +11,7 @@ If you do not already have a Team Services account, [sign up for Team Services](
 ## Install the Extension
 First, you will need to install [Visual Studio Code](https://code.visualstudio.com/download) `0.10.8` or later.  Then, in the Visual Studio Code Command Palette (`F1`) select `Install Extension` and choose `Visual Studio Team Services` by Microsoft.
 
-You'll also need to create a personal access token on your Team Services account and add it to Visual Studio Code's user settings.  The extension uses basic authentication with your personal access token in the password field to authenticate you with Team Services.
+You'll also need to create a personal access token on your Team Services account and add it to Visual Studio Code's user settings.
 
 To create the token and add it to your user settings:
 
