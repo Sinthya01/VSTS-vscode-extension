@@ -42,7 +42,8 @@ export class Settings {
             let global: string = undefined;
             for (var index = 0; index < tokens.length; index++) {
                 let element: any = tokens[index];
-                if (element.account === account) {
+                if (element.account === account ||
+                    element.account === account + ".visualstudio.com") {
                     return element.token;
                 } else if (element.account === "global") {
                     global = element.token;
