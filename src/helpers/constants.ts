@@ -54,6 +54,7 @@ export class TelemetryEvents {
     static SendAFrown: string = TelemetryEvents.TelemetryPrefix + "sendafrown";
     static SendASmile: string = TelemetryEvents.TelemetryPrefix + "sendasmile";
     static ShowMyWorkItemQueries: string = TelemetryEvents.TelemetryPrefix + "showmyworkitemqueries";
+    static StartUp: string = TelemetryEvents.TelemetryPrefix + "startup";
     static ViewPullRequest: string = TelemetryEvents.TelemetryPrefix + "viewpullrequest";
     static ViewPullRequests: string = TelemetryEvents.TelemetryPrefix + "viewpullrequests";
     static ViewMyWorkItems: string = TelemetryEvents.TelemetryPrefix + "viewmyworkitems";
