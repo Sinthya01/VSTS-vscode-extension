@@ -265,6 +265,7 @@ export class TeamExtension  {
                     this._gitClient = new GitClient(this._serverContext, this._telemetry, this._pullRequestStatusBarItem);
                     this._witClient = new WitClient(this._serverContext, this._telemetry);
                     this._teamServicesClient = new TeamServicesClient(this._serverContext, this._telemetry);
+                    this._telemetry.SendEvent(TelemetryEvents.StartUp);
 
                     Logger.LogObject(settings);
                     this.logDebugInformation();
