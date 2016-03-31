@@ -75,9 +75,14 @@ export class WitClient extends BaseClient {
                     window.showQuickPick(self.getMyWorkItems(self._serverContext.TeamProject, query.wiql), { matchOnDescription: true, placeHolder: Strings.ChooseWorkItem }).then(
                         function (workItem) {
                             if (workItem) {
-                                let editUrl: string = WorkItemTrackingService.GetEditWorkItemUrl(self._serverContext.TeamProjectUrl, workItem.id);
-                                Logger.LogInfo("Edit Work Item Url: " + editUrl);
-                                Utils.OpenUrl(editUrl);
+                                let url: string = undefined;
+                                if (workItem.id === undefined) {
+                                    url = WorkItemTrackingService.GetMyQueryResultsUrl(self._serverContext.TeamProjectUrl, query.label);
+                                } else {
+                                    url = WorkItemTrackingService.GetEditWorkItemUrl(self._serverContext.TeamProjectUrl, workItem.id);
+                                }
+                                Logger.LogInfo("Work Item Url: " + url);
+                                Utils.OpenUrl(url);
                             }
                         },
                         function (err) {
@@ -101,9 +106,14 @@ export class WitClient extends BaseClient {
         window.showQuickPick(self.getMyWorkItems(this._serverContext.TeamProject, WitQueries.MyWorkItems), { matchOnDescription: true, placeHolder: Strings.ChooseWorkItem }).then(
             function (workItem) {
                 if (workItem) {
-                    let editUrl: string = WorkItemTrackingService.GetEditWorkItemUrl(self._serverContext.TeamProjectUrl, workItem.id);
-                    Logger.LogInfo("Work Item Url: " + editUrl);
-                    Utils.OpenUrl(editUrl);
+                    let url: string = undefined;
+                    if (workItem.id === undefined) {
+                        url = WorkItemTrackingService.GetWorkItemsBaseUrl(self._serverContext.TeamProjectUrl);
+                    } else {
+                        url = WorkItemTrackingService.GetEditWorkItemUrl(self._serverContext.TeamProjectUrl, workItem.id);
+                    }
+                    Logger.LogInfo("Work Item Url: " + url);
+                    Utils.OpenUrl(url);
                 }
             },
             function (err) {
@@ -160,6 +170,13 @@ export class WitClient extends BaseClient {
             simpleWorkItems.forEach(wi => {
                 workItems.push({ label: wi.label, description: wi.description, id: wi.id});
             });
+            if (simpleWorkItems.length === WorkItemTrackingService.MaxResults) {
+                workItems.push({
+                    id: undefined,
+                    label: Strings.BrowseAdditionalWorkItems,
+                    description: Strings.BrowseAdditionalWorkItemsDescription
+                });
+            }
 
             deferred.resolve(workItems);
         }).catch((reason) => {
