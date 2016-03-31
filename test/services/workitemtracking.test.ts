@@ -50,4 +50,16 @@ describe("WorkItemTrackingService", function() {
         assert.equal(WorkItemTrackingService.GetNewWorkItemUrl(url, issueType, title, assignedTo), url + "/_workitems" + "/create/" + issueType + "?[" + WorkItemFields.Title + "]=" + encodeURIComponent(title) + "&" + "[" + WorkItemFields.AssignedTo + "]=" + assignedTo);
     });
 
+    it("should verify GetMyQueryResultsUrl with url and queryName", function() {
+        let url: string = "https://account.visualstudio.com/DefaultCollection/project";
+        let queryName: string = "My Favorite Query";
+
+        assert.equal(WorkItemTrackingService.GetMyQueryResultsUrl(url, queryName), url + "/_workitems" + "?path=" + encodeURIComponent("My Queries/") + encodeURIComponent(queryName) + "&_a=query");
+    });
+
+    it("should verify GetWorkItemsBaseUrl with url", function() {
+        let url: string = "https://account.visualstudio.com/DefaultCollection/project";
+
+        assert.equal(WorkItemTrackingService.GetWorkItemsBaseUrl(url), url + "/_workitems");
+    });
 });

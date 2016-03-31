@@ -10,6 +10,7 @@ import { IQWorkItemTrackingApi } from "vso-node-api/WorkItemTrackingApi";
 import { QueryExpand, QueryHierarchyItem, QueryResultType, Wiql, WorkItem,
          WorkItemExpand, WorkItemType, WorkItemTypeReference } from "vso-node-api/interfaces/WorkItemTrackingInterfaces";
 import { TeamServerContext } from "../contexts/servercontext";
+import { WitQueries } from "../helpers/constants";
 
 import Q = require("q");
 
@@ -127,6 +128,10 @@ export class WorkItemTrackingService {
                 deferred.resolve(results);
                 return promiseToReturn;
             }
+            //Only request the maximum number of work items the API documents that we should
+            if (workItemIds.length >= WorkItemTrackingService.MaxResults) {
+                workItemIds = workItemIds.slice(0, WorkItemTrackingService.MaxResults);
+            }
 
             this._witApi.getWorkItems(workItemIds,
                                       [WorkItemFields.Id, WorkItemFields.Title, WorkItemFields.WorkItemType],
@@ -156,13 +161,13 @@ export class WorkItemTrackingService {
 
     //Construct the url to the individual work item edit page
     public static GetEditWorkItemUrl(teamProjectUrl: string, workItemId: string) : string {
-        return this.getWorkItemsBaseUrl(teamProjectUrl) + "/edit/" + workItemId;
+        return this.GetWorkItemsBaseUrl(teamProjectUrl) + "/edit/" + workItemId;
     }
 
     //Construct the url to the creation page for new work item type
     public static GetNewWorkItemUrl(teamProjectUrl: string, issueType: string, title?: string, assignedTo?: string) : string {
         //This form will redirect to the form below so let's use this one
-        let url:string = this.getWorkItemsBaseUrl(teamProjectUrl) + "/create/" + issueType;
+        let url:string = this.GetWorkItemsBaseUrl(teamProjectUrl) + "/create/" + issueType;
         let separator: string = "?";
         if (title !== undefined) {
             url += separator + "[" + WorkItemFields.Title + "]=" + encodeURIComponent(title);
@@ -175,10 +180,19 @@ export class WorkItemTrackingService {
         return url;
     }
 
+    //Construct the url to the particular query results page
+    public static GetMyQueryResultsUrl(teamProjectUrl: string, queryName: string) : string {
+        return this.GetWorkItemsBaseUrl(teamProjectUrl) + "?path=" + encodeURIComponent(WitQueries.MyQueriesFolder + "/" + queryName) + "&_a=query";
+    }
+
     //Returns the base url for work items
-    private static getWorkItemsBaseUrl(teamProjectUrl: string) {
+    public static GetWorkItemsBaseUrl(teamProjectUrl: string) {
         return teamProjectUrl + "/_workitems";
     }
+
+/* tslint:disable:variable-name */
+    public static MaxResults: number = 200;
+/* tslint:enable:variable-name */
 }
 
 export class SimpleWorkItem {
