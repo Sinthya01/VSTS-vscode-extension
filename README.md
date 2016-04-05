@@ -84,9 +84,9 @@ In addition to the status bar integrations, the extension also provides several 
 
 * `team view website` – Same behavior as clicking on the team project status bar item.
 
-* `team view work items` – Prompts you to choose a work item that is assigned to you, sorted by ChangedDate descending.  Choosing a work item will open it in your browser.
+* `team view work items` – Prompts you to choose a work item that is assigned to you, sorted by ChangedDate descending.  Choosing a work item will open it in your browser.  This command will return a maximum of 200 results with an option to "Browse additional work items...".  Choosing that option will open your browser to show all of the results of your query.
 
-* `team view work item queries` – Prompts you to choose a query stored in your “My Queries” folder in your Team Services team project.  Choosing a query will run it and display the results in the Quick Pick list.  Choosing one of the results will open that work item in your browser.  If you don’t have any queries under “My Queries”, you can go to `https://account.visualstudio.com/DefaultCollection/project/_workitems` (where *account* is your account name and *project* is your team project) to create one.
+* `team view work item queries` – Prompts you to choose a query stored in your “My Queries” folder in your Team Services team project.  Choosing a query will run it and display the results in the Quick Pick list.  Choosing one of the results will open that work item in your browser.    This command will return a maximum of 200 results with an option to "Browse additional work items...".  Choosing that option will open your browser to show all of the results of your query.  If you don’t have any queries under “My Queries”, you can go to `https://account.visualstudio.com/DefaultCollection/project/_workitems` (where *account* is your account name and *project* is your team project) to create one.
 
 ## How to disable telemetry reporting
 The Visual Studio Team Services extension collects usage data and sends it to Microsoft to help improve our products and services.  Read our [privacy statement](http://go.microsoft.com/fwlink/?LinkId=528096&clcid=0x409) to learn more.
