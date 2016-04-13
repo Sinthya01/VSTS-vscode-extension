@@ -41,6 +41,7 @@ export class SettingNames {
 
 export class TelemetryEvents {
     static TelemetryPrefix: string = Constants.ExtensionName + "/";
+    static OpenAdditionalQueryResults: string = TelemetryEvents.TelemetryPrefix + "openaddlqueryresults";
     static OpenBlamePage: string = TelemetryEvents.TelemetryPrefix + "openblame";
     static OpenBuildSummaryPage: string = TelemetryEvents.TelemetryPrefix + "openbuildsummary";
     static OpenFileHistory: string = TelemetryEvents.TelemetryPrefix + "openfilehistory";
