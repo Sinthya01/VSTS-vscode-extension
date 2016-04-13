@@ -77,8 +77,10 @@ export class WitClient extends BaseClient {
                             if (workItem) {
                                 let url: string = undefined;
                                 if (workItem.id === undefined) {
+                                    self.ReportEvent(TelemetryEvents.OpenAdditionalQueryResults);
                                     url = WorkItemTrackingService.GetMyQueryResultsUrl(self._serverContext.TeamProjectUrl, query.label);
                                 } else {
+                                    self.ReportEvent(TelemetryEvents.ViewWorkItem);
                                     url = WorkItemTrackingService.GetEditWorkItemUrl(self._serverContext.TeamProjectUrl, workItem.id);
                                 }
                                 Logger.LogInfo("Work Item Url: " + url);
@@ -108,8 +110,10 @@ export class WitClient extends BaseClient {
                 if (workItem) {
                     let url: string = undefined;
                     if (workItem.id === undefined) {
+                        self.ReportEvent(TelemetryEvents.OpenAdditionalQueryResults);
                         url = WorkItemTrackingService.GetWorkItemsBaseUrl(self._serverContext.TeamProjectUrl);
                     } else {
+                        self.ReportEvent(TelemetryEvents.ViewWorkItem);
                         url = WorkItemTrackingService.GetEditWorkItemUrl(self._serverContext.TeamProjectUrl, workItem.id);
                     }
                     Logger.LogInfo("Work Item Url: " + url);
