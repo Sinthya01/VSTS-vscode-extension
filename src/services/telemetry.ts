@@ -15,7 +15,7 @@ var os = require("os");
 export class TelemetryService {
     private _appInsightsClient: Client;
     private _serverContext: TeamServerContext;
-    private _extensionVersion: string = "1.98.0";
+    private _extensionVersion: string = "1.99.0";
     private _collectionId: string = "UNKNOWN";
     //Default to a new uuid in case the extension fails before being initialized
     private _userId: string = uuid.v1();
