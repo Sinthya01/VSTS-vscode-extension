@@ -192,12 +192,12 @@ export class WitClient extends BaseClient {
 
     private getUserName(context: TeamServerContext): string {
         let userName: string = undefined;
-        Logger.LogDebug("UserCustomDisplayName: " + context.UserCustomDisplayName);
-        Logger.LogDebug("UserProviderDisplayName: " + context.UserProviderDisplayName);
-        if (context.UserCustomDisplayName !== undefined) {
-            userName = context.UserCustomDisplayName;
+        Logger.LogDebug("UserCustomDisplayName: " + context.UserInfo.CustomDisplayName);
+        Logger.LogDebug("UserProviderDisplayName: " + context.UserInfo.ProviderDisplayName);
+        if (context.UserInfo.CustomDisplayName !== undefined) {
+            userName = context.UserInfo.CustomDisplayName;
         } else {
-            userName = context.UserProviderDisplayName;
+            userName = context.UserInfo.ProviderDisplayName;
         }
         Logger.LogDebug("User is " + userName);
         return userName;

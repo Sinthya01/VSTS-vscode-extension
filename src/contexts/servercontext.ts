@@ -7,6 +7,7 @@
 import { BasicCredentialHandler } from "vso-node-api/handlers/basiccreds";
 import { getBasicHandler } from "vso-node-api/WebApi";
 import { Logger } from "../helpers/logger";
+import { UserInfo } from "../info/userinfo";
 
 var url = require("url");
 
@@ -28,9 +29,7 @@ export class TeamServerContext {
 
     private _isTeamServicesUrl: boolean = false;
 
-    private _userId: string;
-    private _providerDisplayName: string;
-    private _customDisplayName: string;
+    private _userInfo: UserInfo;
     private _repositoryId: string;
 
     //The constructor simply parses the remoteUrl for the account name and determines if we are Team Services or not
@@ -142,23 +141,11 @@ export class TeamServerContext {
     public get TeamProject(): string {
         return this._teamProject;
     }
-    public get UserCustomDisplayName(): string {
-        return this._customDisplayName;
+    public get UserInfo(): UserInfo {
+        return this._userInfo;
     }
-    public SetUserCustomDisplayName(displayName: string): void {
-        this._customDisplayName = displayName;
-    }
-    public get UserProviderDisplayName(): string {
-        return this._providerDisplayName;
-    }
-    public SetUserProviderDisplayName(displayName: string): void {
-        this._providerDisplayName = displayName;
-    }
-    public get UserId(): string {
-        return this._userId;
-    }
-    public SetUserId(userId: string): void {
-        this._userId = userId;
+    public set UserInfo(info: UserInfo) {
+        this._userInfo = info;
     }
     public get IsTeamServices(): boolean {
         return this._isTeamServicesUrl;

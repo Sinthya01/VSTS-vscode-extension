@@ -18,6 +18,7 @@ import { QTeamServicesApi, TeamServicesClient } from "./clients/teamservicesclie
 import { BuildClient } from "./clients/buildclient";
 import { GitClient } from "./clients/gitclient";
 import { WitClient } from "./clients/witclient";
+import { UserInfo } from "./info/userinfo";
 
 export class TeamExtension  {
     private _teamServicesStatusBarItem: StatusBarItem;
@@ -251,14 +252,12 @@ export class TeamExtension  {
                 Logger.LogInfo("Getting connectionData with accountClient");
                 this._accountClient.connect().then((settings) => {
                     Logger.LogInfo("Retrieved connectionData with accountClient");
-                    Logger.LogDebug("UserId: " + settings.authenticatedUser.id);
-                    Logger.LogDebug("Username: " + settings.authenticatedUser.providerDisplayName);
                     this.resetErrorStatus();
 
-                    this._serverContext.SetUserId(settings.authenticatedUser.id);
-                    this._serverContext.SetUserProviderDisplayName(settings.authenticatedUser.providerDisplayName);
-                    this._serverContext.SetUserCustomDisplayName(settings.authenticatedUser.customDisplayName);
-                    this._telemetry.Update(this._serverContext.CollectionId, this._serverContext.UserId);
+                    this._serverContext.UserInfo = new UserInfo(settings.authenticatedUser.id,
+                                                                settings.authenticatedUser.providerDisplayName,
+                                                                settings.authenticatedUser.customDisplayName);
+                    this._telemetry.Update(this._serverContext.CollectionId, this._serverContext.UserInfo.Id);
 
                     this.initializeStatusBars();
                     this._buildClient = new BuildClient(this._serverContext, this._telemetry, this._buildStatusBarItem);
@@ -309,8 +308,9 @@ export class TeamExtension  {
                             + "TP: " + this._serverContext.TeamProject + " "
                             + "Coll: " + this._serverContext.CollectionName + " "
                             + "Repo: " + this._serverContext.RepositoryName + " "
-                            + "User: " + this._serverContext.UserProviderDisplayName + " "
-                            + "UserId: " + this._serverContext.UserId + " ");
+                            + "UserCustomDisplayName: " + this._serverContext.UserInfo.CustomDisplayName + " "
+                            + "UserProviderDisplayName: " + this._serverContext.UserInfo.ProviderDisplayName + " "
+                            + "UserId: " + this._serverContext.UserInfo.Id + " ");
         Logger.LogDebug("gitFolder: " + this._gitContext.GitFolder);
         Logger.LogDebug("gitRemoteUrl: " + this._gitContext.RemoteUrl);
         Logger.LogDebug("gitRepositoryParentFolder: " + this._gitContext.RepositoryParentFolder);

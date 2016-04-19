@@ -153,7 +153,7 @@ export class GitClient extends BaseClient {
 
         Logger.LogInfo("Getting pull requests that I requested...");
         let svc: GitVcService = new GitVcService(this._serverContext);
-        svc.GetPullRequests(this._serverContext.RepositoryId, this._serverContext.UserId, undefined, PullRequestStatus.Active).then((myPullRequests) => {
+        svc.GetPullRequests(this._serverContext.RepositoryId, this._serverContext.UserInfo.Id, undefined, PullRequestStatus.Active).then((myPullRequests) => {
             let icon: string = "octicon-search";
             let label: string = `$(icon ${icon}) `;
             requestItems.push({ label: label + Strings.BrowseYourPullRequests, description: undefined, id: undefined });
@@ -167,7 +167,7 @@ export class GitClient extends BaseClient {
 
             Logger.LogInfo("Getting pull requests for which I'm a reviewer...");
             //Go get the active pull requests that I'm a reviewer for
-            svc.GetPullRequests(this._serverContext.RepositoryId, undefined, this._serverContext.UserId, PullRequestStatus.Active).then((myReviewPullRequests) => {
+            svc.GetPullRequests(this._serverContext.RepositoryId, undefined, this._serverContext.UserInfo.Id, PullRequestStatus.Active).then((myReviewPullRequests) => {
                 myReviewPullRequests.forEach(pr => {
                     let score: PullRequestScore = GitVcService.GetPullRequestScore(pr);
                     if (requestIds.indexOf(pr.pullRequestId) < 0) {
