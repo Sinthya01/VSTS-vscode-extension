@@ -6,7 +6,6 @@
 
 import { TeamServerContext } from "../../src/contexts/servercontext";
 import { RepositoryInfo } from "../../src/info/repositoryinfo";
-import { BasicCredentialHandler } from "vso-node-api/handlers/basiccreds";
 
 var chai = require("chai");
 /* tslint:disable:no-unused-variable */
@@ -103,14 +102,6 @@ describe("TeamServerContext", function() {
         assert.equal(context.RepoInfo.RepositoryUrl, "https://account.visualstudio.com/teamproject/_git/repositoryName");
         assert.equal(context.RepoInfo.TeamProject, "teamproject");
         assert.equal(context.RepoInfo.TeamProjectUrl, "https://account.visualstudio.com/teamproject");
-    });
-
-    it("should persist proper pat in credential handler", function() {
-        let context: TeamServerContext = new TeamServerContext("https://account.visualstudio.com/DefaultCollection/teamproject/_git/repositoryName");
-        context.SetCredentialHandler("pat-token");
-        let handler: BasicCredentialHandler = context.CredentialHandler;
-        assert.equal(handler.username, "OAuth");
-        assert.equal(handler.password, "pat-token");
     });
 
 });

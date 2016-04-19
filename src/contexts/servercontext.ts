@@ -4,14 +4,14 @@
 *--------------------------------------------------------------------------------------------*/
 "use strict";
 
-import { BasicCredentialHandler } from "vso-node-api/handlers/basiccreds";
-import { getBasicHandler } from "vso-node-api/WebApi";
+import { IRequestHandler } from "vso-node-api/interfaces/common/VsoBaseInterfaces";
 import { RepositoryInfo } from "../info/repositoryinfo";
 import { UserInfo } from "../info/userinfo";
 
 export class TeamServerContext {
     private _userInfo: UserInfo;
     private _repositoryInfo: RepositoryInfo;
+    private _credentialHandler: IRequestHandler;
 
     //The constructor simply parses the remoteUrl to determine if we're Team Services or Team Foundation Server.
     //Any additional information we can get from the url is also parsed.  Once we call the vsts/info api, we can
@@ -22,12 +22,11 @@ export class TeamServerContext {
         this._repositoryInfo = new RepositoryInfo(remoteUrl);
     }
 
-    private _credentialHandler: BasicCredentialHandler;
-    public SetCredentialHandler(pat: string): void {
-        this._credentialHandler = getBasicHandler("OAuth", pat);
-    }
-    public get CredentialHandler() : BasicCredentialHandler {
+    public get CredentialHandler(): IRequestHandler {
         return this._credentialHandler;
+    }
+    public set CredentialHandler(handler: IRequestHandler)  {
+        this._credentialHandler = handler;
     }
     public get RepoInfo(): RepositoryInfo {
         return this._repositoryInfo;

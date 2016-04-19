@@ -20,6 +20,7 @@ import { GitClient } from "./clients/gitclient";
 import { WitClient } from "./clients/witclient";
 import { RepositoryInfo } from "./info/repositoryinfo";
 import { UserInfo } from "./info/userinfo";
+import { CredentialInfo } from "./info/credentialinfo";
 
 export class TeamExtension  {
     private _teamServicesStatusBarItem: StatusBarItem;
@@ -235,7 +236,7 @@ export class TeamExtension  {
             }
 
             this._teamServicesStatusBarItem = window.createStatusBarItem(StatusBarAlignment.Left, 100);
-            this._serverContext.SetCredentialHandler(this._settings.TeamServicesPersonalAccessToken);
+            this._serverContext.CredentialHandler = new CredentialInfo(this._settings.TeamServicesPersonalAccessToken).CredentialHandler;
 
             this._telemetry = new TelemetryService(this._serverContext, this._settings);
             Logger.LogDebug("Started ApplicationInsights telemetry");
