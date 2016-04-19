@@ -18,14 +18,14 @@ export class WorkItemTrackingService {
     private _witApi: IQWorkItemTrackingApi;
 
     constructor(context: TeamServerContext) {
-        this._witApi = new WebApi(context.CollectionUrl, context.CredentialHandler).getQWorkItemTrackingApi();
+        this._witApi = new WebApi(context.RepoInfo.CollectionUrl, context.CredentialHandler).getQWorkItemTrackingApi();
     }
 
     //Returns a Q.Promise containing the WorkItem that was created
     public CreateWorkItem(context: TeamServerContext, itemType: string, taskTitle: string): Q.Promise<WorkItem> {
         let newWorkItem = [{ op: "add", path: "/fields/" + WorkItemFields.Title, value: taskTitle }];
 
-        return this._witApi.createWorkItem(null, newWorkItem, context.TeamProject, itemType, false, false);
+        return this._witApi.createWorkItem(null, newWorkItem, context.RepoInfo.TeamProject, itemType, false, false);
     }
 
     //Returns a Q.Promise containing an array of SimpleWorkItems based on the passed in wiql

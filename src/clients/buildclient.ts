@@ -38,11 +38,11 @@ export class BuildClient extends BaseClient {
         let svc: BuildService = new BuildService(this._serverContext);
 
         Logger.LogInfo("Getting current build from badge...");
-        svc.GetBuildBadge(this._serverContext.TeamProject, WellKnownRepositoryTypes.TfsGit, this._serverContext.RepositoryId, context.CurrentRef).then((buildBadge) => {
+        svc.GetBuildBadge(this._serverContext.RepoInfo.TeamProject, WellKnownRepositoryTypes.TfsGit, this._serverContext.RepoInfo.RepositoryId, context.CurrentRef).then((buildBadge) => {
             if (buildBadge.buildId !== undefined) {
                 Logger.LogInfo("Found build id " + buildBadge.buildId.toString() + ". Getting build details...");
                 svc.GetBuildById(buildBadge.buildId).then((build) => {
-                    this._buildSummaryUrl = BuildService.GetBuildSummaryUrl(this._serverContext.TeamProjectUrl, build.id.toString());
+                    this._buildSummaryUrl = BuildService.GetBuildSummaryUrl(this._serverContext.RepoInfo.TeamProjectUrl, build.id.toString());
                     Logger.LogInfo("Build summary info: " + build.id.toString() + " " + BuildStatus[build.status] +
                         " " + BuildResult[build.result] + " " + this._buildSummaryUrl);
 
@@ -56,8 +56,8 @@ export class BuildClient extends BaseClient {
                     this.handleError(reason, polling, "Failed to get build details by id");
                 });
             } else {
-                Logger.LogInfo("No builds were found for team " + this._serverContext.TeamProject.toString() + ", repo type git, " +
-                    "repo id " + this._serverContext.RepositoryId.toString() + ", + branch " + (context.CurrentBranch === null ? "UNKNOWN" : context.CurrentBranch.toString()));
+                Logger.LogInfo("No builds were found for team " + this._serverContext.RepoInfo.TeamProject.toString() + ", repo type git, " +
+                    "repo id " + this._serverContext.RepoInfo.RepositoryId.toString() + ", + branch " + (context.CurrentBranch === null ? "UNKNOWN" : context.CurrentBranch.toString()));
                 if (this._statusBarItem !== undefined) {
                     this._statusBarItem.command = CommandNames.OpenBuildSummaryPage;
                     this._statusBarItem.text = `$(icon octicon-package) ` + `$(icon octicon-dash)`;
@@ -74,7 +74,7 @@ export class BuildClient extends BaseClient {
         let url: string = this._buildSummaryUrl;
         if (url === undefined) {
             Logger.LogInfo("No build summary available, using build definitions url.");
-            url = BuildService.GetBuildDefinitionsUrl(this._serverContext.TeamProjectUrl);
+            url = BuildService.GetBuildDefinitionsUrl(this._serverContext.RepoInfo.TeamProjectUrl);
         }
         Logger.LogInfo("OpenBuildSummaryPage: " + url);
         Utils.OpenUrl(url);

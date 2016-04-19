@@ -76,8 +76,8 @@ export class TelemetryService {
 
     private setCommonProperties(): void {
         this._appInsightsClient.commonProperties = {
-            "VSTS.TeamFoundationServer.IsHostedServer" : this._serverContext.IsTeamServices.toString(),
-            "VSTS.TeamFoundationServer.ServerId" : this._serverContext.Host,
+            "VSTS.TeamFoundationServer.IsHostedServer" : this._serverContext.RepoInfo.IsTeamServices.toString(),
+            "VSTS.TeamFoundationServer.ServerId" : this._serverContext.RepoInfo.Host,
             "VSTS.TeamFoundationServer.CollectionId": this._collectionId,
             "VSTS.Core.Machine.OS.Platform" : os.platform(),
             "VSTS.Core.Machine.OS.Type" : os.type(),

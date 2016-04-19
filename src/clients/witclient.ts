@@ -31,7 +31,7 @@ export class WitClient extends BaseClient {
     public CreateNewItem(itemType: string, taskTitle: string): void {
         this.logTelemetryForWorkItem(itemType);
         Logger.LogInfo("Work item type is " + itemType);
-        let newItemUrl: string = WorkItemTrackingService.GetNewWorkItemUrl(this._serverContext.TeamProjectUrl, itemType, taskTitle, this.getUserName(this._serverContext));
+        let newItemUrl: string = WorkItemTrackingService.GetNewWorkItemUrl(this._serverContext.RepoInfo.TeamProjectUrl, itemType, taskTitle, this.getUserName(this._serverContext));
         Logger.LogInfo("New Work Item Url: " + newItemUrl);
         Utils.OpenUrl(newItemUrl);
     }
@@ -47,7 +47,7 @@ export class WitClient extends BaseClient {
                     self.ReportEvent(TelemetryEvents.OpenNewWorkItem);
 
                     Logger.LogInfo("Selected work item type is " + selectedType.label);
-                    let newItemUrl: string = WorkItemTrackingService.GetNewWorkItemUrl(self._serverContext.TeamProjectUrl, selectedType.label, taskTitle, self.getUserName(self._serverContext));
+                    let newItemUrl: string = WorkItemTrackingService.GetNewWorkItemUrl(self._serverContext.RepoInfo.TeamProjectUrl, selectedType.label, taskTitle, self.getUserName(self._serverContext));
                     Logger.LogInfo("New Work Item Url: " + newItemUrl);
                     Utils.OpenUrl(newItemUrl);
                 }
@@ -72,16 +72,16 @@ export class WitClient extends BaseClient {
                     Logger.LogInfo("Selected query is " + query.label);
                     Logger.LogInfo("Getting work items for query...");
 
-                    window.showQuickPick(self.getMyWorkItems(self._serverContext.TeamProject, query.wiql), { matchOnDescription: true, placeHolder: Strings.ChooseWorkItem }).then(
+                    window.showQuickPick(self.getMyWorkItems(self._serverContext.RepoInfo.TeamProject, query.wiql), { matchOnDescription: true, placeHolder: Strings.ChooseWorkItem }).then(
                         function (workItem) {
                             if (workItem) {
                                 let url: string = undefined;
                                 if (workItem.id === undefined) {
                                     self.ReportEvent(TelemetryEvents.OpenAdditionalQueryResults);
-                                    url = WorkItemTrackingService.GetMyQueryResultsUrl(self._serverContext.TeamProjectUrl, query.label);
+                                    url = WorkItemTrackingService.GetMyQueryResultsUrl(self._serverContext.RepoInfo.TeamProjectUrl, query.label);
                                 } else {
                                     self.ReportEvent(TelemetryEvents.ViewWorkItem);
-                                    url = WorkItemTrackingService.GetEditWorkItemUrl(self._serverContext.TeamProjectUrl, workItem.id);
+                                    url = WorkItemTrackingService.GetEditWorkItemUrl(self._serverContext.RepoInfo.TeamProjectUrl, workItem.id);
                                 }
                                 Logger.LogInfo("Work Item Url: " + url);
                                 Utils.OpenUrl(url);
@@ -105,16 +105,16 @@ export class WitClient extends BaseClient {
         this.ReportEvent(TelemetryEvents.ViewMyWorkItems);
 
         Logger.LogInfo("Getting work items...");
-        window.showQuickPick(self.getMyWorkItems(this._serverContext.TeamProject, WitQueries.MyWorkItems), { matchOnDescription: true, placeHolder: Strings.ChooseWorkItem }).then(
+        window.showQuickPick(self.getMyWorkItems(this._serverContext.RepoInfo.TeamProject, WitQueries.MyWorkItems), { matchOnDescription: true, placeHolder: Strings.ChooseWorkItem }).then(
             function (workItem) {
                 if (workItem) {
                     let url: string = undefined;
                     if (workItem.id === undefined) {
                         self.ReportEvent(TelemetryEvents.OpenAdditionalQueryResults);
-                        url = WorkItemTrackingService.GetWorkItemsBaseUrl(self._serverContext.TeamProjectUrl);
+                        url = WorkItemTrackingService.GetWorkItemsBaseUrl(self._serverContext.RepoInfo.TeamProjectUrl);
                     } else {
                         self.ReportEvent(TelemetryEvents.ViewWorkItem);
-                        url = WorkItemTrackingService.GetEditWorkItemUrl(self._serverContext.TeamProjectUrl, workItem.id);
+                        url = WorkItemTrackingService.GetEditWorkItemUrl(self._serverContext.RepoInfo.TeamProjectUrl, workItem.id);
                     }
                     Logger.LogInfo("Work Item Url: " + url);
                     Utils.OpenUrl(url);
@@ -134,8 +134,8 @@ export class WitClient extends BaseClient {
 
         let svc: WorkItemTrackingService = new WorkItemTrackingService(this._serverContext);
         Logger.LogInfo("Getting my work item queries...");
-        Logger.LogInfo("TP: " + this._serverContext.TeamProject);
-        svc.GetWorkItemHierarchyItems(this._serverContext.TeamProject).then((hierarchyItems) => {
+        Logger.LogInfo("TP: " + this._serverContext.RepoInfo.TeamProject);
+        svc.GetWorkItemHierarchyItems(this._serverContext.RepoInfo.TeamProject).then((hierarchyItems) => {
             Logger.LogInfo("Retrieved " + hierarchyItems.length + " hierarchyItems");
             hierarchyItems.forEach(folder => {
                 if (folder && folder.name === WitQueries.MyQueriesFolder && folder.hasChildren === true) {
@@ -167,7 +167,7 @@ export class WitClient extends BaseClient {
 
         let svc: WorkItemTrackingService = new WorkItemTrackingService(this._serverContext);
         Logger.LogInfo("Getting my work items...");
-        Logger.LogInfo("TP: " + this._serverContext.TeamProject);
+        Logger.LogInfo("TP: " + this._serverContext.RepoInfo.TeamProject);
         svc.GetWorkItems(teamProject, wiql).then((simpleWorkItems) => {
             Logger.LogInfo("Retrieved " + simpleWorkItems.length + " work items");
 
@@ -209,7 +209,7 @@ export class WitClient extends BaseClient {
         promiseToReturn = deferred.promise;
 
         let svc: WorkItemTrackingService = new WorkItemTrackingService(this._serverContext);
-        svc.GetWorkItemTypes(this._serverContext.TeamProject).then((types) => {
+        svc.GetWorkItemTypes(this._serverContext.RepoInfo.TeamProject).then((types) => {
             let workItemTypes: Array<BaseQuickPickItem> = [];
             types.forEach(type => {
                 workItemTypes.push({ label: type.name, description: type.description, id: undefined });

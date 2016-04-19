@@ -5,6 +5,7 @@
 "use strict";
 
 import { TeamServerContext } from "../../src/contexts/servercontext";
+import { RepositoryInfo } from "../../src/info/repositoryinfo";
 import { BasicCredentialHandler } from "vso-node-api/handlers/basiccreds";
 
 var chai = require("chai");
@@ -24,18 +25,47 @@ describe("TeamServerContext", function() {
         }
     });
 
-    it("should verify host, account and isTeamServices for valid remoteUrl", function() {
+    it("should verify context is not a TeamFoundation context", function() {
+        // We expect "/_git/" in the repository Url
         let context: TeamServerContext = new TeamServerContext("https://account.visualstudio.com/DefaultCollection/teamproject/");
-        assert.equal(context.Host, "account.visualstudio.com");
-        assert.equal(context.Account, "account");
-        assert.isTrue(context.IsTeamServices);
+        assert.isFalse(context.RepoInfo.IsTeamServices);
+        assert.isFalse(context.RepoInfo.IsTeamFoundation);
+        assert.isFalse(context.RepoInfo.IsTeamFoundationServer);
     });
 
-    it("should verify valid values in repositoryInfo to UpdateValues method", function() {
-        let context: TeamServerContext = new TeamServerContext("https://account.visualstudio.com/DefaultCollection/teamproject/");
-        assert.equal(context.Host, "account.visualstudio.com");
-        assert.equal(context.Account, "account");
-        assert.isTrue(context.IsTeamServices);
+    it("should verify host, account and isTeamFoundationServer for valid remoteUrl", function() {
+        let context: TeamServerContext = new TeamServerContext("http://jeyou-dev00000:8080/tfs/DefaultCollection/_git/GitAgile");
+        assert.equal(context.RepoInfo.Host, "jeyou-dev00000:8080");  //TODO: Should host on-prem contain the port number?
+        assert.equal(context.RepoInfo.Account, "jeyou-dev00000:8080");  //TODO: Should account on-prem contain the port number?
+        assert.isTrue(context.RepoInfo.IsTeamFoundation);
+        assert.isTrue(context.RepoInfo.IsTeamFoundationServer);
+        assert.isFalse(context.RepoInfo.IsTeamServices);
+
+        // For on-prem currently, these should not be set
+        assert.equal(context.RepoInfo.CollectionId, undefined);
+        assert.equal(context.RepoInfo.CollectionName, undefined);
+        assert.equal(context.RepoInfo.CollectionUrl, undefined);
+        assert.equal(context.RepoInfo.RepositoryId, undefined);
+        assert.equal(context.RepoInfo.RepositoryName, undefined);
+        assert.equal(context.RepoInfo.RepositoryUrl, undefined);
+        assert.equal(context.RepoInfo.TeamProject, undefined);
+        assert.equal(context.RepoInfo.TeamProjectUrl, undefined);
+    });
+
+    it("should verify host, account and isTeamServices for valid remoteUrl", function() {
+        let context: TeamServerContext = new TeamServerContext("https://account.visualstudio.com/DefaultCollection/teamproject/_git/repositoryName");
+        assert.equal(context.RepoInfo.Host, "account.visualstudio.com");
+        assert.equal(context.RepoInfo.Account, "account");
+        assert.isTrue(context.RepoInfo.IsTeamServices);
+        assert.isTrue(context.RepoInfo.IsTeamFoundation);
+    });
+
+    it("should verify valid values in repositoryInfo to RepositoryInfo constructor", function() {
+        let context: TeamServerContext = new TeamServerContext("https://account.visualstudio.com/DefaultCollection/teamproject/_git/repositoryName");
+        assert.equal(context.RepoInfo.Host, "account.visualstudio.com");
+        assert.equal(context.RepoInfo.Account, "account");
+        assert.isTrue(context.RepoInfo.IsTeamServices);
+        assert.isTrue(context.RepoInfo.IsTeamFoundation);
         let repositoryInfo = {
            "serverUrl": "https://account.visualstudio.com",
            "collection": {
@@ -45,7 +75,7 @@ describe("TeamServerContext", function() {
            },
            "repository": {
               "id": "cc015c05-de20-4e3f-b3bc-3662b6bc0e42",
-              "name": "teamproject",
+              "name": "repositoryName",
               "url": "https://account.visualstudio.com/DefaultCollection/_apis/git/repositories/cc015c05-de20-4e3f-b3bc-3662b6bc0e42",
               "project": {
                  "id": "ecbf2301-0e62-4b0d-a12d-1992f2ea95a8",
@@ -55,26 +85,28 @@ describe("TeamServerContext", function() {
                  "state": 1,
                  "revision": 14558
               },
-              "remoteUrl": "https://account.visualstudio.com/teamproject/_git/teamproject"
+              "remoteUrl": "https://account.visualstudio.com/teamproject/_git/repositoryName"
            }
         };
-        context.UpdateValues(repositoryInfo);
-        assert.equal(context.Host, "account.visualstudio.com");
-        assert.equal(context.Account, "account");
-        assert.equal(context.AccountUrl, "https://account.visualstudio.com");
-        assert.equal(context.CollectionId, "5e082e28-e8b2-4314-9200-629619e91098");
-        assert.equal(context.CollectionName, "account");
-        assert.equal(context.CollectionUrl, "https://account.visualstudio.com");
-        assert.isTrue(context.IsTeamServices);
-        assert.equal(context.RepositoryId, "cc015c05-de20-4e3f-b3bc-3662b6bc0e42");
-        assert.equal(context.RepositoryName, "teamproject");
-        assert.equal(context.RepositoryUrl, "https://account.visualstudio.com/teamproject/_git/teamproject");
-        assert.equal(context.TeamProject, "teamproject");
-        assert.equal(context.TeamProjectUrl, "https://account.visualstudio.com/teamproject");
+        context.RepoInfo = new RepositoryInfo(repositoryInfo);
+        assert.equal(context.RepoInfo.Host, "account.visualstudio.com");
+        assert.equal(context.RepoInfo.Account, "account");
+        assert.equal(context.RepoInfo.AccountUrl, "https://account.visualstudio.com");
+        assert.equal(context.RepoInfo.CollectionId, "5e082e28-e8b2-4314-9200-629619e91098");
+        assert.equal(context.RepoInfo.CollectionName, "account");
+        assert.equal(context.RepoInfo.CollectionUrl, "https://account.visualstudio.com");
+        assert.isTrue(context.RepoInfo.IsTeamServices);
+        assert.isTrue(context.RepoInfo.IsTeamFoundation);
+        assert.isFalse(context.RepoInfo.IsTeamFoundationServer);
+        assert.equal(context.RepoInfo.RepositoryId, "cc015c05-de20-4e3f-b3bc-3662b6bc0e42");
+        assert.equal(context.RepoInfo.RepositoryName, "repositoryName");
+        assert.equal(context.RepoInfo.RepositoryUrl, "https://account.visualstudio.com/teamproject/_git/repositoryName");
+        assert.equal(context.RepoInfo.TeamProject, "teamproject");
+        assert.equal(context.RepoInfo.TeamProjectUrl, "https://account.visualstudio.com/teamproject");
     });
 
     it("should persist proper pat in credential handler", function() {
-        let context: TeamServerContext = new TeamServerContext("https://account.visualstudio.com/DefaultCollection/teamproject/");
+        let context: TeamServerContext = new TeamServerContext("https://account.visualstudio.com/DefaultCollection/teamproject/_git/repositoryName");
         context.SetCredentialHandler("pat-token");
         let handler: BasicCredentialHandler = context.CredentialHandler;
         assert.equal(handler.username, "OAuth");
