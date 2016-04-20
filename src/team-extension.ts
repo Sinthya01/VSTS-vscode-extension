@@ -5,7 +5,7 @@
 "use strict";
 
 import { FileSystemWatcher, StatusBarAlignment, StatusBarItem, window, workspace } from "vscode";
-import { Settings } from "./helpers/settings";
+import { AccountSettings, Settings } from "./helpers/settings";
 import { CommandNames, TelemetryEvents, WitTypes } from "./helpers/constants";
 import { Logger } from "./helpers/logger";
 import { Strings } from "./helpers/strings";
@@ -37,6 +37,7 @@ export class TeamExtension  {
     private _serverContext: TeamServerContext;
     private _gitContext: GitContext;
     private _settings: Settings;
+    private _accountSettings: AccountSettings;
 
     constructor() {
         this.initializeExtension();
@@ -224,19 +225,18 @@ export class TeamExtension  {
         this._gitContext = new GitContext(workspace.rootPath);
         if (this._gitContext !== undefined && this._gitContext.RemoteUrl !== undefined && this._gitContext.IsTeamServices) {
             this.setupFileSystemWatcherOnHead();
-
             this._serverContext = new TeamServerContext(this._gitContext.RemoteUrl);
-            this._settings = new Settings(this._serverContext.RepoInfo.Account);
+            this._settings = new Settings();
             this.logStart(this._settings.LoggingLevel, workspace.rootPath);
-            if (this._settings.TeamServicesPersonalAccessToken === undefined) {
+            this._accountSettings = new AccountSettings(this._serverContext.RepoInfo.Account);
+            if (this._accountSettings.TeamServicesPersonalAccessToken === undefined) {
                 Logger.LogError(Strings.NoAccessTokenFound);
                 this._errorMessage = Strings.NoAccessTokenFound;
                 VsCodeUtils.ShowErrorMessage(Strings.NoAccessTokenFound);
                 return;
             }
-
+            this._serverContext.CredentialHandler = new CredentialInfo(this._accountSettings.TeamServicesPersonalAccessToken).CredentialHandler;
             this._teamServicesStatusBarItem = window.createStatusBarItem(StatusBarAlignment.Left, 100);
-            this._serverContext.CredentialHandler = new CredentialInfo(this._settings.TeamServicesPersonalAccessToken).CredentialHandler;
 
             this._telemetry = new TelemetryService(this._serverContext, this._settings);
             Logger.LogDebug("Started ApplicationInsights telemetry");
