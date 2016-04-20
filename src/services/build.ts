@@ -15,7 +15,7 @@ export class BuildService {
     private _buildApi: IQBuildApi;
 
     constructor(context: TeamServerContext) {
-        this._buildApi = new WebApi(context.CollectionUrl, context.CredentialHandler).getQBuildApi();
+        this._buildApi = new WebApi(context.RepoInfo.CollectionUrl, context.CredentialHandler).getQBuildApi();
     }
 
     //Returns the build definitions (regardless of type) for the team project

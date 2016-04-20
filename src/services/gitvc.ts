@@ -20,7 +20,7 @@ export class GitVcService {
     private static REVIEWER_VOTE_REJECTED: number = -10;
 
     constructor(context: TeamServerContext) {
-        this._gitApi = new WebApi(context.CollectionUrl, context.CredentialHandler).getQGitApi();
+        this._gitApi = new WebApi(context.RepoInfo.CollectionUrl, context.CredentialHandler).getQGitApi();
     }
 
     //Returns a Q.Promise containing an array of GitPullRequest objectss for the creator and repository

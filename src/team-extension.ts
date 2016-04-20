@@ -18,6 +18,9 @@ import { QTeamServicesApi, TeamServicesClient } from "./clients/teamservicesclie
 import { BuildClient } from "./clients/buildclient";
 import { GitClient } from "./clients/gitclient";
 import { WitClient } from "./clients/witclient";
+import { RepositoryInfo } from "./info/repositoryinfo";
+import { UserInfo } from "./info/userinfo";
+import { CredentialInfo } from "./info/credentialinfo";
 
 export class TeamExtension  {
     private _teamServicesStatusBarItem: StatusBarItem;
@@ -153,8 +156,8 @@ export class TeamExtension  {
     public OpenTeamProjectWebSite(): void {
         if (this.ensureInitialized()) {
             this._telemetry.SendEvent(TelemetryEvents.OpenTeamSite);
-            Logger.LogInfo("OpenTeamProjectWebSite: " + this._serverContext.TeamProjectUrl);
-            Utils.OpenUrl(this._serverContext.TeamProjectUrl);
+            Logger.LogInfo("OpenTeamProjectWebSite: " + this._serverContext.RepoInfo.TeamProjectUrl);
+            Utils.OpenUrl(this._serverContext.RepoInfo.TeamProjectUrl);
         } else {
             VsCodeUtils.ShowErrorMessage(this._errorMessage);
         }
@@ -208,7 +211,7 @@ export class TeamExtension  {
         if (this._gitContext === undefined
                 || this._gitContext.RemoteUrl === undefined
                 || this._serverContext === undefined
-                || this._serverContext.IsTeamServices === false) {
+                || this._serverContext.RepoInfo.IsTeamServices === false) {
             this.setErrorStatus(Strings.NoGitRepoInformation);
             return true;
         } else if (this._errorMessage !== undefined) {
@@ -223,7 +226,7 @@ export class TeamExtension  {
             this.setupFileSystemWatcherOnHead();
 
             this._serverContext = new TeamServerContext(this._gitContext.RemoteUrl);
-            this._settings = new Settings(this._serverContext.Account);
+            this._settings = new Settings(this._serverContext.RepoInfo.Account);
             this.logStart(this._settings.LoggingLevel, workspace.rootPath);
             if (this._settings.TeamServicesPersonalAccessToken === undefined) {
                 Logger.LogError(Strings.NoAccessTokenFound);
@@ -233,7 +236,7 @@ export class TeamExtension  {
             }
 
             this._teamServicesStatusBarItem = window.createStatusBarItem(StatusBarAlignment.Left, 100);
-            this._serverContext.SetCredentialHandler(this._settings.TeamServicesPersonalAccessToken);
+            this._serverContext.CredentialHandler = new CredentialInfo(this._settings.TeamServicesPersonalAccessToken).CredentialHandler;
 
             this._telemetry = new TelemetryService(this._serverContext, this._settings);
             Logger.LogDebug("Started ApplicationInsights telemetry");
@@ -245,20 +248,18 @@ export class TeamExtension  {
                 Logger.LogInfo("Retrieved repository info with repositoryClient");
                 Logger.LogObject(repoInfo);
 
-                this._serverContext.UpdateValues(repoInfo);
+                this._serverContext.RepoInfo = new RepositoryInfo(repoInfo);
                 //Now we need to go and get the authorized user information
-                this._accountClient = new QTeamServicesApi(this._serverContext.AccountUrl, [this._serverContext.CredentialHandler]);
+                this._accountClient = new QTeamServicesApi(this._serverContext.RepoInfo.AccountUrl, [this._serverContext.CredentialHandler]);
                 Logger.LogInfo("Getting connectionData with accountClient");
                 this._accountClient.connect().then((settings) => {
                     Logger.LogInfo("Retrieved connectionData with accountClient");
-                    Logger.LogDebug("UserId: " + settings.authenticatedUser.id);
-                    Logger.LogDebug("Username: " + settings.authenticatedUser.providerDisplayName);
                     this.resetErrorStatus();
 
-                    this._serverContext.SetUserId(settings.authenticatedUser.id);
-                    this._serverContext.SetUserProviderDisplayName(settings.authenticatedUser.providerDisplayName);
-                    this._serverContext.SetUserCustomDisplayName(settings.authenticatedUser.customDisplayName);
-                    this._telemetry.Update(this._serverContext.CollectionId, this._serverContext.UserId);
+                    this._serverContext.UserInfo = new UserInfo(settings.authenticatedUser.id,
+                                                                settings.authenticatedUser.providerDisplayName,
+                                                                settings.authenticatedUser.customDisplayName);
+                    this._telemetry.Update(this._serverContext.RepoInfo.CollectionId, this._serverContext.UserInfo.Id);
 
                     this.initializeStatusBars();
                     this._buildClient = new BuildClient(this._serverContext, this._telemetry, this._buildStatusBarItem);
@@ -286,7 +287,7 @@ export class TeamExtension  {
     private initializeStatusBars() {
         if (this.ensureInitialized()) {
             this._teamServicesStatusBarItem.command = CommandNames.OpenTeamSite;
-            this._teamServicesStatusBarItem.text = this._serverContext.TeamProject;
+            this._teamServicesStatusBarItem.text = this._serverContext.RepoInfo.TeamProject;
             this._teamServicesStatusBarItem.tooltip = Strings.NavigateToTeamServicesWebSite;
             this._teamServicesStatusBarItem.show();
 
@@ -305,12 +306,13 @@ export class TeamExtension  {
     }
 
     private logDebugInformation(): void {
-        Logger.LogDebug("Acct: " + this._serverContext.Account + " "
-                            + "TP: " + this._serverContext.TeamProject + " "
-                            + "Coll: " + this._serverContext.CollectionName + " "
-                            + "Repo: " + this._serverContext.RepositoryName + " "
-                            + "User: " + this._serverContext.UserProviderDisplayName + " "
-                            + "UserId: " + this._serverContext.UserId + " ");
+        Logger.LogDebug("Acct: " + this._serverContext.RepoInfo.Account + " "
+                            + "TP: " + this._serverContext.RepoInfo.TeamProject + " "
+                            + "Coll: " + this._serverContext.RepoInfo.CollectionName + " "
+                            + "Repo: " + this._serverContext.RepoInfo.RepositoryName + " "
+                            + "UserCustomDisplayName: " + this._serverContext.UserInfo.CustomDisplayName + " "
+                            + "UserProviderDisplayName: " + this._serverContext.UserInfo.ProviderDisplayName + " "
+                            + "UserId: " + this._serverContext.UserInfo.Id + " ");
         Logger.LogDebug("gitFolder: " + this._gitContext.GitFolder);
         Logger.LogDebug("gitRemoteUrl: " + this._gitContext.RemoteUrl);
         Logger.LogDebug("gitRepositoryParentFolder: " + this._gitContext.RepositoryParentFolder);
