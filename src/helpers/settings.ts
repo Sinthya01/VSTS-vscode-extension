@@ -8,31 +8,26 @@ import { workspace } from "vscode";
 import { SettingNames } from "./constants";
 import { Logger } from "../helpers/logger";
 
-export class Settings {
-    private _appInsightsEnabled: boolean;
-    private _appInsightsKey: string;
-    private _loggingLevel: string;
-    private _pollingInterval: number;
+abstract class BaseSettings {
+    protected readSetting<T>(name: string, defaultValue:T): T {
+        let configuration = workspace.getConfiguration();
+        let value = configuration.get<T>(name, undefined);
+
+        // If user specified a value, use it
+        if (value !== undefined && value !== null) {
+            return value;
+        }
+        return defaultValue;
+    }
+}
+
+export class AccountSettings extends BaseSettings {
     private _teamServicesPersonalAccessToken: string;
 
     constructor(account: string) {
-        let loggingLevel = SettingNames.LoggingLevel;
-        this._loggingLevel = this.readSetting<string>(loggingLevel, undefined);
-
+        super();
         // Storing PATs by account in the configuration settings to make switching between accounts easier
         this._teamServicesPersonalAccessToken = this.getAccessToken(account);
-
-        let pollingInterval = SettingNames.PollingInterval;
-        this._pollingInterval = this.readSetting<number>(pollingInterval, 5);
-        Logger.LogDebug("Polling interval value (minutes): " + this._pollingInterval.toString());
-        // Ensure a minimum value when an invalid value is set
-        if (this._pollingInterval <= 0) {
-            Logger.LogDebug("Negative polling interval provided.  Setting to default.");
-            this._pollingInterval = 5;
-        }
-
-        this._appInsightsEnabled = this.readSetting<boolean>(SettingNames.AppInsightsEnabled, true);
-        this._appInsightsKey = this.readSetting<string>(SettingNames.AppInsightsKey, undefined);
     }
 
     private getAccessToken(account: string) : string {
@@ -58,15 +53,34 @@ export class Settings {
         return undefined;
     }
 
-    private readSetting<T>(name: string, defaultValue:T): T {
-        let configuration = workspace.getConfiguration();
-        let value = configuration.get<T>(name, undefined);
+    public get TeamServicesPersonalAccessToken() : string {
+        return this._teamServicesPersonalAccessToken;
+    }
+}
 
-        // If user specified a value, use it
-        if (value !== undefined && value !== null) {
-            return value;
+export class Settings extends BaseSettings {
+    private _appInsightsEnabled: boolean;
+    private _appInsightsKey: string;
+    private _loggingLevel: string;
+    private _pollingInterval: number;
+
+    constructor() {
+        super();
+
+        let loggingLevel = SettingNames.LoggingLevel;
+        this._loggingLevel = this.readSetting<string>(loggingLevel, undefined);
+
+        let pollingInterval = SettingNames.PollingInterval;
+        this._pollingInterval = this.readSetting<number>(pollingInterval, 5);
+        Logger.LogDebug("Polling interval value (minutes): " + this._pollingInterval.toString());
+        // Ensure a minimum value when an invalid value is set
+        if (this._pollingInterval <= 0) {
+            Logger.LogDebug("Negative polling interval provided.  Setting to default.");
+            this._pollingInterval = 5;
         }
-        return defaultValue;
+
+        this._appInsightsEnabled = this.readSetting<boolean>(SettingNames.AppInsightsEnabled, true);
+        this._appInsightsKey = this.readSetting<string>(SettingNames.AppInsightsKey, undefined);
     }
 
     public get AppInsightsEnabled(): boolean {
@@ -83,9 +97,5 @@ export class Settings {
 
     public get PollingInterval(): number {
         return this._pollingInterval;
-    }
-
-    public get TeamServicesPersonalAccessToken() : string {
-        return this._teamServicesPersonalAccessToken;
     }
 }
