@@ -36,7 +36,7 @@ export class PinnedQuerySettings extends BaseSettings {
 
     private getPinnedQuery(account: string) : string {
         let pinnedQueries = this.readSetting<Array<IPinnedQuery>>(SettingNames.PinnedQueries, undefined);
-        if(pinnedQueries !== undefined) {
+        if (pinnedQueries !== undefined) {
             Logger.LogDebug("Found pinned queries in user configuration settings.");
             let global: string = undefined;
             for (var index = 0; index < pinnedQueries.length; index++) {
@@ -56,7 +56,7 @@ export class PinnedQuerySettings extends BaseSettings {
         Logger.LogDebug("No account-specific pinned query or global pinned query found. Using default.");
         return undefined;
     }
-    
+
     public get PinnedQuery() : string {
         return this._queryText || WitQueries.MyWorkItems;
     }

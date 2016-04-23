@@ -158,8 +158,7 @@ export class WorkItemTrackingService {
 
         return promiseToReturn;
     }
-    
-    
+
      public GetQueryResultCount(teamProject: string, wiql: string): Q.Promise<number> {
         let promiseToReturn: Q.Promise<number>;
         let deferred = Q.defer<number>();

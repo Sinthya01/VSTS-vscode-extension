@@ -198,7 +198,7 @@ export class TeamExtension  {
             VsCodeUtils.ShowErrorMessage(this._errorMessage);
         }
     }
-    
+
     //Returns the list of work items from the pinned query
     public ViewPinnedQueryWorkItems(): void {
         if (this.ensureInitialized()) {
@@ -207,7 +207,6 @@ export class TeamExtension  {
             VsCodeUtils.ShowErrorMessage(this._errorMessage);
         }
     }
-    
 
     //Navigates to a work item chosen from the results of a user-selected "My Queries" work item query
     //This method first displays the queries under "My Queries" and, when one is chosen, displays the associated work items.
@@ -315,7 +314,7 @@ export class TeamExtension  {
             this._buildStatusBarItem.text = `$(icon octicon-package) ` + `$(icon octicon-dash)`;
             this._buildStatusBarItem.tooltip = Strings.NoBuildsFound;
             this._buildStatusBarItem.show();
-            
+
             this._pinnedQueryStatusBarItem = window.createStatusBarItem(StatusBarAlignment.Left, 97);
             this._pinnedQueryStatusBarItem.command = CommandNames.ViewPinnedQueryWorkItems;
             this._pinnedQueryStatusBarItem.text = WitClient.GetPinnedQueryStatusText(0);
@@ -365,13 +364,12 @@ export class TeamExtension  {
             this._gitClient.PollMyPullRequests();
         }
     }
-    
+
     private pollPinnedQuery(): void {
         if (this.ensureInitialized()) {
             this._witClient.PollPinnedQuery();
         }
     }
-   
 
     //Polls for latest pull requests and current branch build status information
     private refreshPollingItems(): void {
