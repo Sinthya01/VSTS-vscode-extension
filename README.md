@@ -61,6 +61,8 @@ After adding your personal access token and restarting Visual Studio Code, open 
 
 * ![Build Status indicator](assets/buildstatus-indicator.png) – This status bar item shows the status of the build for this particular repository and branch.  Hovering over the item will provide additional information about which build was referenced (if any).  Clicking on the item will take you to that build’s summary page in your browser.  This indicator will update its status every 5 minutes.
 
+* ![Pinned Work Item Query Status indicator](assets/pinnedquery-indicator.png) – This status bar item shows the number of items returned by your pinned work item query.  If you have not configured a pinned query it defaults to the work items assigned to you. Clicking the item will show you the work items the query returns.  This indicator will update its status every 5 minutes.
+
 ## Commands
 In addition to the status bar integrations, the extension also provides several commands for interacting with Team Services.  In the Command Palette (`F1`), type ```team``` and choose a command.
 
@@ -108,6 +110,29 @@ There may be times when you need to enable file logging to troubleshoot an issue
 "team.logging.level": "debug"
 ```
 The log file will be placed at the root of your workspace and will be named `team-extension.log`.
+
+## Pinned Work Item Queries
+You can customize the pinned work item query by adding the following in the Visual Studio Code User Settings. You need to provide the account and the query text.
+
+  ```javascript
+    "team.pinnedQueries": [
+        {
+            "account": "your-account-name",
+            "queryText": "SELECT * FROM WorkItems WHERE [System.AssignedTo] = @me AND [System.ChangedDate] > @Today - 14"
+        }
+    ]
+  ```
+  
+  You can also create a *global* pinned query which will be the default if you have not configured one for your account:
+  
+```javascript
+    "team.pinnedQueries": [
+        {
+            "account": "global",
+            "queryText": "SELECT * FROM WorkItems WHERE [System.AssignedTo] = @me AND [System.ChangedDate] > @Today - 14"
+        }
+    ]
+  ```
 
 ## Support
 Support for this extension is provided on our [GitHub Issue Tracker](https://github.com/Microsoft/vsts-vscode/issues).  You can submit a [bug report](https://github.com/Microsoft/vsts-vscode/issues/new), a [feature request](https://github.com/Microsoft/vsts-vscode/issues/new) or participate in [discussions](https://github.com/Microsoft/vsts-vscode/issues). 
