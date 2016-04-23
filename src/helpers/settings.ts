@@ -5,7 +5,7 @@
 "use strict";
 
 import { workspace } from "vscode";
-import { SettingNames } from "./constants";
+import { SettingNames, WitQueries } from "./constants";
 import { Logger } from "../helpers/logger";
 
 abstract class BaseSettings {
@@ -18,6 +18,47 @@ abstract class BaseSettings {
             return value;
         }
         return defaultValue;
+    }
+}
+
+export interface IPinnedQuery {
+    queryText: string;
+    account: string;
+}
+
+export class PinnedQuerySettings extends BaseSettings {
+    private _queryText: string;
+
+    constructor(account: string) {
+        super();
+        this._queryText = this.getPinnedQuery(account);
+    }
+
+    private getPinnedQuery(account: string) : string {
+        let pinnedQueries = this.readSetting<Array<IPinnedQuery>>(SettingNames.PinnedQueries, undefined);
+        if(pinnedQueries !== undefined) {
+            Logger.LogDebug("Found pinned queries in user configuration settings.");
+            let global: string = undefined;
+            for (var index = 0; index < pinnedQueries.length; index++) {
+                let element = pinnedQueries[index];
+                if (element.account === account ||
+                    element.account === account + ".visualstudio.com") {
+                    return element.queryText;
+                } else if (element.account === "global") {
+                    global = element.queryText;
+                }
+            }
+            if (global !== undefined) {
+                Logger.LogDebug("No account-specific pinned query found, using global pinned query.");
+                return global;
+            }
+        }
+        Logger.LogDebug("No account-specific pinned query or global pinned query found. Using default.");
+        return undefined;
+    }
+    
+    public get PinnedQuery() : string {
+        return this._queryText || WitQueries.MyWorkItems;
     }
 }
 

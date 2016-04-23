@@ -4,7 +4,7 @@
 *--------------------------------------------------------------------------------------------*/
 "use strict";
 
-import { window } from "vscode";
+import { StatusBarItem, window } from "vscode";
 import { BaseClient } from "./baseclient";
 import { Logger } from "../helpers/logger";
 import { WorkItemTrackingService } from "../services/workitemtracking";
@@ -20,11 +20,15 @@ import Q = require("q");
 
 export class WitClient extends BaseClient {
     private _serverContext: TeamServerContext;
+    private _statusBarItem: StatusBarItem;
+    private _pinnedQueryText: string;
 
-    constructor(context: TeamServerContext, telemetryService: TelemetryService) {
+    constructor(context: TeamServerContext, telemetryService: TelemetryService, pinnedQueryText: string, statusBarItem: StatusBarItem) {
         super(telemetryService);
 
         this._serverContext = context;
+        this._statusBarItem = statusBarItem;
+        this._pinnedQueryText = pinnedQueryText;
     }
 
     //Opens a browser to a new work item given the item type, title and assigned to
@@ -99,11 +103,22 @@ export class WitClient extends BaseClient {
         );
     }
 
+    public ShowPinnedQueryWorkItems(): void {
+        let self = this;
+        this.ReportEvent(TelemetryEvents.ViewPinnedQueryWorkItems);
+        this.showWorkItems(this._pinnedQueryText);
+        
+    }
+    
     //Returns a Q.Promise containing an array of SimpleWorkItems that are "My" work items
     public ShowMyWorkItems(): void {
         let self = this;
         this.ReportEvent(TelemetryEvents.ViewMyWorkItems);
-
+        this.showWorkItems(WitQueries.MyWorkItems);
+    }
+    
+    private showWorkItems(wiql: string): void {
+        let self = this;
         Logger.LogInfo("Getting work items...");
         window.showQuickPick(self.getMyWorkItems(this._serverContext.RepoInfo.TeamProject, WitQueries.MyWorkItems), { matchOnDescription: true, placeHolder: Strings.ChooseWorkItem }).then(
             function (workItem) {
@@ -124,6 +139,16 @@ export class WitClient extends BaseClient {
                 self.handleError(err, "Error selecting work item query from QuickPick");
             }
         );
+    }
+    
+    public GetPinnedQueryResultCount() : Q.Promise<number> {
+        
+        let svc: WorkItemTrackingService = new WorkItemTrackingService(this._serverContext);
+        
+        Logger.LogInfo("Running pinned work item query to get count...");
+        Logger.LogInfo("TP: " + this._serverContext.RepoInfo.TeamProject);
+        return svc.GetQueryResultCount(this._serverContext.RepoInfo.TeamProject, this._pinnedQueryText);
+        
     }
 
     private getMyWorkItemQueries(): Q.Promise<Array<WorkItemQueryQuickPickItem>> {
@@ -250,5 +275,27 @@ export class WitClient extends BaseClient {
             default:
                 break;
         }
+    }
+    
+    
+    public PollPinnedQuery(): void {
+        this.GetPinnedQueryResultCount().then((items) => {
+            this._statusBarItem.tooltip = Strings.ViewYourPinnedQuery;
+            
+            this._statusBarItem.text = WitClient.GetPinnedQueryStatusText(items);
+        }).catch((reason) => {
+            //Nothing to do
+        });
+    }
+    
+    
+   public static GetOfflinePinnedQueryStatusText() : string {
+        return `$(icon octicon-bug) ` + `???`;
+    }
+
+    public static GetPinnedQueryStatusText(total: number) : string {
+        let octibug: string = "octicon-bug";
+
+        return `$(icon ${octibug}) ` + total.toString();
     }
 }

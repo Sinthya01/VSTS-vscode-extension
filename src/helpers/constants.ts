@@ -26,10 +26,12 @@ export class CommandNames {
     static SendFeedback: string = CommandNames.CommandPrefix + "SendFeedback";
     static ViewWorkItemQueries: string = CommandNames.CommandPrefix + "ViewWorkItemQueries";
     static ViewWorkItems: string = CommandNames.CommandPrefix + "ViewWorkItems";
+    static ViewPinnedQueryWorkItems: string = CommandNames.CommandPrefix + "ViewPinnedQueryWorkItems";
 }
 
 export class SettingNames {
     static SettingsPrefix: string = Constants.ExtensionName + ".";
+    static PinnedQueries: string = SettingNames.SettingsPrefix + "pinnedQueries";
     static AccessTokens: string = SettingNames.SettingsPrefix + "accessTokens";
     static LoggingPrefix: string = SettingNames.SettingsPrefix + "logging.";
     static LoggingLevel: string = SettingNames.LoggingPrefix + "level";
@@ -59,6 +61,7 @@ export class TelemetryEvents {
     static ViewPullRequest: string = TelemetryEvents.TelemetryPrefix + "viewpullrequest";
     static ViewPullRequests: string = TelemetryEvents.TelemetryPrefix + "viewpullrequests";
     static ViewMyWorkItems: string = TelemetryEvents.TelemetryPrefix + "viewmyworkitems";
+    static ViewPinnedQueryWorkItems: string = TelemetryEvents.TelemetryPrefix + "viewpinnedqueryworkitems";
     static ViewWorkItem: string = TelemetryEvents.TelemetryPrefix + "viewworkitem";
     static ViewWorkItems: string = TelemetryEvents.TelemetryPrefix + "viewworkitems";
 }

@@ -158,6 +158,31 @@ export class WorkItemTrackingService {
 
         return promiseToReturn;
     }
+    
+    
+     public GetQueryResultCount(teamProject: string, wiql: string): Q.Promise<number> {
+        let promiseToReturn: Q.Promise<number>;
+        let deferred = Q.defer<number>();
+        promiseToReturn = deferred.promise;
+
+        //Querying WIT requires a TeamContext
+        let teamContext: TeamContext = {
+            projectId: undefined,
+            project: teamProject,
+            teamId: undefined,
+            team: undefined
+        };
+
+        // Execute the wiql and get count of results
+        this._witApi.queryByWiql({ query: wiql}, teamContext).then((queryResult) => {
+            deferred.resolve(queryResult.workItems.length);
+            return promiseToReturn;
+        }).fail((reason) => {
+            deferred.reject(reason);
+        });
+
+        return promiseToReturn;
+    }
 
     //Construct the url to the individual work item edit page
     public static GetEditWorkItemUrl(teamProjectUrl: string, workItemId: string) : string {

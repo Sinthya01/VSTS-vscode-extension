@@ -5,7 +5,7 @@
 "use strict";
 
 import { FileSystemWatcher, StatusBarAlignment, StatusBarItem, window, workspace } from "vscode";
-import { AccountSettings, Settings } from "./helpers/settings";
+import { PinnedQuerySettings, AccountSettings, Settings } from "./helpers/settings";
 import { CommandNames, TelemetryEvents, WitTypes } from "./helpers/constants";
 import { Logger } from "./helpers/logger";
 import { Strings } from "./helpers/strings";
@@ -26,6 +26,7 @@ export class TeamExtension  {
     private _teamServicesStatusBarItem: StatusBarItem;
     private _buildStatusBarItem: StatusBarItem;
     private _pullRequestStatusBarItem: StatusBarItem;
+    private _pinnedQueryStatusBarItem: StatusBarItem;
     private _errorMessage: string;
     private _telemetry: TelemetryService;
     private _accountClient: QTeamServicesApi;
@@ -38,6 +39,7 @@ export class TeamExtension  {
     private _gitContext: GitContext;
     private _settings: Settings;
     private _accountSettings: AccountSettings;
+    private _pinnedQuerySettings: PinnedQuerySettings;
 
     constructor() {
         this.initializeExtension();
@@ -196,6 +198,16 @@ export class TeamExtension  {
             VsCodeUtils.ShowErrorMessage(this._errorMessage);
         }
     }
+    
+    //Returns the list of work items from the pinned query
+    public ViewPinnedQueryWorkItems(): void {
+        if (this.ensureInitialized()) {
+            this._witClient.ShowPinnedQueryWorkItems();
+        } else {
+            VsCodeUtils.ShowErrorMessage(this._errorMessage);
+        }
+    }
+    
 
     //Navigates to a work item chosen from the results of a user-selected "My Queries" work item query
     //This method first displays the queries under "My Queries" and, when one is chosen, displays the associated work items.
@@ -228,6 +240,7 @@ export class TeamExtension  {
             this._serverContext = new TeamServerContext(this._gitContext.RemoteUrl);
             this._settings = new Settings();
             this.logStart(this._settings.LoggingLevel, workspace.rootPath);
+            this._pinnedQuerySettings = new PinnedQuerySettings(this._serverContext.RepoInfo.Account);
             this._accountSettings = new AccountSettings(this._serverContext.RepoInfo.Account);
             if (this._accountSettings.TeamServicesPersonalAccessToken === undefined) {
                 Logger.LogError(Strings.NoAccessTokenFound);
@@ -264,7 +277,7 @@ export class TeamExtension  {
                     this.initializeStatusBars();
                     this._buildClient = new BuildClient(this._serverContext, this._telemetry, this._buildStatusBarItem);
                     this._gitClient = new GitClient(this._serverContext, this._telemetry, this._pullRequestStatusBarItem);
-                    this._witClient = new WitClient(this._serverContext, this._telemetry);
+                    this._witClient = new WitClient(this._serverContext, this._telemetry, this._pinnedQuerySettings.PinnedQuery, this._pinnedQueryStatusBarItem);
                     this._teamServicesClient = new TeamServicesClient(this._serverContext, this._telemetry);
                     this._telemetry.SendEvent(TelemetryEvents.StartUp);
 
@@ -302,6 +315,12 @@ export class TeamExtension  {
             this._buildStatusBarItem.text = `$(icon octicon-package) ` + `$(icon octicon-dash)`;
             this._buildStatusBarItem.tooltip = Strings.NoBuildsFound;
             this._buildStatusBarItem.show();
+            
+            this._pinnedQueryStatusBarItem = window.createStatusBarItem(StatusBarAlignment.Left, 97);
+            this._pinnedQueryStatusBarItem.command = CommandNames.ViewPinnedQueryWorkItems;
+            this._pinnedQueryStatusBarItem.text = WitClient.GetPinnedQueryStatusText(0);
+            this._pinnedQueryStatusBarItem.tooltip = Strings.ViewYourPinnedQuery;
+            this._pinnedQueryStatusBarItem.show();
         }
     }
 
@@ -346,6 +365,13 @@ export class TeamExtension  {
             this._gitClient.PollMyPullRequests();
         }
     }
+    
+    private pollPinnedQuery(): void {
+        if (this.ensureInitialized()) {
+            this._witClient.PollPinnedQuery();
+        }
+    }
+   
 
     //Polls for latest pull requests and current branch build status information
     private refreshPollingItems(): void {
@@ -353,6 +379,8 @@ export class TeamExtension  {
         this.pollMyPullRequests();
         Logger.LogInfo("Polling for latest current branch build status...");
         this.pollBuildStatus();
+        Logger.LogInfo("Polling for the pinned work itemquery");
+        this.pollPinnedQuery();
     }
 
     //Logs an error to the logger and sends an exception to telemetry service
@@ -401,6 +429,9 @@ export class TeamExtension  {
         }
         if (this._buildStatusBarItem !== undefined) {
             this._buildStatusBarItem.dispose();
+        }
+        if (this._pinnedQueryStatusBarItem !== undefined) {
+            this._pinnedQueryStatusBarItem.dispose();
         }
     }
 }
