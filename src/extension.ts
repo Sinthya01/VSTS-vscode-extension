@@ -24,6 +24,7 @@ export function activate(context: ExtensionContext) {
     context.subscriptions.push(commands.registerCommand(CommandNames.OpenPullRequestsPage, () => teamExtension.OpenPullRequestsPage()));
     context.subscriptions.push(commands.registerCommand(CommandNames.OpenTeamSite, () => teamExtension.OpenTeamProjectWebSite()));
     context.subscriptions.push(commands.registerCommand(CommandNames.ViewWorkItems, () => teamExtension.ViewMyWorkItems()));
+    context.subscriptions.push(commands.registerCommand(CommandNames.ViewPinnedQueryWorkItems, () => teamExtension.ViewPinnedQueryWorkItems()));
     context.subscriptions.push(commands.registerCommand(CommandNames.ViewWorkItemQueries, () => teamExtension.ViewWorkItems()));
     context.subscriptions.push(commands.registerCommand(CommandNames.SendFeedback, () => teamExtension.SendFeedback()));
     context.subscriptions.push(commands.registerCommand(CommandNames.RefreshPollingStatus, () => teamExtension.RefreshPollingStatus()));

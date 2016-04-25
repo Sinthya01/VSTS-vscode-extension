@@ -5,7 +5,7 @@
 "use strict";
 
 import { workspace } from "vscode";
-import { SettingNames } from "./constants";
+import { SettingNames, WitQueries } from "./constants";
 import { Logger } from "../helpers/logger";
 
 abstract class BaseSettings {
@@ -18,6 +18,50 @@ abstract class BaseSettings {
             return value;
         }
         return defaultValue;
+    }
+}
+
+export interface IPinnedQuery {
+    queryText?: string;
+    queryPath?: string;
+    account: string;
+}
+
+export class PinnedQuerySettings extends BaseSettings {
+    private _pinnedQuery: IPinnedQuery;
+    private _account: string;
+
+    constructor(account: string) {
+        super();
+        this._account = account;
+        this._pinnedQuery = this.getPinnedQuery(account);
+    }
+
+    private getPinnedQuery(account: string) : IPinnedQuery {
+        let pinnedQueries = this.readSetting<Array<IPinnedQuery>>(SettingNames.PinnedQueries, undefined);
+        if (pinnedQueries !== undefined) {
+            Logger.LogDebug("Found pinned queries in user configuration settings.");
+            let global: IPinnedQuery = undefined;
+            for (var index = 0; index < pinnedQueries.length; index++) {
+                let element = pinnedQueries[index];
+                if (element.account === account ||
+                    element.account === account + ".visualstudio.com") {
+                    return element;
+                } else if (element.account === "global") {
+                    global = element;
+                }
+            }
+            if (global !== undefined) {
+                Logger.LogDebug("No account-specific pinned query found, using global pinned query.");
+                return global;
+            }
+        }
+        Logger.LogDebug("No account-specific pinned query or global pinned query found. Using default.");
+        return undefined;
+    }
+
+    public get PinnedQuery() : IPinnedQuery {
+        return this._pinnedQuery || { account: this._account, queryText: WitQueries.MyWorkItems };
     }
 }
 

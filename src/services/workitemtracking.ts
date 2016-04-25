@@ -48,6 +48,21 @@ export class WorkItemTrackingService {
         return promiseToReturn;
     }
 
+    //Returns a Q.Promise containing a specific query item
+    public GetWorkItemQuery(teamProject: string, queryPath: string): Q.Promise<QueryHierarchyItem> {
+        let promiseToReturn: Q.Promise<QueryHierarchyItem>;
+        let deferred = Q.defer<QueryHierarchyItem>();
+        promiseToReturn = deferred.promise;
+
+        this._witApi.getQuery(teamProject, queryPath, QueryExpand.Wiql, 1, false).then((queryHierarchy) => {
+            deferred.resolve(queryHierarchy);
+        }).fail((reason) => {
+            deferred.reject(reason);
+        });
+
+        return promiseToReturn;
+    }
+
     //Returns a Q.Promise containing the array of work item types available for the team project
     public GetWorkItemTypes(teamProject: string): Q.Promise<Array<WorkItemType>> {
         let promiseToReturn: Q.Promise<Array<WorkItemType>>;
@@ -152,6 +167,30 @@ export class WorkItemTrackingService {
             }).fail((reason) => {
                 deferred.reject(reason);
             });
+        }).fail((reason) => {
+            deferred.reject(reason);
+        });
+
+        return promiseToReturn;
+    }
+
+     public GetQueryResultCount(teamProject: string, wiql: string): Q.Promise<number> {
+        let promiseToReturn: Q.Promise<number>;
+        let deferred = Q.defer<number>();
+        promiseToReturn = deferred.promise;
+
+        //Querying WIT requires a TeamContext
+        let teamContext: TeamContext = {
+            projectId: undefined,
+            project: teamProject,
+            teamId: undefined,
+            team: undefined
+        };
+
+        // Execute the wiql and get count of results
+        this._witApi.queryByWiql({ query: wiql}, teamContext).then((queryResult) => {
+            deferred.resolve(queryResult.workItems.length);
+            return promiseToReturn;
         }).fail((reason) => {
             deferred.reject(reason);
         });

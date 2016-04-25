@@ -6,6 +6,8 @@
 
 /* tslint:disable:variable-name */
 export class Strings {
+    static ViewYourPinnedQuery: string = "View your pinned work item query results.";
+
     static BrowseYourPullRequests: string = "Browse your Team Services pull requests.";
     static BrowseAdditionalWorkItems: string = "Browse additional work items...";
     static BrowseAdditionalWorkItemsDescription: string = "Choose this item to see all query results in your web browser";

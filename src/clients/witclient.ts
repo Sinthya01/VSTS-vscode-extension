@@ -4,27 +4,32 @@
 *--------------------------------------------------------------------------------------------*/
 "use strict";
 
-import { window } from "vscode";
+import { StatusBarItem, window } from "vscode";
 import { BaseClient } from "./baseclient";
 import { Logger } from "../helpers/logger";
 import { WorkItemTrackingService } from "../services/workitemtracking";
 import { TeamServerContext} from "../contexts/servercontext";
 import { BaseQuickPickItem, WorkItemQueryQuickPickItem } from "../helpers/vscode";
-import { TelemetryEvents, WitQueries, WitTypes } from "../helpers/constants";
+import { CommandNames, TelemetryEvents, WitQueries, WitTypes } from "../helpers/constants";
 import { Strings } from "../helpers/strings";
 import { Utils } from "../helpers/utils";
 import { VsCodeUtils } from "../helpers/vscode";
 import { TelemetryService } from "../services/telemetry";
+import { IPinnedQuery } from "../helpers/settings";
 
 import Q = require("q");
 
 export class WitClient extends BaseClient {
     private _serverContext: TeamServerContext;
+    private _statusBarItem: StatusBarItem;
+    private _pinnedQuery: IPinnedQuery;
 
-    constructor(context: TeamServerContext, telemetryService: TelemetryService) {
+    constructor(context: TeamServerContext, telemetryService: TelemetryService, pinnedQuery: IPinnedQuery, statusBarItem: StatusBarItem) {
         super(telemetryService);
 
         this._serverContext = context;
+        this._statusBarItem = statusBarItem;
+        this._pinnedQuery = pinnedQuery;
     }
 
     //Opens a browser to a new work item given the item type, title and assigned to
@@ -99,13 +104,23 @@ export class WitClient extends BaseClient {
         );
     }
 
+    public ShowPinnedQueryWorkItems(): void {
+        this.ReportEvent(TelemetryEvents.ViewPinnedQueryWorkItems);
+        this.getPinnedQueryText().then((queryText) => {
+            this.showWorkItems(queryText);
+        });
+    }
+
     //Returns a Q.Promise containing an array of SimpleWorkItems that are "My" work items
     public ShowMyWorkItems(): void {
-        let self = this;
         this.ReportEvent(TelemetryEvents.ViewMyWorkItems);
+        this.showWorkItems(WitQueries.MyWorkItems);
+    }
 
+    private showWorkItems(wiql: string): void {
+        let self = this;
         Logger.LogInfo("Getting work items...");
-        window.showQuickPick(self.getMyWorkItems(this._serverContext.RepoInfo.TeamProject, WitQueries.MyWorkItems), { matchOnDescription: true, placeHolder: Strings.ChooseWorkItem }).then(
+        window.showQuickPick(self.getMyWorkItems(this._serverContext.RepoInfo.TeamProject, wiql), { matchOnDescription: true, placeHolder: Strings.ChooseWorkItem }).then(
             function (workItem) {
                 if (workItem) {
                     let url: string = undefined;
@@ -124,6 +139,40 @@ export class WitClient extends BaseClient {
                 self.handleError(err, "Error selecting work item query from QuickPick");
             }
         );
+    }
+
+    public GetPinnedQueryResultCount() : Q.Promise<number> {
+        let svc: WorkItemTrackingService = new WorkItemTrackingService(this._serverContext);
+        Logger.LogInfo("Running pinned work item query to get count...");
+        Logger.LogInfo("TP: " + this._serverContext.RepoInfo.TeamProject);
+
+        return this.getPinnedQueryText().then((queryText) => {
+            return svc.GetQueryResultCount(this._serverContext.RepoInfo.TeamProject, queryText);
+        });
+    }
+
+    private getPinnedQueryText(): Q.Promise<string> {
+        let deferred = Q.defer<string>();
+        let promiseToReturn = deferred.promise;
+
+        if (this._pinnedQuery.queryText && this._pinnedQuery.queryText.length > 0) {
+            deferred.resolve(this._pinnedQuery.queryText);
+        } else if (this._pinnedQuery.queryPath && this._pinnedQuery.queryPath.length > 0) {
+            Logger.LogInfo("Getting my work item query...");
+            Logger.LogInfo("TP: " + this._serverContext.RepoInfo.TeamProject);
+            Logger.LogInfo("QueryPath: " + this._pinnedQuery.queryPath);
+            let svc: WorkItemTrackingService = new WorkItemTrackingService(this._serverContext);
+
+            svc.GetWorkItemQuery(this._serverContext.RepoInfo.TeamProject, this._pinnedQuery.queryPath).then((queryItem) => {
+                deferred.resolve(queryItem.wiql);
+            }).catch((reason) => {
+                deferred.reject(reason);
+            });
+        } else {
+            deferred.reject("No queryPath or queryText provided.");
+        }
+
+        return promiseToReturn;
     }
 
     private getMyWorkItemQueries(): Q.Promise<Array<WorkItemQueryQuickPickItem>> {
@@ -226,17 +275,36 @@ export class WitClient extends BaseClient {
         return promiseToReturn;
     }
 
-    private handleError(reason: any, infoMessage?: string) : void {
+    private handleError(reason: any, infoMessage?: string, polling?: boolean) : void {
         let offline: boolean = Utils.IsOffline(reason);
         let msg: string = Utils.GetMessageForStatusCode(reason, reason.message);
         let logPrefix: string = (infoMessage === undefined) ? "" : infoMessage + " ";
 
-        if (offline === true) {
+        //When polling, we never display an error, we only log it (no telemetry either)
+        if (polling === true) {
             Logger.LogError(logPrefix + msg);
+            if (offline === true) {
+                if (this._statusBarItem !== undefined) {
+                    this._statusBarItem.text = WitClient.GetOfflinePinnedQueryStatusText();
+                    this._statusBarItem.tooltip = Strings.StatusCodeOffline + " " + Strings.ClickToRetryConnection;
+                    this._statusBarItem.command = CommandNames.RefreshPollingStatus;
+                }
+            } else {
+                //Could happen if PAT doesn't have proper permissions
+                if (this._statusBarItem !== undefined) {
+                    this._statusBarItem.text = WitClient.GetOfflinePinnedQueryStatusText();
+                    this._statusBarItem.tooltip = msg;
+                }
+            }
+        //If we aren't polling, we always log an error and, optionally, send telemetry
         } else {
-            this.ReportError(logPrefix + msg);
+            if (offline === true) {
+                Logger.LogError(logPrefix + msg);
+            } else {
+                this.ReportError(logPrefix + msg);
+            }
+            VsCodeUtils.ShowErrorMessage(msg);
         }
-        VsCodeUtils.ShowErrorMessage(msg);
     }
 
     private logTelemetryForWorkItem(wit: string): void {
@@ -250,5 +318,24 @@ export class WitClient extends BaseClient {
             default:
                 break;
         }
+    }
+
+    public PollPinnedQuery(): void {
+        this.GetPinnedQueryResultCount().then((items) => {
+            this._statusBarItem.tooltip = Strings.ViewYourPinnedQuery;
+            this._statusBarItem.text = WitClient.GetPinnedQueryStatusText(items);
+        }).catch((reason) => {
+            this.handleError(reason, "Failed to get pinned query count during polling", true);
+        });
+    }
+
+   public static GetOfflinePinnedQueryStatusText() : string {
+        return `$(icon octicon-bug) ` + `???`;
+    }
+
+    public static GetPinnedQueryStatusText(total: number) : string {
+        let octibug: string = "octicon-bug";
+
+        return `$(icon ${octibug}) ` + total.toString();
     }
 }
