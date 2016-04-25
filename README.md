@@ -135,16 +135,7 @@ You can customize the pinned work item query by adding the following in the Visu
   ```
   
   
-  You can also create a *global* pinned query which will be the default if you have not configured one for your account:
-  
-```javascript
-    "team.pinnedQueries": [
-        {
-            "account": "global",
-            "queryText": "SELECT * FROM WorkItems WHERE [System.AssignedTo] = @me AND [System.ChangedDate] > @Today - 14"
-        }
-    ]
-  ```
+You can also create a *global* pinned query which will be the default if you have not configured one for your account by replacing *your-account-name* with *global* in the previous examples.
 
 ## Support
 Support for this extension is provided on our [GitHub Issue Tracker](https://github.com/Microsoft/vsts-vscode/issues).  You can submit a [bug report](https://github.com/Microsoft/vsts-vscode/issues/new), a [feature request](https://github.com/Microsoft/vsts-vscode/issues/new) or participate in [discussions](https://github.com/Microsoft/vsts-vscode/issues). 
