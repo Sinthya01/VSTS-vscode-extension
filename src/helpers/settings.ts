@@ -21,31 +21,34 @@ abstract class BaseSettings {
     }
 }
 
-interface IPinnedQuery {
-    queryText: string;
+export interface IPinnedQuery {
+    queryText?: string;
+    queryPath?: string;
     account: string;
 }
 
 export class PinnedQuerySettings extends BaseSettings {
-    private _queryText: string;
+    private _pinnedQuery: IPinnedQuery;
+    private _account: string;
 
     constructor(account: string) {
         super();
-        this._queryText = this.getPinnedQuery(account);
+        this._account = account;
+        this._pinnedQuery = this.getPinnedQuery(account);
     }
 
-    private getPinnedQuery(account: string) : string {
+    private getPinnedQuery(account: string) : IPinnedQuery {
         let pinnedQueries = this.readSetting<Array<IPinnedQuery>>(SettingNames.PinnedQueries, undefined);
         if (pinnedQueries !== undefined) {
             Logger.LogDebug("Found pinned queries in user configuration settings.");
-            let global: string = undefined;
+            let global: IPinnedQuery = undefined;
             for (var index = 0; index < pinnedQueries.length; index++) {
                 let element = pinnedQueries[index];
                 if (element.account === account ||
                     element.account === account + ".visualstudio.com") {
-                    return element.queryText;
+                    return element;
                 } else if (element.account === "global") {
-                    global = element.queryText;
+                    global = element;
                 }
             }
             if (global !== undefined) {
@@ -57,8 +60,8 @@ export class PinnedQuerySettings extends BaseSettings {
         return undefined;
     }
 
-    public get PinnedQuery() : string {
-        return this._queryText || WitQueries.MyWorkItems;
+    public get PinnedQuery() : IPinnedQuery {
+        return this._pinnedQuery || { account: this._account, queryText: WitQueries.MyWorkItems };
     }
 }
 

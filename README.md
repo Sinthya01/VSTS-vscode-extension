@@ -112,13 +112,24 @@ There may be times when you need to enable file logging to troubleshoot an issue
 The log file will be placed at the root of your workspace and will be named `team-extension.log`.
 
 ## Pinned Work Item Queries
-You can customize the pinned work item query by adding the following in the Visual Studio Code User Settings. You need to provide the account and the query text.
+You can customize the pinned work item query by adding the following in the Visual Studio Code User Settings. You need to provide the account and the query text or query path.
 
+**Using Query Text**
   ```javascript
     "team.pinnedQueries": [
         {
             "account": "your-account-name",
             "queryText": "SELECT * FROM WorkItems WHERE [System.AssignedTo] = @me AND [System.ChangedDate] > @Today - 14"
+        }
+    ]
+  ```
+  
+**Using Query Path**
+  ```javascript
+    "team.pinnedQueries": [
+        {
+            "account": "your-account-name",
+            "queryPath": "Shared Queries/My Folder/My Query"
         }
     ]
   ```

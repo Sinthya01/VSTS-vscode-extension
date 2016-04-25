@@ -48,6 +48,21 @@ export class WorkItemTrackingService {
         return promiseToReturn;
     }
 
+    //Returns a Q.Promise containing a specific query item
+    public GetWorkItemQuery(teamProject: string, queryPath: string): Q.Promise<QueryHierarchyItem> {
+        let promiseToReturn: Q.Promise<QueryHierarchyItem>;
+        let deferred = Q.defer<QueryHierarchyItem>();
+        promiseToReturn = deferred.promise;
+
+        this._witApi.getQuery(teamProject, queryPath, QueryExpand.Wiql, 1, false).then((queryHierarchy) => {
+            deferred.resolve(queryHierarchy);
+        }).fail((reason) => {
+            deferred.reject(reason);
+        });
+
+        return promiseToReturn;
+    }
+
     //Returns a Q.Promise containing the array of work item types available for the team project
     public GetWorkItemTypes(teamProject: string): Q.Promise<Array<WorkItemType>> {
         let promiseToReturn: Q.Promise<Array<WorkItemType>>;

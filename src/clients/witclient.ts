@@ -15,20 +15,21 @@ import { Strings } from "../helpers/strings";
 import { Utils } from "../helpers/utils";
 import { VsCodeUtils } from "../helpers/vscode";
 import { TelemetryService } from "../services/telemetry";
+import { IPinnedQuery } from "../helpers/settings";
 
 import Q = require("q");
 
 export class WitClient extends BaseClient {
     private _serverContext: TeamServerContext;
     private _statusBarItem: StatusBarItem;
-    private _pinnedQueryText: string;
+    private _pinnedQuery: IPinnedQuery;
 
-    constructor(context: TeamServerContext, telemetryService: TelemetryService, pinnedQueryText: string, statusBarItem: StatusBarItem) {
+    constructor(context: TeamServerContext, telemetryService: TelemetryService, pinnedQuery: IPinnedQuery, statusBarItem: StatusBarItem) {
         super(telemetryService);
 
         this._serverContext = context;
         this._statusBarItem = statusBarItem;
-        this._pinnedQueryText = pinnedQueryText;
+        this._pinnedQuery = pinnedQuery;
     }
 
     //Opens a browser to a new work item given the item type, title and assigned to
@@ -105,7 +106,9 @@ export class WitClient extends BaseClient {
 
     public ShowPinnedQueryWorkItems(): void {
         this.ReportEvent(TelemetryEvents.ViewPinnedQueryWorkItems);
-        this.showWorkItems(this._pinnedQueryText);
+        this.getPinnedQueryText().then((queryText) => {
+            this.showWorkItems(queryText);
+        });
     }
 
     //Returns a Q.Promise containing an array of SimpleWorkItems that are "My" work items
@@ -142,7 +145,34 @@ export class WitClient extends BaseClient {
         let svc: WorkItemTrackingService = new WorkItemTrackingService(this._serverContext);
         Logger.LogInfo("Running pinned work item query to get count...");
         Logger.LogInfo("TP: " + this._serverContext.RepoInfo.TeamProject);
-        return svc.GetQueryResultCount(this._serverContext.RepoInfo.TeamProject, this._pinnedQueryText);
+
+        return this.getPinnedQueryText().then((queryText) => {
+            return svc.GetQueryResultCount(this._serverContext.RepoInfo.TeamProject, queryText);
+        });
+    }
+
+    private getPinnedQueryText(): Q.Promise<string> {
+        let deferred = Q.defer<string>();
+        let promiseToReturn = deferred.promise;
+
+        if (this._pinnedQuery.queryText && this._pinnedQuery.queryText.length > 0) {
+            deferred.resolve(this._pinnedQuery.queryText);
+        } else if (this._pinnedQuery.queryPath && this._pinnedQuery.queryPath.length > 0) {
+            Logger.LogInfo("Getting my work item query...");
+            Logger.LogInfo("TP: " + this._serverContext.RepoInfo.TeamProject);
+            Logger.LogInfo("QueryPath: " + this._pinnedQuery.queryPath);
+            let svc: WorkItemTrackingService = new WorkItemTrackingService(this._serverContext);
+
+            svc.GetWorkItemQuery(this._serverContext.RepoInfo.TeamProject, this._pinnedQuery.queryPath).then((queryItem) => {
+                deferred.resolve(queryItem.wiql);
+            }).catch((reason) => {
+                deferred.reject(reason);
+            });
+        } else {
+            deferred.reject("No queryPath or queryText provided.");
+        }
+
+        return promiseToReturn;
     }
 
     private getMyWorkItemQueries(): Q.Promise<Array<WorkItemQueryQuickPickItem>> {
