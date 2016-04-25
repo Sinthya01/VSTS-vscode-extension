@@ -134,6 +134,7 @@ You can customize the pinned work item query by adding the following in the Visu
     ]
   ```
   
+  
   You can also create a *global* pinned query which will be the default if you have not configured one for your account:
   
 ```javascript
