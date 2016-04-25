@@ -106,7 +106,6 @@ export class WitClient extends BaseClient {
     public ShowPinnedQueryWorkItems(): void {
         this.ReportEvent(TelemetryEvents.ViewPinnedQueryWorkItems);
         this.showWorkItems(this._pinnedQueryText);
-
     }
 
     //Returns a Q.Promise containing an array of SimpleWorkItems that are "My" work items
@@ -140,13 +139,10 @@ export class WitClient extends BaseClient {
     }
 
     public GetPinnedQueryResultCount() : Q.Promise<number> {
-
         let svc: WorkItemTrackingService = new WorkItemTrackingService(this._serverContext);
-
         Logger.LogInfo("Running pinned work item query to get count...");
         Logger.LogInfo("TP: " + this._serverContext.RepoInfo.TeamProject);
         return svc.GetQueryResultCount(this._serverContext.RepoInfo.TeamProject, this._pinnedQueryText);
-
     }
 
     private getMyWorkItemQueries(): Q.Promise<Array<WorkItemQueryQuickPickItem>> {

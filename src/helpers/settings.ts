@@ -21,7 +21,7 @@ abstract class BaseSettings {
     }
 }
 
-export interface IPinnedQuery {
+interface IPinnedQuery {
     queryText: string;
     account: string;
 }

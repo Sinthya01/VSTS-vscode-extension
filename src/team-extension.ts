@@ -5,7 +5,7 @@
 "use strict";
 
 import { FileSystemWatcher, StatusBarAlignment, StatusBarItem, window, workspace } from "vscode";
-import { PinnedQuerySettings, AccountSettings, Settings } from "./helpers/settings";
+import { AccountSettings, PinnedQuerySettings, Settings } from "./helpers/settings";
 import { CommandNames, TelemetryEvents, WitTypes } from "./helpers/constants";
 import { Logger } from "./helpers/logger";
 import { Strings } from "./helpers/strings";

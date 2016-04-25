@@ -6,7 +6,6 @@
 
 /* tslint:disable:variable-name */
 export class Strings {
-
     static ViewYourPinnedQuery: string = "View your pinned work item query.";
 
     static BrowseYourPullRequests: string = "Browse your Team Services pull requests.";
