@@ -1,4 +1,5 @@
 // A launch configuration that compiles the extension and then opens it inside a new window
+// "preLaunchTask": "npm"
 {
 	"version": "0.1.0",
 	"configurations": [
@@ -11,7 +12,7 @@
 			"stopOnEntry": false,
 			"sourceMaps": true,
 			"outDir": "${workspaceRoot}/out/src",
-			"preLaunchTask": "npm"
+			"preLaunchTask": "publishbuild"
 		},
 		{
 			"name": "Launch Tests",
@@ -22,7 +23,7 @@
 			"stopOnEntry": false,
 			"sourceMaps": true,
 			"outDir": "${workspaceRoot}/out/test",
-			"preLaunchTask": "npm"
+			"preLaunchTask": "publishbuild"
 		}
 	]
 }
