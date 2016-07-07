@@ -36,4 +36,7 @@ describe("GitContext", function() {
         assert.equal(gc.RemoteUrl, undefined);
         assert.equal(gc.RepositoryParentFolder, undefined);
     });
+
+    // Ideally I add more tests here but, as the GitContext object is written, would need
+    // several local repositories to do so.  Mocking might be an option worth investigating.
 });
