@@ -7,11 +7,14 @@
 /* tslint:disable:variable-name */
 export class Constants {
     static ExtensionName: string = "team";
+    static OAuth: string = "OAuth";
 }
 
 export class CommandNames {
     static CommandPrefix: string = Constants.ExtensionName + ".";
     static GetPullRequests: string = CommandNames.CommandPrefix + "GetPullRequests";
+    static Login: string = CommandNames.CommandPrefix + "Login";
+    static Logout: string = CommandNames.CommandPrefix + "Logout";
     static OpenBlamePage: string = CommandNames.CommandPrefix + "OpenBlamePage";
     static OpenBuildSummaryPage: string = CommandNames.CommandPrefix + "OpenBuildSummaryPage";
     static OpenFileHistory: string = CommandNames.CommandPrefix + "OpenFileHistory";
@@ -74,7 +77,6 @@ export class WitQueries {
     static MyWorkItems: string = "select [System.Id], [System.WorkItemType], [System.Title], [System.State] " +
                                 "from WorkItems where [System.TeamProject] = @project and " +
                                 "[System.WorkItemType] <> '' and [System.AssignedTo] = @Me order by [System.ChangedDate] desc";
-    static MyQueriesFolder: string = "My Queries";
 }
 
 export class WitTypes {

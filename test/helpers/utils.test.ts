@@ -23,8 +23,25 @@ describe("Utils", function() {
     it("should verify IsOffline", function() {
         let reason = { code: "ENOENT" };
         assert.isTrue(Utils.IsOffline(reason));
+        reason = { code: "ENOTFOUND" };
+        assert.isTrue(Utils.IsOffline(reason));
+        reason = { code: "EAI_AGAIN" };
+        assert.isTrue(Utils.IsOffline(reason));
+        let reason2 = { statusCode: "ENOENT" };
+        assert.isTrue(Utils.IsOffline(reason2));
+        reason2 = { statusCode: "ENOTFOUND" };
+        assert.isTrue(Utils.IsOffline(reason2));
+        reason2 = { statusCode: "EAI_AGAIN" };
+        assert.isTrue(Utils.IsOffline(reason2));
         reason = { code: "404" };
         assert.isFalse(Utils.IsOffline(reason));
+    });
+
+    it("should verify IsUnauthorized", function() {
+        let reason = { code: 401 };
+        assert.isTrue(Utils.IsUnauthorized(reason));
+        let reason2 = { statusCode: 401 };
+        assert.isTrue(Utils.IsUnauthorized(reason2));
     });
 
     it("should verify GetMessageForStatusCode with 401", function() {

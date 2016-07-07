@@ -56,7 +56,7 @@ export class Utils {
     }
 
     //Returns a particular message for a particular reason.  Otherwise, returns the optional prefix + message
-    public static GetMessageForStatusCode(reason: any, message?: string, prefix?: string) {
+    public static GetMessageForStatusCode(reason: any, message?: string, prefix?: string) : string {
         let msg: string = undefined;
         if (prefix === undefined) {
             msg = "";
@@ -87,10 +87,23 @@ export class Utils {
         return msg;
     }
 
-    //Use some comment error codes to indicate offline status
+    //Use some common error codes to indicate offline status
     public static IsOffline(reason: any): boolean {
         if (reason !== undefined) {
             if (reason.code === "ENOENT" || reason.code === "ENOTFOUND" || reason.code === "EAI_AGAIN") {
+                return true;
+            }
+            if (reason.statusCode === "ENOENT" || reason.statusCode === "ENOTFOUND" || reason.statusCode === "EAI_AGAIN") {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    //Use some common error codes to indicate unauthorized status
+    public static IsUnauthorized(reason: any): boolean {
+        if (reason !== undefined) {
+            if (reason.code === 401 || reason.statusCode === 401) {
                 return true;
             }
         }

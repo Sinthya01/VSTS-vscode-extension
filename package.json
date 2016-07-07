@@ -103,6 +103,14 @@
       {
         "command": "team.SendFeedback",
         "title": "team send feedback"
+      },
+      {
+        "command": "team.Login",
+        "title": "team login"
+      },
+      {
+        "command": "team.Logout",
+        "title": "team logout"
       }
     ]
   },
@@ -113,6 +121,7 @@
   },
   "devDependencies": {
     "chai": "^3.4.1",
+    "del": "^2.2.0",
     "gulp": "^3.9.0",
     "gulp-mocha": "^2.2.0",
     "gulp-tslint": "^3.2.0",
@@ -124,6 +133,7 @@
   },
   "dependencies": {
     "applicationinsights": "^0.15.11",
+    "event-stream": "^3.3.2",
     "fs": "0.0.2",
     "git-repo-info": "^1.1.2",
     "node-uuid": "^1.4.7",
@@ -131,8 +141,10 @@
     "opener": "^1.4.1",
     "parse-git-config": "^0.3.1",
     "path": "^0.12.7",
+    "readable-stream": "^2.1.4",
+    "underscore": "^1.8.3",
     "url": "^0.11.0",
-    "vso-node-api": "^3.0.1",
+    "vso-node-api": "^3.1.0",
     "winston": "^2.1.1"
   }
 }
