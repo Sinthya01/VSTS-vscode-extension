@@ -7,12 +7,11 @@
 import { StatusBarItem, window } from "vscode";
 import { PullRequestStatus} from "vso-node-api/interfaces/GitInterfaces";
 import { BaseClient } from "./baseclient";
-import { BaseQuickPickItem } from "../helpers/vscode";
+import { BaseQuickPickItem, VsCodeUtils } from "../helpers/vscodeutils";
 import { CommandNames, TelemetryEvents } from "../helpers/constants";
 import { Logger } from "../helpers/logger";
 import { Strings } from "../helpers/strings";
 import { Utils } from "../helpers/utils";
-import { VsCodeUtils } from "../helpers/vscode";
 import { GitContext } from "../contexts/gitcontext";
 import { TeamServerContext} from "../contexts/servercontext";
 import { TelemetryService } from "../services/telemetry";
