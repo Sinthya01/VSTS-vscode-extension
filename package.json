@@ -2,7 +2,7 @@
   "name": "team",
   "displayName": "Visual Studio Team Services",
   "description": "Monitor your builds and manage your pull requests and work items for your Team Services Git repositories",
-  "version": "1.100.0",
+  "version": "1.103.0",
   "publisher": "ms-vsts",
   "icon": "assets/team.png",
   "galleryBanner": {
