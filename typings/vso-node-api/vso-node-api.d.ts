@@ -119,6 +119,8 @@ declare module 'vso-node-api/interfaces/common/VsoBaseInterfaces' {
 	}
 	export interface IRequestHandler {
 	    prepareRequest(options: any): void;
+	    canHandleAuthentication(res: IHttpResponse): boolean;
+	    handleAuthentication(httpClient: any, protocol: any, options: any, objs: any, finalCallback: any): void;
 	}
 	export interface IHttpResponse {
 	    statusCode?: number;
@@ -156,6 +158,7 @@ declare module 'vso-node-api/HttpClient' {
 	    userAgent: string;
 	    handlers: ifm.IRequestHandler[];
 	    socketTimeout: number;
+	    isSsl: boolean;
 	    constructor(userAgent: string, handlers?: ifm.IRequestHandler[], socketTimeout?: number);
 	    get(verb: string, requestUrl: string, headers: ifm.IHeaders, onResult: (err: any, res: http.ClientResponse, contents: string) => void): void;
 	    send(verb: string, requestUrl: string, objs: any, headers: ifm.IHeaders, onResult: (err: any, res: http.ClientResponse, contents: string) => void): void;
@@ -164,6 +167,7 @@ declare module 'vso-node-api/HttpClient' {
 	    makeAcceptHeader(type: string, apiVersion: string): string;
 	    _getOptions(method: string, requestUrl: string, headers: any): any;
 	    request(protocol: any, options: any, objs: any, onResult: (err: any, res: http.ClientResponse, contents: string) => void): void;
+	    requestInternal(protocol: any, options: any, objs: any, onResult: (err: any, res: http.ClientResponse, contents: string) => void): void;
 	}
 
 }
@@ -18227,6 +18231,8 @@ declare module 'vso-node-api/handlers/apiversion' {
 	    apiVersion: string;
 	    constructor(apiVersion: string);
 	    prepareRequest(options: any): void;
+	    canHandleAuthentication(res: VsoBaseInterfaces.IHttpResponse): boolean;
+	    handleAuthentication(httpClient: any, protocol: any, options: any, objs: any, finalCallback: any): void;
 	}
 
 }
@@ -18238,6 +18244,8 @@ declare module 'vso-node-api/handlers/basiccreds' {
 	    password: string;
 	    constructor(username: string, password: string);
 	    prepareRequest(options: any): void;
+	    canHandleAuthentication(res: VsoBaseInterfaces.IHttpResponse): boolean;
+	    handleAuthentication(httpClient: any, protocol: any, options: any, objs: any, finalCallback: any): void;
 	}
 
 }
@@ -18248,6 +18256,25 @@ declare module 'vso-node-api/handlers/bearertoken' {
 	    token: string;
 	    constructor(token: string);
 	    prepareRequest(options: any): void;
+	    canHandleAuthentication(res: VsoBaseInterfaces.IHttpResponse): boolean;
+	    handleAuthentication(httpClient: any, protocol: any, options: any, objs: any, finalCallback: any): void;
+	}
+
+}
+declare module 'vso-node-api/handlers/ntlm' {
+	/// <reference path="../../node/node.d.ts" />
+	import VsoBaseInterfaces = require('vso-node-api/interfaces/common/VsoBaseInterfaces');
+	export class NtlmCredentialHandler implements VsoBaseInterfaces.IRequestHandler {
+	    username: string;
+	    password: string;
+	    workstation: string;
+	    domain: string;
+	    constructor(username: string, password: string, domain?: string, workstation?: string);
+	    prepareRequest(options: any): void;
+	    canHandleAuthentication(res: VsoBaseInterfaces.IHttpResponse): boolean;
+	    handleAuthentication(httpClient: any, protocol: any, options: any, objs: any, finalCallback: any): void;
+	    private sendType1Message(httpClient, protocol, options, objs, keepaliveAgent, callback);
+	    private sendType3Message(httpClient, protocol, options, objs, keepaliveAgent, res, callback);
 	}
 
 }
@@ -18267,11 +18294,13 @@ declare module 'vso-node-api/WebApi' {
 	import apivm = require('vso-node-api/handlers/apiversion');
 	import basicm = require('vso-node-api/handlers/basiccreds');
 	import bearm = require('vso-node-api/handlers/bearertoken');
+	import ntlmm = require('vso-node-api/handlers/ntlm');
 	/**
 	 * Methods to return handler objects (see handlers folder)
 	 */
 	export function getVersionHandler(apiVersion: string): apivm.ApiVersionHandler;
 	export function getBasicHandler(username: string, password: string): basicm.BasicCredentialHandler;
+	export function getNtlmHandler(username: string, password: string, workstation?: string, domain?: string): ntlmm.NtlmCredentialHandler;
 	export function getBearerHandler(token: any): bearm.BearerCredentialHandler;
 	export class WebApi {
 	    serverUrl: string;

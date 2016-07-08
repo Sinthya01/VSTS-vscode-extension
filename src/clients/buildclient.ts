@@ -13,7 +13,7 @@ import { TeamServerContext} from "../contexts/servercontext";
 import { CommandNames, TelemetryEvents, WellKnownRepositoryTypes } from "../helpers/constants";
 import { Strings } from "../helpers/strings";
 import { Utils } from "../helpers/utils";
-import { VsCodeUtils } from "../helpers/vscode";
+import { VsCodeUtils } from "../helpers/vscodeutils";
 import { TelemetryService } from "../services/telemetry";
 import { GitContext } from "../contexts/gitcontext";
 

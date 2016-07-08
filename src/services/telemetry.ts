@@ -15,6 +15,7 @@ var os = require("os");
 export class TelemetryService {
     private _appInsightsClient: Client;
     private _serverContext: TeamServerContext;
+    private _telemetryEnabled: boolean = true;
     private _extensionVersion: string = "1.100.0";
     private _collectionId: string = "UNKNOWN";
     //Default to a new uuid in case the extension fails before being initialized
@@ -22,9 +23,11 @@ export class TelemetryService {
     private _sessionId: string = uuid.v4();
     private _productionKey: string = "44267cbb-b9ba-4bce-a37a-338588aa4da3";
 
-    constructor(context: TeamServerContext, settings: Settings) {
+    constructor(settings: Settings, context?: TeamServerContext) {
         this._serverContext = context;
+        this._telemetryEnabled = settings.AppInsightsEnabled;
 
+        // Always initialize Application Insights
         let insightsKey = this._productionKey;
         if (settings.AppInsightsKey !== undefined) {
             insightsKey = settings.AppInsightsKey;
@@ -33,7 +36,7 @@ export class TelemetryService {
         appInsights.setup(insightsKey)
                     .setAutoCollectConsole(false)
                     .setAutoCollectPerformance(false)
-                    .setAutoCollectRequests(settings.AppInsightsEnabled)
+                    .setAutoCollectRequests(false)
                     .start();
         this._appInsightsClient = appInsights.getClient(insightsKey);
 
@@ -42,20 +45,19 @@ export class TelemetryService {
     }
 
     public SendEvent(event: string, properties?: any): void {
-        if (this._appInsightsClient !== undefined) {
+        if (this._telemetryEnabled === true) {
             this._appInsightsClient.trackEvent(event, properties);
         }
     }
 
-    public SendException(message: string, properties?: any): void {
-        if (this._appInsightsClient !== undefined) {
-            this._appInsightsClient.trackException(new Error(message), properties);
-        }
+    public SendFeedback(event: string, properties?: any): void {
+        // SendFeedback doesn't honor the _telemetryEnabled flag
+        this._appInsightsClient.trackEvent(event, properties);
     }
 
-    public SendMetric(metric: string, duration: number): void {
-        if (this._appInsightsClient !== undefined) {
-            this._appInsightsClient.trackMetric(metric, duration);
+    public SendException(message: string, properties?: any): void {
+        if (this._telemetryEnabled === true) {
+            this._appInsightsClient.trackException(new Error(message), properties);
         }
     }
 
@@ -76,8 +78,8 @@ export class TelemetryService {
 
     private setCommonProperties(): void {
         this._appInsightsClient.commonProperties = {
-            "VSTS.TeamFoundationServer.IsHostedServer" : this._serverContext.RepoInfo.IsTeamServices.toString(),
-            "VSTS.TeamFoundationServer.ServerId" : this._serverContext.RepoInfo.Host,
+            "VSTS.TeamFoundationServer.IsHostedServer" : this._serverContext === undefined ? "UNKNOWN" : this._serverContext.RepoInfo.IsTeamServices.toString(),
+            "VSTS.TeamFoundationServer.ServerId" : this._serverContext === undefined ? "UNKNOWN" : this._serverContext.RepoInfo.Host,
             "VSTS.TeamFoundationServer.CollectionId": this._collectionId,
             "VSTS.Core.Machine.OS.Platform" : os.platform(),
             "VSTS.Core.Machine.OS.Type" : os.type(),

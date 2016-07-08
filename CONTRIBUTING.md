@@ -71,15 +71,6 @@ gulp package
 ```
 The VSIX package will be created in the root of the repository.
 
-## All
-You can also build, run tests and package all at once.
-
-From the root of the repo:
-```bash
-gulp all
-```
-The VSIX package will be created in the root of the repository.
-
 ## Code Structure
 The code is structured between the Visual Studio Code extension file, the Team Services extension object, and the clients, contexts, helpers and services.
 
@@ -100,12 +91,12 @@ These are the clients used to talk to the services (see Services below).  The cl
 These are classes used to define constants, a logger, settings (configuration), strings and various utility functions.
 
 ### Services
-All of the communication to Team Services should be done via services found in this folder.  These services should not know anything about the client-side types used to manipulate the Visual Studio Code UI.  The Q promise APIs found in the vso-node-api package is the model used in this extension.
+All of the communication to Team Services should be done via services found in this folder.  These services should not know anything about the client-side types used to manipulate the Visual Studio Code UI.  The Q Promise APIs found in the vso-node-api package is the model used in this extension.
 
 ## Debugging
 To debug the extension, make sure you've installed all of the npm packages as instructed earlier.  Then, open the root of the repository in Visual Studio Code and press F5.  If you have the extension already installed, you'll need to uninstall it via the Command Palette and try again.
 
-During debugging, you may want to control how often polling occurs for build status and pull request updates.  Or you may want to turn on debug console and winston logging.  The [README.md](README.md) file has instructions on how to change those settings.
+During debugging, you may want to control how often polling occurs for build status and pull request updates.  Or you may want to turn on debug console and `winston` logging.  The [README.md](README.md) file has instructions on how to change those settings.
 
 ## Code Styles
 1. The various gulp commands will run `tslint` and flag any errors.  Please ensure that the code stays clean.
@@ -124,7 +115,10 @@ git config core.safecrlf true
 ## Contribution License Agreement
 In order to contribute, you will need to sign a [Contributor License Agreement](https://cla.microsoft.com/).
 
+## Code of Conduct
+This project has adopted the [Microsoft Open Source Code of Conduct](https://opensource.microsoft.com/codeofconduct/). For more information see the [Code of Conduct FAQ](https://opensource.microsoft.com/codeofconduct/faq/) or contact [opencode@microsoft.com](mailto:opencode@microsoft.com) with any additional questions or comments.
+
 ## Submitting Pull Requests
 We welcome pull requests!  Fork this repo and send us your contributions.  Go [here](https://help.github.com/articles/using-pull-requests/) to get familiar with GitHub pull requests.
 
-Before submitting your request, ensure that `gulp all` succeeds.
+Before submitting your request, ensure that both `gulp` and `gulp test` succeed.

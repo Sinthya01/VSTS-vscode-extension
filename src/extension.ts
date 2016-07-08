@@ -14,6 +14,8 @@ export function activate(context: ExtensionContext) {
     teamExtension = new TeamExtension();
 
     context.subscriptions.push(commands.registerCommand(CommandNames.GetPullRequests, () => teamExtension.GetMyPullRequests()));
+    context.subscriptions.push(commands.registerCommand(CommandNames.Login, () => teamExtension.Login()));
+    context.subscriptions.push(commands.registerCommand(CommandNames.Logout, () => teamExtension.Logout()));
     context.subscriptions.push(commands.registerCommand(CommandNames.OpenBlamePage, () => teamExtension.OpenBlamePage()));
     context.subscriptions.push(commands.registerCommand(CommandNames.OpenBuildSummaryPage, () => teamExtension.OpenBuildSummaryPage()));
     context.subscriptions.push(commands.registerCommand(CommandNames.OpenFileHistory, () => teamExtension.OpenFileHistory()));

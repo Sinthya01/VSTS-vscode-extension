@@ -8,6 +8,7 @@ import { Build, BuildBadge, BuildQueryOrder, DefinitionReference, QueryDeletedOp
 import { IQBuildApi } from "vso-node-api/BuildApi";
 import { WebApi } from "vso-node-api/WebApi";
 import { TeamServerContext } from "../contexts/servercontext";
+import { CredentialManager } from "../helpers/credentialmanager";
 
 import Q = require("q");
 
@@ -15,7 +16,7 @@ export class BuildService {
     private _buildApi: IQBuildApi;
 
     constructor(context: TeamServerContext) {
-        this._buildApi = new WebApi(context.RepoInfo.CollectionUrl, context.CredentialHandler).getQBuildApi();
+        this._buildApi = new WebApi(context.RepoInfo.CollectionUrl, CredentialManager.GetCredentialHandler()).getQBuildApi();
     }
 
     //Returns the build definitions (regardless of type) for the team project
@@ -48,7 +49,8 @@ export class BuildService {
 
     //Construct the url to the build definitions page for the project
     public static GetBuildDefinitionsUrl(remoteUrl: string) : string {
-        return BuildService.GetBuildsUrl(remoteUrl) + "/definitions";
+        //The new definitions experience is behind a feature flag
+        return BuildService.GetBuildsUrl(remoteUrl); // + "/definitions";
     }
 
     //Construct the url to the builds page for the project

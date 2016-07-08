@@ -6,21 +6,24 @@
 
 import { FileSystemWatcher, StatusBarAlignment, StatusBarItem, window, workspace } from "vscode";
 import { AccountSettings, PinnedQuerySettings, Settings } from "./helpers/settings";
-import { CommandNames, TelemetryEvents, WitTypes } from "./helpers/constants";
+import { CommandNames, Constants, TelemetryEvents, WitTypes } from "./helpers/constants";
+import { CredentialManager } from "./helpers/credentialmanager";
 import { Logger } from "./helpers/logger";
 import { Strings } from "./helpers/strings";
 import { Utils } from "./helpers/utils";
-import { VsCodeUtils } from "./helpers/vscode";
+import { VsCodeUtils } from "./helpers/vscodeutils";
 import { GitContext } from "./contexts/gitcontext";
 import { TeamServerContext} from "./contexts/servercontext";
 import { TelemetryService } from "./services/telemetry";
-import { QTeamServicesApi, TeamServicesClient } from "./clients/teamservicesclient";
+import { QTeamServicesApi } from "./clients/teamservicesclient";
 import { BuildClient } from "./clients/buildclient";
+import { FeedbackClient } from "./clients/feedbackclient";
 import { GitClient } from "./clients/gitclient";
 import { WitClient } from "./clients/witclient";
 import { RepositoryInfo } from "./info/repositoryinfo";
 import { UserInfo } from "./info/userinfo";
-import { CredentialInfo } from "./info/credentialinfo";
+
+var os = require("os");
 
 export class TeamExtension  {
     private _teamServicesStatusBarItem: StatusBarItem;
@@ -29,17 +32,15 @@ export class TeamExtension  {
     private _pinnedQueryStatusBarItem: StatusBarItem;
     private _errorMessage: string;
     private _telemetry: TelemetryService;
-    private _accountClient: QTeamServicesApi;
-    private _repositoryClient: QTeamServicesApi;
     private _buildClient: BuildClient;
     private _gitClient: GitClient;
     private _witClient: WitClient;
-    private _teamServicesClient: TeamServicesClient;
+    private _feedbackClient: FeedbackClient;
     private _serverContext: TeamServerContext;
     private _gitContext: GitContext;
     private _settings: Settings;
-    private _accountSettings: AccountSettings;
     private _pinnedQuerySettings: PinnedQuerySettings;
+    private _credentialManager : CredentialManager;
 
     constructor() {
         this.initializeExtension();
@@ -72,6 +73,66 @@ export class TeamExtension  {
     public GetMyPullRequests(): void {
         if (this.ensureInitialized()) {
             this._gitClient.GetMyPullRequests();
+        } else {
+            VsCodeUtils.ShowErrorMessage(this._errorMessage);
+        }
+    }
+
+    public Login() {
+        // For Login, we just need to verify _serverContext and don't want to set this._errorMessage
+        if (this._serverContext !== undefined && this._serverContext.RepoInfo !== undefined && this._serverContext.RepoInfo.IsTeamFoundation === true) {
+            if (this._serverContext.RepoInfo.IsTeamFoundationServer === true) {
+                let defaultUsername : string = this.getDefaultUsername();
+                window.showInputBox({ value: defaultUsername || "", prompt: Strings.ProvideUsername + " (" + this._serverContext.RepoInfo.Account + ")", placeHolder: "", password: false }).then((username) => {
+                    if (username !== undefined && username.length > 0) {
+                        window.showInputBox({ value: "", prompt: Strings.ProvidePassword + " (" + username + ")", placeHolder: "", password: true }).then((password) => {
+                            if (password !== undefined) {
+                                Logger.LogInfo("Login: Username and Password provided as authentication.");
+                                this._credentialManager.StoreCredentials(this._serverContext.RepoInfo.Host, username, password).then(() => {
+                                    // We don't test the credentials to make sure they're good here.  Do so on the next command that's run.
+                                    this.Reinitialize();
+                                }).catch((reason) => {
+                                    // TODO: Should the message direct the user to open an issue?  send feedback?
+                                    let msg: string = Strings.UnableToStoreCredentials + this._serverContext.RepoInfo.Host;
+                                    this.reportError(msg);
+                                    VsCodeUtils.ShowErrorMessage(msg);
+                                });
+                            }
+                        });
+                    }
+                });
+            } else if (this._serverContext.RepoInfo.IsTeamServices === true) {
+                // Until Device Flow, we can prompt for the PAT for Team Services
+                window.showInputBox({ value: "", prompt: Strings.ProvideAccessToken + " (" + this._serverContext.RepoInfo.Account + ")", placeHolder: "", password: true }).then((token) => {
+                    if (token !== undefined) {
+                        Logger.LogInfo("Login: Personal Access Token provided as authentication.");
+                        this._credentialManager.StoreCredentials(this._serverContext.RepoInfo.Host, Constants.OAuth, token).then(() => {
+                            this.Reinitialize();
+                        }).catch((reason) => {
+                            // TODO: Should the message direct the user to open an issue?  send feedback?
+                            let msg: string = Strings.UnableToStoreCredentials + this._serverContext.RepoInfo.Host;
+                            this.reportError(msg);
+                            VsCodeUtils.ShowErrorMessage(msg);
+                        });
+                    }
+                });
+            }
+        } else {
+            VsCodeUtils.ShowErrorMessage(this._errorMessage);
+        }
+    }
+
+    public Logout() {
+        // For Logout, we just need to verify _serverContext and don't want to set this._errorMessage
+        if (this._serverContext !== undefined && this._serverContext.RepoInfo !== undefined && this._serverContext.RepoInfo.IsTeamFoundation === true) {
+            this._credentialManager.RemoveCredentials(this._serverContext.RepoInfo.Host).then(() => {
+                Logger.LogInfo("Logout: Removed credentials for host '" + this._serverContext.RepoInfo.Host + "'");
+                this.Reinitialize();
+            }).catch((reason) => {
+                let msg: string = Strings.UnableToRemoveCredentials + this._serverContext.RepoInfo.Host;
+                this.reportError(msg);
+                VsCodeUtils.ShowErrorMessage(msg);
+            });
         } else {
             VsCodeUtils.ShowErrorMessage(this._errorMessage);
         }
@@ -183,11 +244,8 @@ export class TeamExtension  {
 
     //Prompts for either a smile or frown, feedback text and an optional email address
     public SendFeedback(): void {
-        if (this.ensureInitialized()) {
-            return this._teamServicesClient.SendFeedback();
-        } else {
-            VsCodeUtils.ShowErrorMessage(this._errorMessage);
-        }
+        //SendFeedback doesn't need to ensure the extension is initialized
+        return this._feedbackClient.SendFeedback();
     }
 
     //Returns the list of work items assigned directly to the current user
@@ -223,74 +281,111 @@ export class TeamExtension  {
         if (this._gitContext === undefined
                 || this._gitContext.RemoteUrl === undefined
                 || this._serverContext === undefined
-                || this._serverContext.RepoInfo.IsTeamServices === false) {
+                || this._serverContext.RepoInfo.IsTeamFoundation === false) {
             this.setErrorStatus(Strings.NoGitRepoInformation);
-            return true;
+            return false;
         } else if (this._errorMessage !== undefined) {
             return false;
         }
         return true;
     }
 
+    private getDefaultUsername() : string {
+        if (os.platform() === "win32") {
+            let defaultUsername: string;
+            let domain: string = process.env.USERDOMAIN || "";
+            let username: string = process.env.USERNAME || "";
+            if (domain !== undefined) {
+                defaultUsername = domain;
+            }
+            if (username !== undefined) {
+                if (defaultUsername === undefined) {
+                    return username;
+                }
+                return defaultUsername + "\\" + username;
+            }
+        }
+        return undefined;
+    }
+
     private initializeExtension() : void {
         this._gitContext = new GitContext(workspace.rootPath);
-        if (this._gitContext !== undefined && this._gitContext.RemoteUrl !== undefined && this._gitContext.IsTeamServices) {
+        if (this._gitContext !== undefined && this._gitContext.RemoteUrl !== undefined && this._gitContext.IsTeamFoundation) {
             this.setupFileSystemWatcherOnHead();
             this._serverContext = new TeamServerContext(this._gitContext.RemoteUrl);
             this._settings = new Settings();
             this.logStart(this._settings.LoggingLevel, workspace.rootPath);
             this._pinnedQuerySettings = new PinnedQuerySettings(this._serverContext.RepoInfo.Account);
-            this._accountSettings = new AccountSettings(this._serverContext.RepoInfo.Account);
-            if (this._accountSettings.TeamServicesPersonalAccessToken === undefined) {
-                Logger.LogError(Strings.NoAccessTokenFound);
-                this._errorMessage = Strings.NoAccessTokenFound;
-                VsCodeUtils.ShowErrorMessage(Strings.NoAccessTokenFound);
-                return;
-            }
-            this._serverContext.CredentialHandler = new CredentialInfo(this._accountSettings.TeamServicesPersonalAccessToken).CredentialHandler;
             this._teamServicesStatusBarItem = window.createStatusBarItem(StatusBarAlignment.Left, 100);
+            //We need to be able to send feedback even if we aren't authenticated with the server
+            this._feedbackClient = new FeedbackClient(new TelemetryService(this._settings));
 
-            this._telemetry = new TelemetryService(this._serverContext, this._settings);
-            Logger.LogDebug("Started ApplicationInsights telemetry");
+            this._credentialManager = new CredentialManager();
+            let accountSettings = new AccountSettings(this._serverContext.RepoInfo.Account);
+            this._credentialManager.GetCredentialHandler(this._serverContext, accountSettings.TeamServicesPersonalAccessToken).then((requestHandler) => {
+                if (requestHandler === undefined) {
+                    let error: string = Strings.NoAccessTokenRunLogin;
+                    if (this._serverContext.RepoInfo.IsTeamFoundationServer === true) {
+                        error = Strings.NoTeamServerCredentialsRunLogin;
+                    }
+                    Logger.LogError(error);
+                    this.setErrorStatus(error, CommandNames.Login, false);
+                    VsCodeUtils.ShowErrorMessage(error);
+                    return;
+                } else {
+                    this._telemetry = new TelemetryService(this._settings, this._serverContext);
+                    this._feedbackClient = new FeedbackClient(this._telemetry);
+                    Logger.LogDebug("Started ApplicationInsights telemetry");
 
-            //Go get the details about the repository
-            this._repositoryClient = new QTeamServicesApi(this._gitContext.RemoteUrl, [this._serverContext.CredentialHandler]);
-            Logger.LogInfo("Getting repository information (vsts/info) with repositoryClient");
-            this._repositoryClient.getVstsInfo().then((repoInfo) => {
-                Logger.LogInfo("Retrieved repository info with repositoryClient");
-                Logger.LogObject(repoInfo);
+                    //Go get the details about the repository
+                    let repositoryClient: QTeamServicesApi = new QTeamServicesApi(this._gitContext.RemoteUrl, [CredentialManager.GetCredentialHandler()]);
+                    Logger.LogInfo("Getting repository information (vsts/info) with repositoryClient");
+                    repositoryClient.getVstsInfo().then((repoInfo) => {
+                        Logger.LogInfo("Retrieved repository info with repositoryClient");
+                        Logger.LogObject(repoInfo);
 
-                this._serverContext.RepoInfo = new RepositoryInfo(repoInfo);
-                //Now we need to go and get the authorized user information
-                this._accountClient = new QTeamServicesApi(this._serverContext.RepoInfo.AccountUrl, [this._serverContext.CredentialHandler]);
-                Logger.LogInfo("Getting connectionData with accountClient");
-                this._accountClient.connect().then((settings) => {
-                    Logger.LogInfo("Retrieved connectionData with accountClient");
-                    this.resetErrorStatus();
+                        this._serverContext.RepoInfo = new RepositoryInfo(repoInfo);
+                        //Now we need to go and get the authorized user information
+                        let connectionUrl: string = (this._serverContext.RepoInfo.IsTeamServices === true ? this._serverContext.RepoInfo.AccountUrl : this._serverContext.RepoInfo.CollectionUrl);
+                        let accountClient: QTeamServicesApi = new QTeamServicesApi(connectionUrl, [CredentialManager.GetCredentialHandler()]);
+                        Logger.LogInfo("Getting connectionData with accountClient");
+                        accountClient.connect().then((settings) => {
+                            Logger.LogInfo("Retrieved connectionData with accountClient");
+                            this.resetErrorStatus();
 
-                    this._serverContext.UserInfo = new UserInfo(settings.authenticatedUser.id,
-                                                                settings.authenticatedUser.providerDisplayName,
-                                                                settings.authenticatedUser.customDisplayName);
-                    this._telemetry.Update(this._serverContext.RepoInfo.CollectionId, this._serverContext.UserInfo.Id);
+                            this._serverContext.UserInfo = new UserInfo(settings.authenticatedUser.id,
+                                                                        settings.authenticatedUser.providerDisplayName,
+                                                                        settings.authenticatedUser.customDisplayName);
+                            this._telemetry.Update(this._serverContext.RepoInfo.CollectionId, this._serverContext.UserInfo.Id);
 
-                    this.initializeStatusBars();
-                    this._buildClient = new BuildClient(this._serverContext, this._telemetry, this._buildStatusBarItem);
-                    this._gitClient = new GitClient(this._serverContext, this._telemetry, this._pullRequestStatusBarItem);
-                    this._witClient = new WitClient(this._serverContext, this._telemetry, this._pinnedQuerySettings.PinnedQuery, this._pinnedQueryStatusBarItem);
-                    this._teamServicesClient = new TeamServicesClient(this._serverContext, this._telemetry);
-                    this._telemetry.SendEvent(TelemetryEvents.StartUp);
+                            this.initializeStatusBars();
+                            this._buildClient = new BuildClient(this._serverContext, this._telemetry, this._buildStatusBarItem);
+                            this._gitClient = new GitClient(this._serverContext, this._telemetry, this._pullRequestStatusBarItem);
+                            this._witClient = new WitClient(this._serverContext, this._telemetry, this._pinnedQuerySettings.PinnedQuery, this._pinnedQueryStatusBarItem);
+                            this._telemetry.SendEvent(TelemetryEvents.StartUp);
 
-                    Logger.LogObject(settings);
-                    this.logDebugInformation();
-                    this.refreshPollingItems();
-                    this.startPolling();
-                }).fail((reason) => {
-                    this.setErrorStatus(Utils.GetMessageForStatusCode(reason, reason.message));
-                    this.reportError(Utils.GetMessageForStatusCode(reason, reason.message, "Failed to get results with accountClient: "));
-                });
+                            Logger.LogObject(settings);
+                            this.logDebugInformation();
+                            this.refreshPollingItems();
+                            this.startPolling();
+                        }).fail((reason) => {
+                            this.setErrorStatus(Utils.GetMessageForStatusCode(reason, reason.message), (reason.statusCode === 401 ? CommandNames.Login : undefined), false);
+                            this.reportError(Utils.GetMessageForStatusCode(reason, reason.message, "Failed to get results with accountClient: "), reason);
+                        });
+                    }).fail((reason) => {
+                        // We get a 404 on-prem if we aren't Update 2 or later
+                        if (this._serverContext.RepoInfo.IsTeamFoundationServer === true && reason.statusCode === 404) {
+                            this.setErrorStatus(Strings.UnsupportedServerVersion, undefined, false);
+                            Logger.LogError(Strings.UnsupportedServerVersion);
+                        } else {
+                            this.setErrorStatus(Utils.GetMessageForStatusCode(reason, reason.message), (reason.statusCode === 401 ? CommandNames.Login : undefined), false);
+                            this.reportError(Utils.GetMessageForStatusCode(reason, reason.message, "Failed (vsts/info) call with repositoryClient: "), reason);
+                        }
+                    });
+                }
             }).fail((reason) => {
-                this.setErrorStatus(Utils.GetMessageForStatusCode(reason, reason.message));
-                this.reportError(Utils.GetMessageForStatusCode(reason, reason.message, "Failed (vsts/info) call with repositoryClient: "));
+                this.setErrorStatus(Utils.GetMessageForStatusCode(reason, reason.message), (reason.statusCode === 401 ? CommandNames.Login : undefined), false);
+                this.reportError(Utils.GetMessageForStatusCode(reason, reason.message, "Failed to get a credential handler"), reason);
             });
         }
     }
@@ -382,8 +477,12 @@ export class TeamExtension  {
     }
 
     //Logs an error to the logger and sends an exception to telemetry service
-    private reportError(message: string): void {
+    private reportError(message: string, reason?: any): void {
         Logger.LogError(message);
+        if (reason !== undefined && (Utils.IsUnauthorized(reason) || Utils.IsOffline(reason))) {
+            //Don't log execeptions for Unauthorized or Offline scenarios
+            return;
+        }
         this._telemetry.SendException(message);
     }
 
@@ -391,12 +490,13 @@ export class TeamExtension  {
         this._errorMessage = undefined;
     }
 
-    private setErrorStatus(message: string) {
+    private setErrorStatus(message: string, commandOnClick?: string, showRetryMessage?: boolean) {
         this._errorMessage = message;
         if (this._teamServicesStatusBarItem !== undefined) {
-            this._teamServicesStatusBarItem.command = CommandNames.Reinitialize;
+            this._teamServicesStatusBarItem.command = commandOnClick === undefined ? CommandNames.Reinitialize : commandOnClick;
             this._teamServicesStatusBarItem.text = "Team " + `$(icon octicon-stop)`;
-            this._teamServicesStatusBarItem.tooltip = this._errorMessage + " " + Strings.ClickToRetryConnection;
+            let message: string = this._errorMessage + (showRetryMessage !== undefined && showRetryMessage === true ? " " + Strings.ClickToRetryConnection : "") ;
+            this._teamServicesStatusBarItem.tooltip = message;
             this._teamServicesStatusBarItem.show();
         }
     }

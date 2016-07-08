@@ -54,7 +54,7 @@ describe("WorkItemTrackingService", function() {
         let url: string = "https://account.visualstudio.com/DefaultCollection/project";
         let queryName: string = "My Favorite Query";
 
-        assert.equal(WorkItemTrackingService.GetMyQueryResultsUrl(url, queryName), url + "/_workitems" + "?path=" + encodeURIComponent("My Queries/") + encodeURIComponent(queryName) + "&_a=query");
+        assert.equal(WorkItemTrackingService.GetMyQueryResultsUrl(url, "My Queries", queryName), url + "/_workitems" + "?path=" + encodeURIComponent("My Queries/") + encodeURIComponent(queryName) + "&_a=query");
     });
 
     it("should verify GetWorkItemsBaseUrl with url", function() {

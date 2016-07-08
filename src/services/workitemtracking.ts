@@ -10,7 +10,7 @@ import { IQWorkItemTrackingApi } from "vso-node-api/WorkItemTrackingApi";
 import { QueryExpand, QueryHierarchyItem, QueryResultType, Wiql, WorkItem,
          WorkItemExpand, WorkItemType, WorkItemTypeReference } from "vso-node-api/interfaces/WorkItemTrackingInterfaces";
 import { TeamServerContext } from "../contexts/servercontext";
-import { WitQueries } from "../helpers/constants";
+import { CredentialManager } from "../helpers/credentialmanager";
 
 import Q = require("q");
 
@@ -18,7 +18,7 @@ export class WorkItemTrackingService {
     private _witApi: IQWorkItemTrackingApi;
 
     constructor(context: TeamServerContext) {
-        this._witApi = new WebApi(context.RepoInfo.CollectionUrl, context.CredentialHandler).getQWorkItemTrackingApi();
+        this._witApi = new WebApi(context.RepoInfo.CollectionUrl, CredentialManager.GetCredentialHandler()).getQWorkItemTrackingApi();
     }
 
     //Returns a Q.Promise containing the WorkItem that was created
@@ -220,8 +220,8 @@ export class WorkItemTrackingService {
     }
 
     //Construct the url to the particular query results page
-    public static GetMyQueryResultsUrl(teamProjectUrl: string, queryName: string) : string {
-        return this.GetWorkItemsBaseUrl(teamProjectUrl) + "?path=" + encodeURIComponent(WitQueries.MyQueriesFolder + "/" + queryName) + "&_a=query";
+    public static GetMyQueryResultsUrl(teamProjectUrl: string, folderName: string, queryName: string) : string {
+        return this.GetWorkItemsBaseUrl(teamProjectUrl) + "?path=" + encodeURIComponent(folderName + "/" + queryName) + "&_a=query";
     }
 
     //Returns the base url for work items

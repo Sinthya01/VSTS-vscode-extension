@@ -22,7 +22,9 @@ describe("BuildService", function() {
     it("should verify GetBuildDefinitionsUrl", function() {
         let url: string = "https://account.visualstudio.com/DefaultCollection/project";
 
-        assert.equal(BuildService.GetBuildDefinitionsUrl(url), url + "/_build/definitions");
+        //The new definitions experience is behind a feature flag
+        //assert.equal(BuildService.GetBuildDefinitionsUrl(url), url + "/_build/definitions");
+        assert.equal(BuildService.GetBuildDefinitionsUrl(url), url + "/_build");
     });
 
     it("should verify GetBuildDefinitionUrl", function() {

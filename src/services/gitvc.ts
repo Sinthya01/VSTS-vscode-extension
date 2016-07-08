@@ -9,6 +9,7 @@ import { GitPullRequest, GitPullRequestSearchCriteria, GitRepository,
 import { IQGitApi } from "vso-node-api/GitApi";
 import { WebApi } from "vso-node-api/WebApi";
 import { TeamServerContext } from "../contexts/servercontext";
+import { CredentialManager } from "../helpers/credentialmanager";
 
 export class GitVcService {
     private _gitApi: IQGitApi;
@@ -20,7 +21,7 @@ export class GitVcService {
     private static REVIEWER_VOTE_REJECTED: number = -10;
 
     constructor(context: TeamServerContext) {
-        this._gitApi = new WebApi(context.RepoInfo.CollectionUrl, context.CredentialHandler).getQGitApi();
+        this._gitApi = new WebApi(context.RepoInfo.CollectionUrl, CredentialManager.GetCredentialHandler()).getQGitApi();
     }
 
     //Returns a Q.Promise containing an array of GitPullRequest objectss for the creator and repository

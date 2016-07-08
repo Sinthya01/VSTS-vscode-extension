@@ -22,6 +22,7 @@ export class GitContext {
     private _gitCurrentRef: string;
     private _isSsh: boolean = false;
     private _isTeamServicesUrl: boolean = false;
+    private _isTeamFoundationServer: boolean = false;
 
     constructor(rootPath: string) {
         this._isTeamServicesUrl = false;
@@ -34,26 +35,39 @@ export class GitContext {
                 this._gitParentFolder = path.dirname(this._gitFolder);
                 this._gitConfig = pgc.sync({ cwd: this._gitParentFolder});
                 /* tslint:disable:quotemark */
-                this._gitOriginalRemoteUrl = this._gitConfig['remote "origin"'].url;
+                let remote: any = this._gitConfig['remote "origin"'];
                 /* tslint:enable:quotemark */
+                if (remote === undefined) {
+                    return;
+                }
+                this._gitOriginalRemoteUrl = remote.url;
 
                 this._gitRepoInfo = gri(this._gitFolder);
                 this._gitCurrentBranch = this._gitRepoInfo.branch;
                 this._gitCurrentRef = "refs/heads/" + this._gitCurrentBranch;
 
-                let purl = url.parse(this._gitOriginalRemoteUrl);
-                if (purl != null) {
-                    let splitHostName = purl.hostname.split(".");
-                    if (splitHostName.length > 2) {
-                        this._isTeamServicesUrl = true; //splitHostName[1] === "visualstudio" && splitHostName[2] === "com";
-                        if (this._isTeamServicesUrl === true) {
-                            let splitHref = purl.href.split("@");
-                            if (splitHref.length === 2) {  //RemoteUrl is SSH
-                                //For Team Services, default to https:// as the protocol
-                                this._gitRemoteUrl = "https://" + purl.hostname + purl.pathname;
-                                this._isSsh = true;
-                            } else {
-                                this._gitRemoteUrl = this._gitOriginalRemoteUrl;
+                if (this._gitOriginalRemoteUrl.toLowerCase().indexOf("/_git/") >= 0) {
+                    let purl = url.parse(this._gitOriginalRemoteUrl);
+                    if (purl != null) {
+                        let splitHostName = purl.hostname.split(".");
+                        if (splitHostName.length > 2) {
+                            this._isTeamServicesUrl = splitHostName[1] === "visualstudio" && splitHostName[2] === "com";
+                            if (this._isTeamServicesUrl === true) {
+                                let splitHref = purl.href.split("@");
+                                if (splitHref.length === 2) {  //RemoteUrl is SSH
+                                    //For Team Services, default to https:// as the protocol
+                                    this._gitRemoteUrl = "https://" + purl.hostname + purl.pathname;
+                                    this._isSsh = true;
+                                } else {
+                                    this._gitRemoteUrl = this._gitOriginalRemoteUrl;
+                                }
+                            }
+                        } else if (splitHostName.length === 1) {
+                            this._isTeamFoundationServer = true;
+                            this._gitRemoteUrl = this._gitOriginalRemoteUrl;
+                            if (purl.protocol.toLowerCase() === "ssh:") {
+                                // TODO: No support yet for SSH on-premises (no-op the extension)
+                                this._isTeamFoundationServer = false;
                             }
                         }
                     }
@@ -73,6 +87,9 @@ export class GitContext {
     }
     public get IsSsh(): boolean {
         return this._isSsh;
+    }
+    public get IsTeamFoundation(): boolean {
+        return this._isTeamServicesUrl || this._isTeamFoundationServer;
     }
     public get IsTeamServices(): boolean {
         return this._isTeamServicesUrl;

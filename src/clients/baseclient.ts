@@ -23,4 +23,9 @@ export class BaseClient {
     public ReportEvent(event: string, properties?: any): void {
         this._telemetryService.SendEvent(event, properties);
     }
+
+    //SendFeedback doesn't honor the AppInsights enabled flag
+    public ReportFeedback(event: string, properties?: any): void {
+        this._telemetryService.SendFeedback(event, properties);
+    }
 }

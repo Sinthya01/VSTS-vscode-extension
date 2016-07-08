@@ -9,11 +9,10 @@ import { BaseClient } from "./baseclient";
 import { Logger } from "../helpers/logger";
 import { WorkItemTrackingService } from "../services/workitemtracking";
 import { TeamServerContext} from "../contexts/servercontext";
-import { BaseQuickPickItem, WorkItemQueryQuickPickItem } from "../helpers/vscode";
+import { BaseQuickPickItem, VsCodeUtils, WorkItemQueryQuickPickItem } from "../helpers/vscodeutils";
 import { CommandNames, TelemetryEvents, WitQueries, WitTypes } from "../helpers/constants";
 import { Strings } from "../helpers/strings";
 import { Utils } from "../helpers/utils";
-import { VsCodeUtils } from "../helpers/vscode";
 import { TelemetryService } from "../services/telemetry";
 import { IPinnedQuery } from "../helpers/settings";
 
@@ -23,6 +22,7 @@ export class WitClient extends BaseClient {
     private _serverContext: TeamServerContext;
     private _statusBarItem: StatusBarItem;
     private _pinnedQuery: IPinnedQuery;
+    private _myQueriesFolder: string;
 
     constructor(context: TeamServerContext, telemetryService: TelemetryService, pinnedQuery: IPinnedQuery, statusBarItem: StatusBarItem) {
         super(telemetryService);
@@ -83,7 +83,7 @@ export class WitClient extends BaseClient {
                                 let url: string = undefined;
                                 if (workItem.id === undefined) {
                                     self.ReportEvent(TelemetryEvents.OpenAdditionalQueryResults);
-                                    url = WorkItemTrackingService.GetMyQueryResultsUrl(self._serverContext.RepoInfo.TeamProjectUrl, query.label);
+                                    url = WorkItemTrackingService.GetMyQueryResultsUrl(self._serverContext.RepoInfo.TeamProjectUrl, self._myQueriesFolder, query.label);
                                 } else {
                                     self.ReportEvent(TelemetryEvents.ViewWorkItem);
                                     url = WorkItemTrackingService.GetEditWorkItemUrl(self._serverContext.RepoInfo.TeamProjectUrl, workItem.id);
@@ -187,15 +187,20 @@ export class WitClient extends BaseClient {
         svc.GetWorkItemHierarchyItems(this._serverContext.RepoInfo.TeamProject).then((hierarchyItems) => {
             Logger.LogInfo("Retrieved " + hierarchyItems.length + " hierarchyItems");
             hierarchyItems.forEach(folder => {
-                if (folder && folder.name === WitQueries.MyQueriesFolder && folder.hasChildren === true) {
-                    //Gets all of the queries under "My Queries" and gets their name and wiql
-                    for (let index = 0; index < folder.children.length; index++) {
-                        queries.push({
-                            id: folder.children[index].id,
-                            label: folder.children[index].name,
-                            description: "",
-                            wiql: folder.children[index].wiql
-                        });
+                if (folder && folder.isFolder === true && folder.isPublic === false) {
+                    // Because "My Queries" is localized and there is no API to get the name of the localized
+                    // folder, we need to save off the localized name when constructing URLs.
+                    this._myQueriesFolder = folder.name;
+                    if (folder.hasChildren === true) {
+                        //Gets all of the queries under "My Queries" and gets their name and wiql
+                        for (let index = 0; index < folder.children.length; index++) {
+                            queries.push({
+                                id: folder.children[index].id,
+                                label: folder.children[index].name,
+                                description: "",
+                                wiql: folder.children[index].wiql
+                            });
+                        }
                     }
                 }
             });

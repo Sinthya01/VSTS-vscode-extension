@@ -6,19 +6,23 @@
 
 import { IRequestHandler } from "vso-node-api/interfaces/common/VsoBaseInterfaces";
 import { getBasicHandler } from "vso-node-api/WebApi";
+import { getNtlmHandler } from "vso-node-api/WebApi";
+import { Constants } from "../helpers/constants";
 
 export class CredentialInfo {
     private _credentialHandler: IRequestHandler;
 
     constructor(accessToken: string);
     constructor(username: string, password?: string);
+    constructor(username: string, password?: string, domain?: string, workstation?: string);
 
-    constructor(username: string, password?: string) {
-        if (password !== undefined) {
-            // NTLM or Basic
+    constructor(username: string, password?: string, domain?: string, workstation?: string) {
+        if (username !== undefined && password !== undefined) {
+            // NTLM (we don't support Basic auth)
+            this._credentialHandler = getNtlmHandler(username, password, domain, workstation);
         } else {
-            // Personal Access Token
-            this._credentialHandler = getBasicHandler("OAuth", username);
+            // Personal Access Token (use username since it is first argument to constructor)
+            this._credentialHandler = getBasicHandler(Constants.OAuth, username);
         }
     }
 
