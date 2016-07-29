@@ -8,7 +8,7 @@
 
 {
 	"version": "0.1.0",
-	"command": "gulp.cmd",
+	"command": "gulp",
 	"isShellCommand": true,
 	"problemMatcher": "$gulp-tsc",
 	"args": [
