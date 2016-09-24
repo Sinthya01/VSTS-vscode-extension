@@ -227,5 +227,5 @@ The [Microsoft Visual Studio Product Family Privacy Statement](http://go.microso
 describes the privacy statement of this software.
 
 ## License
-This extension is [licensed under the MIT License](LICENSE.txt).  Please see the [third-party notices](Third Party Notices.txt)
+This extension is [licensed under the MIT License](LICENSE.txt).  Please see the [third-party notices](ThirdPartyNotices.txt)
 file for additional copyright notices and license terms applicable to portions of the software.
