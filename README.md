@@ -40,7 +40,7 @@ version of the extension will prompt for your token and store it securely. In pr
 token and store it in your Visual Studio Code user settings.
 
 If you do not have a personal access token yet, you will need to create one on your Team Services account.
-To create the token, go [here](https://www.visualstudio.com/en-us/get-started/setup/use-personal-access-tokens-to-authenticate) to learn how.
+To create the token, go [here](https://aka.ms/gtgzt4) to learn how.
 * When you create your token, create it with the **Build (read)**, **Code (read)** and **Work items (read)** scopes to ensure full functionality.
 * You can also use *All Scopes*, but the minimum required scopes are those listed above.
 
