@@ -4,7 +4,6 @@
 *--------------------------------------------------------------------------------------------*/
 "use strict";
 
-import * as cp from "child_process";
 import { ITfvcCommand, IExecutionResult } from "./interfaces";
 import { Tfvc } from "./tfvc";
 import { IWorkspace } from "./interfaces";
@@ -15,53 +14,38 @@ var _ = require("underscore");
 
 export class Repository {
 
-    constructor(
+    public constructor(
         private _tfvc: Tfvc,
         private repositoryRootFolder: string,
         private env: any = {}
     ) { }
 
-    get tfvc(): Tfvc {
+    public get Tfvc(): Tfvc {
         return this._tfvc;
     }
 
-    get path(): string {
+    public get Path(): string {
         return this.repositoryRootFolder;
     }
 
-    async exec(args: string[], options: any = {}): Promise<IExecutionResult> {
-        options.env = _.assign({}, options.env || {});
-        options.env = _.assign(options.env, this.env);
-
-        return await this.tfvc.exec(this.repositoryRootFolder, args, options);
-    }
-
-    stream(args: string[], options: any = {}): cp.ChildProcess {
-        options.env = _.assign({}, options.env || {});
-        options.env = _.assign(options.env, this.env);
-
-        return this.tfvc.stream(this.repositoryRootFolder, args, options);
-    }
-
-    spawn(args: string[], options: any = {}): cp.ChildProcess {
-        options.env = _.assign({}, options.env || {});
-        options.env = _.assign(options.env, this.env);
-
-        return this.tfvc.spawn(args, options);
-    }
-
-    async findWorkspace(localPath: string): Promise<IWorkspace> {
-        return this.runCommand<IWorkspace>(
+    public async FindWorkspace(localPath: string): Promise<IWorkspace> {
+        return this.RunCommand<IWorkspace>(
             new FindWorkspace(localPath));
     }
 
-    async version(): Promise<string> {
-        return this.runCommand<string>(
+    public async Version(): Promise<string> {
+        return this.RunCommand<string>(
             new GetVersion());
     }
 
-    private async runCommand<T>(cmd: ITfvcCommand<T>): Promise<T> {
-        const result = await this.exec(cmd.getArguments(), cmd.getOptions());
-        return cmd.parseOutput(result);
+    public async RunCommand<T>(cmd: ITfvcCommand<T>): Promise<T> {
+        const result = await this.exec(cmd.GetArguments(), cmd.GetOptions());
+        return cmd.ParseOutput(result);
+    }
+
+    private async exec(args: string[], options: any = {}): Promise<IExecutionResult> {
+        options.env = _.assign({}, options.env || {});
+        options.env = _.assign(options.env, this.env);
+        return await this.Tfvc.Exec(this.repositoryRootFolder, args, options);
     }
 }

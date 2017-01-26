@@ -302,11 +302,15 @@ export class TeamExtension  {
     //Run the TF status command and display the results
     public async TfvcStatus(): Promise<void> {
         if (this.ensureInitialized()) {
+            if (!workspace || !workspace.rootPath) {
+                return;
+            }
+
             try {
-                let tfvc: Tfvc = new Tfvc();
-                let repo: Repository = tfvc.open("D:\\tmp\\tfsTest03_44");
-                const workspace: IWorkspace = await repo.findWorkspace("D:\\tmp\\tfsTest03_44");
-                VsCodeUtils.ShowWarningMessage(workspace.name + " | " + workspace.server);
+                const tfvc: Tfvc = new Tfvc();
+                const repo: Repository = tfvc.Open(workspace.rootPath);
+                const tfvcWorkspace: IWorkspace = await repo.FindWorkspace(workspace.rootPath);
+                VsCodeUtils.ShowWarningMessage(tfvcWorkspace.name + " | " + tfvcWorkspace.server);
             } catch (err) {
                 VsCodeUtils.ShowErrorMessage(err);
             }

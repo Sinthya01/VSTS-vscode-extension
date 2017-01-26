@@ -13,17 +13,17 @@ import { ArgumentBuilder } from "./argumentbuilder";
  * Team Explorer Everywhere Command Line Client (version 14.0.3.201603291047)
  */
 export class GetVersion implements ITfvcCommand<string> {
-    getArguments(): string[] {
+    public GetArguments(): string[] {
         return new ArgumentBuilder("add")
-            .addSwitch("?")
-            .build();
+            .AddSwitch("?")
+            .Build();
     }
 
-    getOptions(): any {
+    public GetOptions(): any {
         return {};
     }
 
-    parseOutput(executionResult: IExecutionResult): string {
+    public ParseOutput(executionResult: IExecutionResult): string {
         const stdout = executionResult.stdout;
         // Find just the version number and return it. Ex. Team Explorer Everywhere Command Line Client (Version 14.0.3.201603291047)
         return stdout.replace(/(.*\(version )([\.\d]*)(\).*)/i, "$2");

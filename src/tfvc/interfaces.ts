@@ -43,7 +43,7 @@ export interface ITfvcErrorData {
 }
 
 export interface ITfvcCommand<T> {
-    getArguments(): string[];
-    getOptions(): any;
-    parseOutput(executionResult: IExecutionResult): T;
+    GetArguments(): string[];
+    GetOptions(): any;
+    ParseOutput(executionResult: IExecutionResult): T;
 }

@@ -10,38 +10,64 @@ import { IDisposable, toDisposable, dispose } from "./util";
 import { IExecutionResult } from "./interfaces";
 import { TfvcError, TfvcErrorCodes } from "./tfvcerror";
 import { Repository } from "./repository";
+import { TfvcSettings } from "./tfvcsettings";
 
 var _ = require("underscore");
 
 export class Tfvc {
 
-    private tfvcPath: string;
+    private _tfvcPath: string;
 
     private _onOutput = new EventEmitter<string>();
-    get onOutput(): Event<string> { return this._onOutput.event; }
+    public get onOutput(): Event<string> { return this._onOutput.event; }
 
-    constructor(localPath?: string) {
+    public constructor(localPath?: string) {
         if (localPath !== undefined) {
-            this.tfvcPath = localPath;
+            this._tfvcPath = localPath;
         } else {
-            // TODO get it from settings
-            this.tfvcPath = "D:\\tmp\\bin\\TEE-CLC-14.0.4\\tf.cmd";
+            // get the location from settings
+            const settings = new TfvcSettings();
+            this._tfvcPath = settings.Location;
+            if (!this._tfvcPath) {
+                throw new TfvcError({
+                    message: "The path to the TFVC command line was not found in the user settings. Please set this value.",
+                    tfvcErrorCode: TfvcErrorCodes.TfvcNotFound
+                });
+            }
+            //TODO check the version of TFVC command line
         }
     }
 
-    open(repositoryRootFolder: string, env: any = {}): Repository {
+    public Open(repositoryRootFolder: string, env: any = {}): Repository {
         return new Repository(this, repositoryRootFolder, env);
     }
 
-    async exec(cwd: string, args: string[], options: any = {}): Promise<IExecutionResult> {
+    public async Exec(cwd: string, args: string[], options: any = {}): Promise<IExecutionResult> {
         // default to the cwd passed in, but allow options.cwd to overwrite it
         options = _.extend({ cwd }, options || {});
         return await this._exec(args, options);
     }
 
-    stream(cwd: string, args: string[], options: any = {}): cp.ChildProcess {
-        options = _.assign({ cwd }, options || {});
-        return this.spawn(args, options);
+    private spawn(args: string[], options: any = {}): cp.ChildProcess {
+        if (!this._tfvcPath) {
+            throw new Error("tfvc could not be found in the system.");
+        }
+
+        if (!options) {
+            options = {};
+        }
+
+        if (!options.stdio && !options.input) {
+            options.stdio = ["ignore", null, null]; // Unless provided, ignore stdin and leave default streams for stdout and stderr
+        }
+
+        options.env = _.assign({}, process.env, options.env || {});
+
+        if (options.log !== false) {
+            this.log(`tf ${args.join(" ")}\n`);
+        }
+
+        return cp.spawn(this._tfvcPath, args, options);
     }
 
     private async _exec(args: string[], options: any = {}): Promise<IExecutionResult> {
@@ -58,8 +84,8 @@ export class Tfvc {
 
             if (/Authentication failed/.test(result.stderr)) {
                 tfvcErrorCode = TfvcErrorCodes.AuthenticationFailed;
-            } else if (/Not a git repository/.test(result.stderr)) {
-                tfvcErrorCode = TfvcErrorCodes.NotAGitRepository;
+            } else if (/workspace could not be determined/.test(result.stderr)) {
+                tfvcErrorCode = TfvcErrorCodes.NotATfvcRepository;
             } else if (/bad config file/.test(result.stderr)) {
                 tfvcErrorCode = TfvcErrorCodes.BadConfigFile;
             } else if (/cannot make pipe for command substitution|cannot create standard input pipe/.test(result.stderr)) {
@@ -120,28 +146,6 @@ export class Tfvc {
         dispose(disposables);
 
         return { exitCode, stdout, stderr };
-    }
-
-    spawn(args: string[], options: any = {}): cp.ChildProcess {
-        if (!this.tfvcPath) {
-            throw new Error("tfvc could not be found in the system.");
-        }
-
-        if (!options) {
-            options = {};
-        }
-
-        if (!options.stdio && !options.input) {
-            options.stdio = ["ignore", null, null]; // Unless provided, ignore stdin and leave default streams for stdout and stderr
-        }
-
-        options.env = _.assign({}, process.env, options.env || {});
-
-        if (options.log !== false) {
-            this.log(`tf ${args.join(" ")}\n`);
-        }
-
-        return cp.spawn(this.tfvcPath, args, options);
     }
 
     private log(output: string): void {

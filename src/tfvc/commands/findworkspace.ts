@@ -16,16 +16,16 @@ import { ArgumentBuilder } from "./argumentbuilder";
 export class FindWorkspace implements ITfvcCommand<IWorkspace> {
     private _localPath: string;
 
-    constructor(localPath: string) {
+    public constructor(localPath: string) {
         this._localPath = localPath;
     }
 
-    getArguments(): string[] {
+    public GetArguments(): string[] {
         return new ArgumentBuilder("workfold")
-            .build();
+            .Build();
     }
 
-    getOptions(): any {
+    public GetOptions(): any {
         return { cwd: this._localPath };
     }
 
@@ -38,7 +38,7 @@ export class FindWorkspace implements ITfvcCommand<IWorkspace> {
      * Collection: http://java-tfs2015:8081/tfs/
      * $/tfsTest_01: D:\tmp\test
      */
-    parseOutput(executionResult: IExecutionResult): IWorkspace {
+    public ParseOutput(executionResult: IExecutionResult): IWorkspace {
         const stdout = executionResult.stdout;
 
         // Find the workspace name and collectionUrl
@@ -75,6 +75,9 @@ export class FindWorkspace implements ITfvcCommand<IWorkspace> {
         return workspace;
     }
 
+    /**
+     * This method parses a line of the form "name: value" and returns the value part.
+     */
     private getValue(line: string): string {
         if (line) {
             const index = line.indexOf(":");

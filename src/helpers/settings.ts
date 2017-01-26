@@ -8,7 +8,7 @@ import { workspace } from "vscode";
 import { SettingNames, WitQueries } from "./constants";
 import { Logger } from "../helpers/logger";
 
-abstract class BaseSettings {
+export abstract class BaseSettings {
     protected readSetting<T>(name: string, defaultValue:T): T {
         let configuration = workspace.getConfiguration();
         let value = configuration.get<T>(name, undefined);

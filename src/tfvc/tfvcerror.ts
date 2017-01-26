@@ -16,7 +16,7 @@ export class TfvcError {
     tfvcErrorCode: string;
     tfvcCommand: string;
 
-    constructor(data: ITfvcErrorData) {
+    public constructor(data: ITfvcErrorData) {
         if (data.error) {
             this.error = data.error;
             this.message = data.error.message;
@@ -32,7 +32,7 @@ export class TfvcError {
         this.tfvcCommand = data.tfvcCommand;
     }
 
-    toString(): string {
+    public toString(): string {
         let result = this.message + " " +
             JSON.stringify(
                 {
@@ -54,21 +54,21 @@ export class TfvcError {
 }
 
 export class TfvcErrorCodes {
-    static get BadConfigFile(): string { return "BadConfigFile"; }
-    static get AuthenticationFailed(): string { return "AuthenticationFailed"; }
-    static get NoUserNameConfigured(): string { return "NoUserNameConfigured"; }
-    static get NoUserEmailConfigured(): string { return "NoUserEmailConfigured"; }
-    static get NoRemoteRepositorySpecified(): string { return "NoRemoteRepositorySpecified"; }
-    static get NotAGitRepository(): string { return "NotAGitRepository"; }
-    static get NotAtRepositoryRoot(): string { return "NotAtRepositoryRoot"; }
-    static get Conflict(): string { return "Conflict"; }
-    static get UnmergedChanges(): string { return "UnmergedChanges"; }
-    static get PushRejected(): string { return "PushRejected"; }
-    static get RemoteConnectionError(): string { return "RemoteConnectionError"; }
-    static get DirtyWorkTree(): string { return "DirtyWorkTree"; }
-    static get CantOpenResource(): string { return "CantOpenResource"; }
-    static get GitNotFound(): string { return "GitNotFound"; }
-    static get CantCreatePipe(): string { return "CantCreatePipe"; }
-    static get CantAccessRemote(): string { return "CantAccessRemote"; }
-    static get RepositoryNotFound(): string { return "RepositoryNotFound"; }
+    public static get BadConfigFile(): string { return "BadConfigFile"; }
+    public static get AuthenticationFailed(): string { return "AuthenticationFailed"; }
+    public static get NoUserNameConfigured(): string { return "NoUserNameConfigured"; }
+    public static get NoUserEmailConfigured(): string { return "NoUserEmailConfigured"; }
+    public static get NoRemoteRepositorySpecified(): string { return "NoRemoteRepositorySpecified"; }
+    public static get NotATfvcRepository(): string { return "NotATfvcRepository"; }
+    public static get NotAtRepositoryRoot(): string { return "NotAtRepositoryRoot"; }
+    public static get Conflict(): string { return "Conflict"; }
+    public static get UnmergedChanges(): string { return "UnmergedChanges"; }
+    public static get PushRejected(): string { return "PushRejected"; }
+    public static get RemoteConnectionError(): string { return "RemoteConnectionError"; }
+    public static get DirtyWorkTree(): string { return "DirtyWorkTree"; }
+    public static get CantOpenResource(): string { return "CantOpenResource"; }
+    public static get TfvcNotFound(): string { return "TfvcNotFound"; }
+    public static get CantCreatePipe(): string { return "CantCreatePipe"; }
+    public static get CantAccessRemote(): string { return "CantAccessRemote"; }
+    public static get RepositoryNotFound(): string { return "RepositoryNotFound"; }
 };

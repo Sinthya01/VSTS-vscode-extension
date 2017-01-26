@@ -8,12 +8,12 @@
  * Create an instance of this class to build up the arguments that should be passed to the command line.
  */
 export class ArgumentBuilder {
-    private arguments: string[] = [];
-    private secretArgumentIndexes: number[] = [];
+    private _arguments: string[] = [];
+    private _secretArgumentIndexes: number[] = [];
 
     public constructor(command: string) {
-        this.add(command);
-        this.addSwitch("noprompt");
+        this.Add(command);
+        this.AddSwitch("noprompt");
         //TODO set context params: login, proxy, collection
         /*
         if (context != null && context.getCollectionURI() != null) {
@@ -38,22 +38,22 @@ export class ArgumentBuilder {
         */
     }
 
-    public add(arg: string): ArgumentBuilder {
-        this.arguments.push(arg);
+    public Add(arg: string): ArgumentBuilder {
+        this._arguments.push(arg);
         return this;
     }
 
-    public addSecret(arg: string): ArgumentBuilder {
-        this.add(arg);
-        this.secretArgumentIndexes.push(this.arguments.length - 1);
+    public AddSecret(arg: string): ArgumentBuilder {
+        this.Add(arg);
+        this._secretArgumentIndexes.push(this._arguments.length - 1);
         return this;
     }
 
-    public addSwitch(switchName: string): ArgumentBuilder {
-        return this.addSwitchWithValue(switchName, null, false);
+    public AddSwitch(switchName: string): ArgumentBuilder {
+        return this.AddSwitchWithValue(switchName, null, false);
     }
 
-    public addSwitchWithValue(switchName: string, switchValue: string, isSecret: boolean): ArgumentBuilder {
+    public AddSwitchWithValue(switchName: string, switchValue: string, isSecret: boolean): ArgumentBuilder {
         let arg: string;
         if (!switchValue) {
             arg = "-" + switchName;
@@ -62,23 +62,23 @@ export class ArgumentBuilder {
         }
 
         if (isSecret) {
-            this.addSecret(arg);
+            this.AddSecret(arg);
         } else {
-            this.add(arg);
+            this.Add(arg);
         }
 
         return this;
     }
 
-    public build(): string[] {
-        return this.arguments;
+    public Build(): string[] {
+        return this._arguments;
     }
 
-    public toString(): string {
+    public ToString(): string {
         let output: string = "";
-        for (let i = 0; i < this.arguments.length; i++) {
-            let arg: string = this.arguments[i];
-            if (this.secretArgumentIndexes.indexOf(i) >= 0) {
+        for (let i = 0; i < this._arguments.length; i++) {
+            let arg: string = this._arguments[i];
+            if (this._secretArgumentIndexes.indexOf(i) >= 0) {
                 // This arg is a secret so hide the value
                 arg = "********";
             }
