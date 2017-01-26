@@ -5,7 +5,7 @@
 "use strict";
 
 import { commands, ExtensionContext } from "vscode";
-import { CommandNames } from "./helpers/constants";
+import { CommandNames, TfvcCommandNames } from "./helpers/constants";
 import { TeamExtension } from "./team-extension";
 
 var teamExtension: TeamExtension;
@@ -31,4 +31,7 @@ export function activate(context: ExtensionContext) {
     context.subscriptions.push(commands.registerCommand(CommandNames.SendFeedback, () => teamExtension.SendFeedback()));
     context.subscriptions.push(commands.registerCommand(CommandNames.RefreshPollingStatus, () => teamExtension.RefreshPollingStatus()));
     context.subscriptions.push(commands.registerCommand(CommandNames.Reinitialize, () => teamExtension.Reinitialize()));
+
+    // TFVC Commands
+    context.subscriptions.push(commands.registerCommand(TfvcCommandNames.Status, () => teamExtension.TfvcStatus()));
 }

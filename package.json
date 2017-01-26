@@ -112,6 +112,10 @@
       {
         "command": "team.Logout",
         "title": "team logout"
+      },
+      {
+        "command": "tfvc.Status",
+        "title": "tfvc status"
       }
     ]
   },

@@ -22,6 +22,9 @@ import { GitClient } from "./clients/gitclient";
 import { WitClient } from "./clients/witclient";
 import { RepositoryInfo } from "./info/repositoryinfo";
 import { UserInfo } from "./info/userinfo";
+import { Tfvc } from "./tfvc/tfvc";
+import { Repository } from "./tfvc/repository";
+import { IWorkspace } from "./tfvc/interfaces";
 
 var os = require("os");
 var path = require("path");
@@ -293,6 +296,26 @@ export class TeamExtension  {
             VsCodeUtils.ShowErrorMessage(this._errorMessage);
         }
     }
+
+    /********* TFVC Commands - START *************/
+
+    //Run the TF status command and display the results
+    public async TfvcStatus(): Promise<void> {
+        if (this.ensureInitialized()) {
+            try {
+                let tfvc: Tfvc = new Tfvc();
+                let repo: Repository = tfvc.open("D:\\tmp\\tfsTest03_44");
+                const workspace: IWorkspace = await repo.findWorkspace("D:\\tmp\\tfsTest03_44");
+                VsCodeUtils.ShowWarningMessage(workspace.name + " | " + workspace.server);
+            } catch (err) {
+                VsCodeUtils.ShowErrorMessage(err);
+            }
+        } else {
+            VsCodeUtils.ShowErrorMessage(this._errorMessage);
+        }
+    }
+
+    /********* TFVC Commands - END *************/
 
     private displayNoCredentialsMessage(): void {
         let error: string = Strings.NoTeamServerCredentialsRunLogin;
