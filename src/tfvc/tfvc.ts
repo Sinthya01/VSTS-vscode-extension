@@ -29,6 +29,7 @@ export class Tfvc {
             const settings = new TfvcSettings();
             this._tfvcPath = settings.Location;
             if (!this._tfvcPath) {
+                //TODO localize the message once this code stops changing so much
                 throw new TfvcError({
                     message: "The path to the TFVC command line was not found in the user settings. Please set this value.",
                     tfvcErrorCode: TfvcErrorCodes.TfvcNotFound
