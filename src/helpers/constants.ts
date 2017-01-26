@@ -34,6 +34,11 @@ export class CommandNames {
     static ViewPinnedQueryWorkItems: string = CommandNames.CommandPrefix + "ViewPinnedQueryWorkItems";
 }
 
+export class TfvcCommandNames {
+    static CommandPrefix: string = "tfvc.";
+    static Status: string = TfvcCommandNames.CommandPrefix + "Status";
+}
+
 export class SettingNames {
     static SettingsPrefix: string = Constants.ExtensionName + ".";
     static PinnedQueries: string = SettingNames.SettingsPrefix + "pinnedQueries";
