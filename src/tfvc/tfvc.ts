@@ -6,13 +6,16 @@
 
 import * as cp from "child_process";
 import { EventEmitter, Event } from "vscode";
+import { Strings } from "../helpers/strings";
 import { IDisposable, toDisposable, dispose } from "./util";
 import { IExecutionResult } from "./interfaces";
 import { TfvcError, TfvcErrorCodes } from "./tfvcerror";
 import { Repository } from "./repository";
 import { TfvcSettings } from "./tfvcsettings";
+import { TfvcVersion } from "./tfvcversion";
 
 var _ = require("underscore");
+var fs = require("fs");
 
 export class Tfvc {
 
@@ -29,16 +32,42 @@ export class Tfvc {
             const settings = new TfvcSettings();
             this._tfvcPath = settings.Location;
             if (!this._tfvcPath) {
-                //TODO localize the message once this code stops changing so much
                 throw new TfvcError({
-                    message: "The path to the TFVC command line was not found in the user settings. Please set this value.",
+                    message: Strings.TfvcLocationMissingError,
                     tfvcErrorCode: TfvcErrorCodes.TfvcNotFound
                 });
             }
         }
-        //TODO check to make sure that the file exists in that location
-        //TODO check the version of TFVC command line
 
+        // check to make sure that the file exists in that location
+        const stats: any = fs.lstatSync(this._tfvcPath);
+        if (!stats || !stats.isFile()) {
+                throw new TfvcError({
+                    message: Strings.TfMissingError,
+                    tfvcErrorCode: TfvcErrorCodes.TfvcNotFound
+                });
+        }
+    }
+
+    /**
+     * This method checks the version of the CLC against the minimum version that we expect.
+     * It throws an error if the version does not meet or exceed the minimum.
+     */
+    public CheckVersion(version: string) {
+        if (!version) {
+            // If the version isn't set just return
+            return;
+        }
+
+        // check the version of TFVC command line
+        const minVersion: TfvcVersion = TfvcVersion.FromString("14.0.4");
+        const curVersion: TfvcVersion = TfvcVersion.FromString(version);
+        if (TfvcVersion.Compare(curVersion, minVersion) < 0) {
+            throw new TfvcError({
+                message: Strings.TfVersionWarning + minVersion.ToString(),
+                tfvcErrorCode: TfvcErrorCodes.TfvcMinVersionWarning
+            });
+        }
     }
 
     public Open(repositoryRootFolder: string, env: any = {}): Repository {
@@ -52,10 +81,6 @@ export class Tfvc {
     }
 
     private spawn(args: string[], options: any = {}): cp.ChildProcess {
-        if (!this._tfvcPath) {
-            throw new Error("tfvc could not be found in the system.");
-        }
-
         if (!options) {
             options = {};
         }
@@ -104,7 +129,7 @@ export class Tfvc {
             }
 
             return Promise.reject<IExecutionResult>(new TfvcError({
-                message: "Failed to execute tfvc",
+                message: Strings.TfExecFailedError,
                 stdout: result.stdout,
                 stderr: result.stderr,
                 exitCode: result.exitCode,
@@ -155,4 +180,3 @@ export class Tfvc {
         this._onOutput.fire(output);
     }
 }
-

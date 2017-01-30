@@ -4,6 +4,7 @@
 *--------------------------------------------------------------------------------------------*/
 "use strict";
 
+import { Strings } from "../helpers/strings";
 import { ITfvcErrorData } from "./interfaces";
 
 export class TfvcError {
@@ -18,6 +19,7 @@ export class TfvcError {
 
     public static createArgumentMissingError(argumentName: string): TfvcError {
         return new TfvcError({
+                // This is a developer error - no need to localize
                 message: `Argument is required: ${argumentName}`,
                 tfvcErrorCode: TfvcErrorCodes.MissingArgument
             });
@@ -31,7 +33,7 @@ export class TfvcError {
             this.error = undefined;
         }
 
-        this.message = this.message || data.message || "Tfvc error";
+        this.message = this.message || data.message || Strings.TfExecFailedError;
         this.stdout = data.stdout;
         this.stderr = data.stderr;
         this.exitCode = data.exitCode;
@@ -76,6 +78,7 @@ export class TfvcErrorCodes {
     public static get DirtyWorkTree(): string { return "DirtyWorkTree"; }
     public static get CantOpenResource(): string { return "CantOpenResource"; }
     public static get TfvcNotFound(): string { return "TfvcNotFound"; }
+    public static get TfvcMinVersionWarning(): string { return "TfvcMinVersionWarning"; }
     public static get CantCreatePipe(): string { return "CantCreatePipe"; }
     public static get CantAccessRemote(): string { return "CantAccessRemote"; }
     public static get RepositoryNotFound(): string { return "RepositoryNotFound"; }
