@@ -34,7 +34,7 @@ export class TfvcExtension  {
                 window.showTextDocument(await workspace.openTextDocument(chosenItem.localItem));
             }
         } catch (err) {
-            VsCodeUtils.ShowErrorMessage(err);
+            VsCodeUtils.ShowErrorMessage(err.message);
         }
     }
 
@@ -42,7 +42,7 @@ export class TfvcExtension  {
         try {
             await repo.CheckVersion();
         } catch (err) {
-            VsCodeUtils.ShowWarningMessage(err);
+            VsCodeUtils.ShowWarningMessage(err.message);
         }
     }
 }

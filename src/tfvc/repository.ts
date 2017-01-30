@@ -49,6 +49,7 @@ export class Repository {
 
     public async CheckVersion(): Promise<void> {
         if (!this._versionAlreadyChecked) {
+            // Set the versionAlreadyChecked flag first in case one of the other lines throws
             this._versionAlreadyChecked = true;
             const version: string = await this.RunCommand<string>(new GetVersion());
             this._tfvc.CheckVersion(version);
