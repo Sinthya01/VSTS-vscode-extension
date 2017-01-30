@@ -5,6 +5,7 @@
 "use strict";
 
 import { QuickPickItem, window, workspace } from "vscode";
+import { Strings } from "../helpers/strings";
 import { IPendingChange } from "./interfaces";
 
 var path = require("path");
@@ -22,9 +23,8 @@ export class UIHelper {
                     });
             }
             // Then, show the quick pick window and get back the one they chose
-            //TODO localize strings
             let item: QuickPickItem = await window.showQuickPick(
-                items, { matchOnDescription: true, placeHolder: "Choose a file to open the file." });
+                items, { matchOnDescription: true, placeHolder: Strings.ChooseItemQuickPickPlaceHolder });
 
             // Finally, find the matching pending change and return it
             if (item) {

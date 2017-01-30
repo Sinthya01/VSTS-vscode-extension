@@ -18,19 +18,23 @@ var _ = require("underscore");
  * by the repositoryRootFolder.
  */
 export class Repository {
+    private _tfvc: Tfvc;
+    private _repositoryRootFolder: string;
+    private _env: any;
+    private _versionAlreadyChecked = false;
 
-    public constructor(
-        private _tfvc: Tfvc,
-        private repositoryRootFolder: string,
-        private env: any = {}
-    ) { }
+    public constructor(tfvc: Tfvc, repositoryRootFolder: string, env: any = {}) {
+        this._tfvc = tfvc;
+        this._repositoryRootFolder = repositoryRootFolder;
+        this._env = env;
+    }
 
     public get Tfvc(): Tfvc {
         return this._tfvc;
     }
 
     public get Path(): string {
-        return this.repositoryRootFolder;
+        return this._repositoryRootFolder;
     }
 
     public async FindWorkspace(localPath: string): Promise<IWorkspace> {
@@ -43,9 +47,13 @@ export class Repository {
             new Status(ignoreFiles === undefined ? true : ignoreFiles));
     }
 
-    public async Version(): Promise<string> {
-        return this.RunCommand<string>(
-            new GetVersion());
+    public async CheckVersion(): Promise<void> {
+        if (!this._versionAlreadyChecked) {
+            // Set the versionAlreadyChecked flag first in case one of the other lines throws
+            this._versionAlreadyChecked = true;
+            const version: string = await this.RunCommand<string>(new GetVersion());
+            this._tfvc.CheckVersion(version);
+        }
     }
 
     public async RunCommand<T>(cmd: ITfvcCommand<T>): Promise<T> {
@@ -55,7 +63,7 @@ export class Repository {
 
     private async exec(args: string[], options: any = {}): Promise<IExecutionResult> {
         options.env = _.assign({}, options.env || {});
-        options.env = _.assign(options.env, this.env);
-        return await this.Tfvc.Exec(this.repositoryRootFolder, args, options);
+        options.env = _.assign(options.env, this._env);
+        return await this.Tfvc.Exec(this._repositoryRootFolder, args, options);
     }
 }

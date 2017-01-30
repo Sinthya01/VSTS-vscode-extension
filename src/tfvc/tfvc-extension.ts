@@ -27,12 +27,22 @@ export class TfvcExtension  {
         try {
             const tfvc: Tfvc = new Tfvc();
             const repo: Repository = tfvc.Open(workspace.rootPath);
+            await this.checkVersion(repo);
+
             const chosenItem: IPendingChange = await UIHelper.ChoosePendingChange(await repo.GetStatus());
             if (chosenItem) {
                 window.showTextDocument(await workspace.openTextDocument(chosenItem.localItem));
             }
         } catch (err) {
-            VsCodeUtils.ShowErrorMessage(err);
+            VsCodeUtils.ShowErrorMessage(err.message);
+        }
+    }
+
+    private async checkVersion(repo: Repository) {
+        try {
+            await repo.CheckVersion();
+        } catch (err) {
+            VsCodeUtils.ShowWarningMessage(err.message);
         }
     }
 }

@@ -48,5 +48,12 @@ export class Strings {
     static StatusCode401: string = "Unauthorized. Check your authentication credentials and try again.";
     static StatusCodeOffline: string = "It appears Visual Studio Code is offline.  Please connect and try again.";
     static ProxyUnreachable: string = "It appears the configured proxy is not reachable.  Please check your connection and try again.";
+
+    // TFVC messages/errors
+    static ChooseItemQuickPickPlaceHolder: string = "Choose a file to open it.";
+    static TfvcLocationMissingError: string = "The path to the TFVC command line was not found in the user settings. Please set this value (tfvc.location) and try again.";
+    static TfMissingError: string = "Unable to find the TF executable at the expected location. Please verify the installation and location of TF. Expected path: ";
+    static TfExecFailedError: string = "Execution of the TFVC command line failed unexpectedly.";
+    static TfVersionWarning: string = "The installed version of the TF command line does not meet the minimum suggested version. You may run into errors or limitations with certain commands until you upgrade. Minimum suggested version: ";
 }
 /* tslint:enable:variable-name */
