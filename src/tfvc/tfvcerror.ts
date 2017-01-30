@@ -16,23 +16,19 @@ export class TfvcError {
     tfvcErrorCode: string;
     tfvcCommand: string;
 
-    public constructor(data: ITfvcErrorData | string) {
-        if (typeof data === "string") {
-            this.initialize({
-                message: `Argument is required: ${data}`,
+    public static createArgumentMissingError(argumentName: string): TfvcError {
+        return new TfvcError({
+                message: `Argument is required: ${argumentName}`,
                 tfvcErrorCode: TfvcErrorCodes.MissingArgument
             });
-        } else {
-            this.initialize(data);
-        }
     }
 
-    private initialize(data: ITfvcErrorData) {
+    public constructor(data: ITfvcErrorData) {
         if (data.error) {
             this.error = data.error;
             this.message = data.error.message;
         } else {
-            this.error = void 0;
+            this.error = undefined;
         }
 
         this.message = this.message || data.message || "Tfvc error";

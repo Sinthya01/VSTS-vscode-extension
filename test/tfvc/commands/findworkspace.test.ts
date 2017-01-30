@@ -4,18 +4,13 @@
 *--------------------------------------------------------------------------------------------*/
 "use strict";
 
+import { assert } from "chai";
+
 import { FindWorkspace } from "../../../src/tfvc/commands/findworkspace";
 import { TfvcError } from "../../../src/tfvc/tfvcerror";
 import { IExecutionResult, IWorkspace } from "../../../src/tfvc/interfaces";
 
-var chai = require("chai");
-/* tslint:disable:no-unused-variable */
-var expect = chai.expect;
-/* tslint:enable:no-unused-variable */
-var assert = chai.assert;
-chai.should();
-
-describe("FindWorkspaceCommand", function() {
+describe("Tfvc-FindWorkspaceCommand", function() {
 
     beforeEach(function() {
         //
