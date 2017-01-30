@@ -16,7 +16,18 @@ export class TfvcError {
     tfvcErrorCode: string;
     tfvcCommand: string;
 
-    public constructor(data: ITfvcErrorData) {
+    public constructor(data: ITfvcErrorData | string) {
+        if (typeof data === "string") {
+            this.initialize({
+                message: `Argument is required: ${data}`,
+                tfvcErrorCode: TfvcErrorCodes.MissingArgument
+            });
+        } else {
+            this.initialize(data);
+        }
+    }
+
+    private initialize(data: ITfvcErrorData) {
         if (data.error) {
             this.error = data.error;
             this.message = data.error.message;
@@ -54,6 +65,7 @@ export class TfvcError {
 }
 
 export class TfvcErrorCodes {
+    public static get MissingArgument(): string { return "MissingArgument"; }
     public static get BadConfigFile(): string { return "BadConfigFile"; }
     public static get AuthenticationFailed(): string { return "AuthenticationFailed"; }
     public static get NoUserNameConfigured(): string { return "NoUserNameConfigured"; }
