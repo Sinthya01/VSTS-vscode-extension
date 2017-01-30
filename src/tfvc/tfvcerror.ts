@@ -16,12 +16,19 @@ export class TfvcError {
     tfvcErrorCode: string;
     tfvcCommand: string;
 
+    public static createArgumentMissingError(argumentName: string): TfvcError {
+        return new TfvcError({
+                message: `Argument is required: ${argumentName}`,
+                tfvcErrorCode: TfvcErrorCodes.MissingArgument
+            });
+    }
+
     public constructor(data: ITfvcErrorData) {
         if (data.error) {
             this.error = data.error;
             this.message = data.error.message;
         } else {
-            this.error = void 0;
+            this.error = undefined;
         }
 
         this.message = this.message || data.message || "Tfvc error";
@@ -54,6 +61,7 @@ export class TfvcError {
 }
 
 export class TfvcErrorCodes {
+    public static get MissingArgument(): string { return "MissingArgument"; }
     public static get BadConfigFile(): string { return "BadConfigFile"; }
     public static get AuthenticationFailed(): string { return "AuthenticationFailed"; }
     public static get NoUserNameConfigured(): string { return "NoUserNameConfigured"; }

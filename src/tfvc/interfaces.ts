@@ -16,7 +16,14 @@ export interface IWorkspace {
     computer?: string;
     owner?: string;
     comment?: string;
-    //List<Mapping> mappings;
+    mappings: IWorkspaceMapping[];
+    defaultTeamProject: string;
+}
+
+export interface IWorkspaceMapping {
+    serverPath: string;
+    localPath: string;
+    cloaked: boolean;
 }
 
 export interface IPendingChange {
