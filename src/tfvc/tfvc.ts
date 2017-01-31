@@ -118,6 +118,7 @@ export class Tfvc {
 
         if (result.exitCode) {
             let tfvcErrorCode: string = null;
+            let message: string;
 
             if (/Authentication failed/.test(result.stderr)) {
                 tfvcErrorCode = TfvcErrorCodes.AuthenticationFailed;
@@ -131,6 +132,9 @@ export class Tfvc {
                 tfvcErrorCode = TfvcErrorCodes.RepositoryNotFound;
             } else if (/unable to access/.test(result.stderr)) {
                 tfvcErrorCode = TfvcErrorCodes.CantAccessRemote;
+            } else if (/project collection URL to use could not be determined/i.test(result.stderr)) {
+                tfvcErrorCode = TfvcErrorCodes.NotATfvcRepository;
+                message = Strings.NotATfvcRepository;
             }
 
             if (options.log !== false) {
@@ -138,7 +142,7 @@ export class Tfvc {
             }
 
             return Promise.reject<IExecutionResult>(new TfvcError({
-                message: Strings.TfExecFailedError,
+                message: message || Strings.TfExecFailedError,
                 stdout: result.stdout,
                 stderr: result.stderr,
                 exitCode: result.exitCode,
