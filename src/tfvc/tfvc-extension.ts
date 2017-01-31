@@ -12,8 +12,8 @@ import { UIHelper } from "./uihelper";
 import { IPendingChange } from "./interfaces";
 
 export class TfvcExtension  {
-    private _tfvc: Tfvc = undefined;
-    private _repo: Repository = undefined;
+    private _tfvc: Tfvc;
+    private _repo: Repository;
     private _manager: ExtensionManager;
 
     constructor(manager: ExtensionManager) {
@@ -56,7 +56,6 @@ export class TfvcExtension  {
     }
 
     dispose() {
-        this._tfvc = undefined;
-        this._repo = undefined;
+        // nothing to dispose
     }
 }

@@ -6,7 +6,7 @@
 
 import * as cp from "child_process";
 import { EventEmitter, Event } from "vscode";
-import { TeamServerContext} from "../contexts/servercontext";
+import { TeamServerContext } from "../contexts/servercontext";
 import { Strings } from "../helpers/strings";
 import { IDisposable, toDisposable, dispose } from "./util";
 import { IExecutionResult } from "./interfaces";
