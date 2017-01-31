@@ -77,6 +77,7 @@ export class TfvcErrorCodes {
     public static get RemoteConnectionError(): string { return "RemoteConnectionError"; }
     public static get DirtyWorkTree(): string { return "DirtyWorkTree"; }
     public static get CantOpenResource(): string { return "CantOpenResource"; }
+    public static get TfvcLocationMissing(): string { return "TfvcLocationMissing"; }
     public static get TfvcNotFound(): string { return "TfvcNotFound"; }
     public static get TfvcMinVersionWarning(): string { return "TfvcMinVersionWarning"; }
     public static get CantCreatePipe(): string { return "CantCreatePipe"; }
