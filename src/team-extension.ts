@@ -23,6 +23,7 @@ import { GitClient } from "./clients/gitclient";
 import { WitClient } from "./clients/witclient";
 import { RepositoryInfoClient } from "./clients/repositoryinfoclient";
 import { UserInfo } from "./info/userinfo";
+import { TfvcErrorCodes } from "./tfvc/tfvcerror";
 
 var os = require("os");
 var path = require("path");
@@ -457,7 +458,9 @@ export class TeamExtension  {
         } catch (err) {
             Logger.LogError(err.message);
             //For now, don't report these errors via the _feedbackClient
-            this.setErrorStatus(err.message, undefined, false);
+            if (!err.tfvcErrorCode || this.shouldDisplayTfvcError(err.tfvcErrorCode)) {
+                this.setErrorStatus(err.message, undefined, false);
+            }
         }
     }
 
@@ -651,6 +654,15 @@ export class TeamExtension  {
                 this.Reinitialize();
             });
         }
+    }
+
+    //Determines which Tfvc errors to display in the status bar ui
+    private shouldDisplayTfvcError(errorCode: string): boolean {
+        if (TfvcErrorCodes.TfvcMinVersionWarning === errorCode ||
+            TfvcErrorCodes.TfvcNotFound === errorCode) {
+            return true;
+        }
+        return false;
     }
 
     //Sets up the interval to refresh polling items

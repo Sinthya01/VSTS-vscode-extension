@@ -34,7 +34,7 @@ export class Tfvc {
             if (!this._tfvcPath) {
                 throw new TfvcError({
                     message: Strings.TfvcLocationMissingError,
-                    tfvcErrorCode: TfvcErrorCodes.TfvcNotFound
+                    tfvcErrorCode: TfvcErrorCodes.TfvcLocationMissing
                 });
             }
         }
