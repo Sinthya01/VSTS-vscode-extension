@@ -4,6 +4,8 @@
 *--------------------------------------------------------------------------------------------*/
 "use strict";
 
+import { TeamServerContext} from "../../contexts/servercontext";
+
 /**
  * Create an instance of this class to build up the arguments that should be passed to the command line.
  */
@@ -11,31 +13,26 @@ export class ArgumentBuilder {
     private _arguments: string[] = [];
     private _secretArgumentIndexes: number[] = [];
 
-    public constructor(command: string) {
+    public constructor(command: string, serverContext?: TeamServerContext) {
         this.Add(command);
         this.AddSwitch("noprompt");
-        //TODO set context params: login, proxy, collection
-        /*
-        if (context != null && context.getCollectionURI() != null) {
-            final String collectionURI = context.getCollectionURI().toString();
-            // decode URI since CLC does not expect encoded collection urls
-            try {
-                builder.addSwitch("collection", URLDecoder.decode(collectionURI, "UTF-8"));
-            } catch (UnsupportedEncodingException e) {
-                logger.warn("Error while decoding collection url. Using encoded url instead", e);
-                builder.addSwitch("collection", collectionURI);
+
+        if (serverContext && serverContext.RepoInfo && serverContext.RepoInfo.CollectionUrl) {
+            //TODO decode URI since CLC does not expect encoded collection urls
+            this.AddSwitchWithValue("collection", serverContext.RepoInfo.CollectionUrl, false);
+            if (serverContext.CredentialInfo) {
+                this.AddSwitchWithValue("login", serverContext.CredentialInfo.Username + "," + serverContext.CredentialInfo.Password, true);
             }
-            if (context.getAuthenticationInfo() != null) {
-                builder.addSwitch("login", context.getAuthenticationInfo().getUserName() + "," + context.getAuthenticationInfo().getPassword(), true);
-            }
+            //TODO add proxy
+            /*
             if (useProxyIfAvailable) {
                 final String proxyURI = WorkspaceHelper.getProxyServer(collectionURI);
                 if (StringUtils.isNotEmpty(proxyURI)) {
                     builder.addSwitch("proxy", proxyURI);
                 }
             }
+            */
         }
-        */
     }
 
     public Add(arg: string): ArgumentBuilder {

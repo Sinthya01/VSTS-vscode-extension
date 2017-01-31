@@ -4,6 +4,7 @@
 *--------------------------------------------------------------------------------------------*/
 "use strict";
 
+import { TeamServerContext} from "../contexts/servercontext";
 import { ITfvcCommand, IExecutionResult } from "./interfaces";
 import { Tfvc } from "./tfvc";
 import { IWorkspace, IPendingChange } from "./interfaces";
@@ -18,12 +19,14 @@ var _ = require("underscore");
  * by the repositoryRootFolder.
  */
 export class Repository {
+    private _serverContext: TeamServerContext;
     private _tfvc: Tfvc;
     private _repositoryRootFolder: string;
     private _env: any;
     private _versionAlreadyChecked = false;
 
-    public constructor(tfvc: Tfvc, repositoryRootFolder: string, env: any = {}) {
+    public constructor(serverContext: TeamServerContext, tfvc: Tfvc, repositoryRootFolder: string, env: any = {}) {
+        this._serverContext = serverContext;
         this._tfvc = tfvc;
         this._repositoryRootFolder = repositoryRootFolder;
         this._env = env;
@@ -49,7 +52,7 @@ export class Repository {
 
     public async GetStatus(ignoreFiles?: boolean): Promise<IPendingChange[]> {
         return this.RunCommand<IPendingChange[]>(
-            new Status(ignoreFiles === undefined ? true : ignoreFiles));
+            new Status(this._serverContext, ignoreFiles === undefined ? true : ignoreFiles));
     }
 
     public async CheckVersion(): Promise<void> {

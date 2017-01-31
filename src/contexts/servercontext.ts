@@ -5,6 +5,7 @@
 "use strict";
 
 import { IRequestHandler } from "vso-node-api/interfaces/common/VsoBaseInterfaces";
+import { CredentialInfo } from "../info/credentialinfo";
 import { RepositoryInfo } from "../info/repositoryinfo";
 import { UserInfo } from "../info/userinfo";
 
@@ -12,6 +13,7 @@ export class TeamServerContext {
     private _userInfo: UserInfo;
     private _repositoryInfo: RepositoryInfo;
     private _credentialHandler: IRequestHandler;
+    private _credentialInfo: CredentialInfo;
 
     //The constructor simply parses the remoteUrl to determine if we're Team Services or Team Foundation Server.
     //Any additional information we can get from the url is also parsed.  Once we call the vsts/info api, we can
@@ -39,5 +41,11 @@ export class TeamServerContext {
     }
     public set UserInfo(info: UserInfo) {
         this._userInfo = info;
+    }
+    public get CredentialInfo(): CredentialInfo {
+        return this._credentialInfo;
+    }
+    public set CredentialInfo(info: CredentialInfo) {
+        this._credentialInfo = info;
     }
 }
