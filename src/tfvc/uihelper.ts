@@ -34,6 +34,14 @@ export class UIHelper {
                     }
                 }
             }
+        } else if (changes && changes.length === 0) {
+            let items: QuickPickItem[] = [];
+            items.push({
+                label: Strings.TfNoPendingChanges,
+                description: undefined,
+                detail: undefined
+            });
+            await window.showQuickPick(items);
         }
         return undefined;
     }
