@@ -28,9 +28,8 @@ export class TfvcContext implements IRepositoryContext {
     public async Initialize(): Promise<void> {
         Logger.LogDebug(`Looking for TFVC repository at ${this._tfvcFolder})`);
         const tfvc: Tfvc = new Tfvc();
-        const repo: Repository = tfvc.Open(this._tfvcFolder);
+        const repo: Repository = tfvc.Open(undefined, this._tfvcFolder);
         const tfvcWorkspace: IWorkspace = await repo.FindWorkspace(this._tfvcFolder);
-
         this._tfvcRemoteUrl = tfvcWorkspace.server;
         this._isTeamServicesUrl = RepoUtils.IsTeamFoundationServicesRepo(this._tfvcRemoteUrl);
         this._isTeamFoundationServer = RepoUtils.IsTeamFoundationServerRepo(this._tfvcRemoteUrl);

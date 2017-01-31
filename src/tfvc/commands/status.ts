@@ -4,6 +4,7 @@
 *--------------------------------------------------------------------------------------------*/
 "use strict";
 
+import { TeamServerContext} from "../../contexts/servercontext";
 import { IExecutionResult, ITfvcCommand, IPendingChange } from "../interfaces";
 import { ArgumentBuilder } from "./argumentbuilder";
 import { CommandHelper } from "./commandhelper";
@@ -17,17 +18,19 @@ var fs = require("fs");
  * status [/workspace:<value>] [/shelveset:<value>] [/format:brief|detailed|xml] [/recursive] [/user:<value>] [/nodetect] [<itemSpec>...]
  */
 export class Status implements ITfvcCommand<IPendingChange[]> {
+    private _serverContext: TeamServerContext;
     private _localPaths: string[];
     private _ignoreFolers: boolean;
 
-    public constructor(ignoreFolders: boolean, localPaths?: string[]) {
+    public constructor(serverContext: TeamServerContext, ignoreFolders: boolean, localPaths?: string[]) {
+        this._serverContext = serverContext;
         this._ignoreFolers = ignoreFolders;
         this._localPaths = localPaths;
     }
 
     //TODO need to pass in context here as an optional parameter
     public GetArguments(): string[] {
-        const builder: ArgumentBuilder = new ArgumentBuilder("status")
+        const builder: ArgumentBuilder = new ArgumentBuilder("status", this._serverContext)
             .AddSwitchWithValue("format", "xml", false)
             .AddSwitch("recursive");
 

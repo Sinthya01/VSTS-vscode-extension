@@ -5,44 +5,58 @@
 "use strict";
 
 import { window, workspace } from "vscode";
-import { VsCodeUtils } from "../helpers/vscodeutils";
+import { ExtensionManager } from "../extensionmanager";
 import { Tfvc } from "./tfvc";
 import { Repository } from "./repository";
 import { UIHelper } from "./uihelper";
 import { IPendingChange } from "./interfaces";
 
 export class TfvcExtension  {
+    private _tfvc: Tfvc = undefined;
+    private _repo: Repository = undefined;
+    private _manager: ExtensionManager;
+
+    constructor(manager: ExtensionManager) {
+        this._manager = manager;
+    }
+
     /**
      * This command runs a status command on the VSCode workspace folder and 
      * displays the results to the user. Selecting one of the files in the list will 
      * open the file in the editor.
      */
     public async TfvcStatus(): Promise<void> {
-        // TODO cache the tfvc/repository instances for all commands
-        // TODO hook into reinitialize logic like TeamExtension
-        if (!workspace || !workspace.rootPath) {
+        if (!this._manager.EnsureInitialized()) {
+            this._manager.DisplayErrorMessage();
             return;
         }
 
         try {
-            const tfvc: Tfvc = new Tfvc();
-            const repo: Repository = tfvc.Open(workspace.rootPath);
-            await this.checkVersion(repo);
-
-            const chosenItem: IPendingChange = await UIHelper.ChoosePendingChange(await repo.GetStatus());
+            const chosenItem: IPendingChange = await UIHelper.ChoosePendingChange(await this._repo.GetStatus());
             if (chosenItem) {
                 window.showTextDocument(await workspace.openTextDocument(chosenItem.localItem));
             }
         } catch (err) {
-            VsCodeUtils.ShowErrorMessage(err.message);
+            this._manager.DisplayErrorMessage(err.message);
         }
     }
 
-    private async checkVersion(repo: Repository) {
+    public async InitializeClients() {
+        this._tfvc = new Tfvc();
+        this._repo = this._tfvc.Open(this._manager.ServerContext, workspace.rootPath);
+        await this.checkVersion();
+    }
+
+    private async checkVersion() {
         try {
-            await repo.CheckVersion();
+            await this._repo.CheckVersion();
         } catch (err) {
-            VsCodeUtils.ShowWarningMessage(err.message);
+            this._manager.DisplayWarningMessage(err.message);
         }
+    }
+
+    dispose() {
+        this._tfvc = undefined;
+        this._repo = undefined;
     }
 }

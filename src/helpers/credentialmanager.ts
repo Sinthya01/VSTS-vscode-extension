@@ -26,26 +26,26 @@ export class CredentialManager {
         return CredentialManager._credentialHandler;
     }
 
-    public GetCredentialHandler(context: TeamServerContext, teamServicesToken: string) : Q.Promise<IRequestHandler> {
-        let deferred: Q.Deferred<IRequestHandler> = Q.defer();
+    public GetCredentials(context: TeamServerContext, teamServicesToken: string) : Q.Promise<CredentialInfo> {
+        let deferred: Q.Deferred<CredentialInfo> = Q.defer();
 
-        this.getCredentials(context).then((credInfo) => {
+        this.getCredentials(context).then((credInfo: CredentialInfo) => {
             if (credInfo !== undefined) {
                 // Prefer the settings file until folks remove the entry.  So even though we'll store
                 // it if it isn't present, use the settings until they remove it.  Otherwise, if they
                 // update it, we'll never use the update.
                 if (teamServicesToken !== undefined) {
-                    CredentialManager._credentialHandler = new CredentialInfo(teamServicesToken).CredentialHandler;
-                } else {
-                    CredentialManager._credentialHandler = credInfo.CredentialHandler;
+                    credInfo = new CredentialInfo(teamServicesToken);
                 }
-                deferred.resolve(CredentialManager._credentialHandler);
+                CredentialManager._credentialHandler = credInfo.CredentialHandler;
+                deferred.resolve(credInfo);
             } else {
                 // If I find credentials in settings, store them (migrate them from settings to storage).
                 if (teamServicesToken !== undefined) {
                     this.StoreCredentials(context.RepoInfo.Host, Constants.OAuth, teamServicesToken).then(() => {
-                        CredentialManager._credentialHandler = new CredentialInfo(teamServicesToken).CredentialHandler;
-                        deferred.resolve(CredentialManager._credentialHandler);
+                        credInfo = new CredentialInfo(teamServicesToken);
+                        CredentialManager._credentialHandler = credInfo.CredentialHandler;
+                        deferred.resolve(credInfo);
                     }).catch((reason) => {
                         deferred.reject(reason);
                     });

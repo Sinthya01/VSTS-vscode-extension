@@ -22,7 +22,7 @@ describe("ServerContext-Integration", function() {
         return credentialManager.StoreCredentials(TestSettings.Account(), TestSettings.AccountUser(), TestSettings.Password());
     });
     beforeEach(function() {
-        return credentialManager.GetCredentialHandler(ctx, undefined);
+        return credentialManager.GetCredentials(ctx, undefined);
     });
     // afterEach(function() { });
     after(function() {

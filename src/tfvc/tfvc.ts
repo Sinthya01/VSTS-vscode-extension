@@ -6,6 +6,7 @@
 
 import * as cp from "child_process";
 import { EventEmitter, Event } from "vscode";
+import { TeamServerContext} from "../contexts/servercontext";
 import { Strings } from "../helpers/strings";
 import { IDisposable, toDisposable, dispose } from "./util";
 import { IExecutionResult } from "./interfaces";
@@ -79,8 +80,11 @@ export class Tfvc {
         }
     }
 
-    public Open(repositoryRootFolder: string, env: any = {}): Repository {
-        return new Repository(this, repositoryRootFolder, env);
+    /**
+     * Call open to get the repository object that allows you to perform TFVC commands.
+     */
+    public Open(serverContext: TeamServerContext, repositoryRootFolder: string, env: any = {}): Repository {
+        return new Repository(serverContext, this, repositoryRootFolder, env);
     }
 
     public async Exec(cwd: string, args: string[], options: any = {}): Promise<IExecutionResult> {
