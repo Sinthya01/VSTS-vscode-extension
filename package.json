@@ -115,7 +115,7 @@
       },
       {
         "command": "tfvc.Status",
-        "title": "tfvc status"
+        "title": "TFVC: Status"
       }
     ]
   },
