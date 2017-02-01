@@ -4,7 +4,7 @@
 *--------------------------------------------------------------------------------------------*/
 "use strict";
 
-import { IExecutionResult, ITfvcCommand, IWorkspace, IWorkspaceMapping } from "../interfaces";
+import {IArgumentProvider, IExecutionResult, ITfvcCommand, IWorkspace, IWorkspaceMapping } from "../interfaces";
 import { TfvcError } from "../tfvcerror";
 import { ArgumentBuilder } from "./argumentbuilder";
 
@@ -24,9 +24,8 @@ export class FindWorkspace implements ITfvcCommand<IWorkspace> {
         this._localPath = localPath;
     }
 
-    public GetArguments(): string[] {
-        return new ArgumentBuilder("workfold")
-            .Build();
+    public GetArguments(): IArgumentProvider {
+        return new ArgumentBuilder("workfold");
     }
 
     public GetOptions(): any {

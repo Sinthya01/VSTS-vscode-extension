@@ -55,8 +55,14 @@ export interface ITfvcErrorData {
     tfvcCommand?: string;
 }
 
-export interface ITfvcCommand<T> {
+export interface IArgumentProvider {
+    GetCommand(): string;
     GetArguments(): string[];
+    GetArgumentsForDisplay(): string;
+}
+
+export interface ITfvcCommand<T> {
+    GetArguments(): IArgumentProvider;
     GetOptions(): any;
     ParseOutput(executionResult: IExecutionResult): Promise<T>;
 }

@@ -7,7 +7,7 @@
 import { TeamServerContext} from "../contexts/servercontext";
 import { ITfvcCommand, IExecutionResult } from "./interfaces";
 import { Tfvc } from "./tfvc";
-import { IWorkspace, IPendingChange } from "./interfaces";
+import { IArgumentProvider, IWorkspace, IPendingChange } from "./interfaces";
 import { GetVersion } from "./commands/getversion";
 import { FindWorkspace } from "./commands/findworkspace";
 import { Status } from "./commands/status";
@@ -55,13 +55,16 @@ export class Repository {
             new Status(this._serverContext, ignoreFiles === undefined ? true : ignoreFiles));
     }
 
-    public async CheckVersion(): Promise<void> {
+    public async CheckVersion(): Promise<string> {
         if (!this._versionAlreadyChecked) {
             // Set the versionAlreadyChecked flag first in case one of the other lines throws
             this._versionAlreadyChecked = true;
             const version: string = await this.RunCommand<string>(new GetVersion());
             this._tfvc.CheckVersion(version);
+            return version;
         }
+
+        return undefined;
     }
 
     public async RunCommand<T>(cmd: ITfvcCommand<T>): Promise<T> {
@@ -69,7 +72,7 @@ export class Repository {
         return await cmd.ParseOutput(result);
     }
 
-    private async exec(args: string[], options: any = {}): Promise<IExecutionResult> {
+    private async exec(args: IArgumentProvider, options: any = {}): Promise<IExecutionResult> {
         options.env = _.assign({}, options.env || {});
         options.env = _.assign(options.env, this._env);
         return await this.Tfvc.Exec(this._repositoryRootFolder, args, options);
