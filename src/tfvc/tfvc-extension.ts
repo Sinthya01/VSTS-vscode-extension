@@ -44,15 +44,17 @@ export class TfvcExtension  {
     public async InitializeClients() {
         this._tfvc = new Tfvc();
         this._repo = this._tfvc.Open(this._manager.ServerContext, workspace.rootPath);
-        await this.checkVersion();
-    }
 
-    private async checkVersion() {
+        let version: string = "unknown";
         try {
-            await this._repo.CheckVersion();
+            version = await this._repo.CheckVersion();
         } catch (err) {
             this._manager.DisplayWarningMessage(err.message);
         }
+
+        const outputChannel = window.createOutputChannel("TFVC");
+        outputChannel.appendLine("Using TFVC command line: " + this._tfvc.Location + " (" + version + ")");
+        this._tfvc.onOutput(line => outputChannel.append(line)); //TODO add disposable to unhook event
     }
 
     dispose() {

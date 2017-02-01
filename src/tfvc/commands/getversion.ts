@@ -4,7 +4,7 @@
 *--------------------------------------------------------------------------------------------*/
 "use strict";
 
-import { IExecutionResult, ITfvcCommand } from "../interfaces";
+import { IArgumentProvider, IExecutionResult, ITfvcCommand } from "../interfaces";
 import { ArgumentBuilder } from "./argumentbuilder";
 
 /**
@@ -13,10 +13,9 @@ import { ArgumentBuilder } from "./argumentbuilder";
  * Team Explorer Everywhere Command Line Client (version 14.0.3.201603291047)
  */
 export class GetVersion implements ITfvcCommand<string> {
-    public GetArguments(): string[] {
+    public GetArguments(): IArgumentProvider {
         return new ArgumentBuilder("add")
-            .AddSwitch("?")
-            .Build();
+            .AddSwitch("?");
     }
 
     public GetOptions(): any {

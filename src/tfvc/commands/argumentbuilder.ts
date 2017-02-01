@@ -4,16 +4,21 @@
 *--------------------------------------------------------------------------------------------*/
 "use strict";
 
-import { TeamServerContext} from "../../contexts/servercontext";
+import { TeamServerContext } from "../../contexts/servercontext";
+import { IArgumentProvider } from "../interfaces";
+import { TfvcError } from "../tfvcerror";
 
 /**
  * Create an instance of this class to build up the arguments that should be passed to the command line.
  */
-export class ArgumentBuilder {
+export class ArgumentBuilder implements IArgumentProvider {
     private _arguments: string[] = [];
     private _secretArgumentIndexes: number[] = [];
 
     public constructor(command: string, serverContext?: TeamServerContext) {
+        if (!command) {
+            throw TfvcError.createArgumentMissingError("command");
+        }
         this.Add(command);
         this.AddSwitch("noprompt");
 
@@ -83,4 +88,21 @@ export class ArgumentBuilder {
         }
         return output.trim();
     }
+
+    /* IArgumentProvider Implementation - START */
+
+    public GetCommand(): string {
+        return this._arguments.length > 0 ? this._arguments[0] : "";
+    }
+
+    public GetArguments(): string[] {
+        return this.Build();
+    }
+
+    public GetArgumentsForDisplay(): string {
+        return this.ToString();
+    }
+
+    /* IArgumentProvider Implementation - END */
+
 }

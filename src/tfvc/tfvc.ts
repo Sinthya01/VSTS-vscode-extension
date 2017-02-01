@@ -9,7 +9,7 @@ import { EventEmitter, Event } from "vscode";
 import { TeamServerContext } from "../contexts/servercontext";
 import { Strings } from "../helpers/strings";
 import { IDisposable, toDisposable, dispose } from "./util";
-import { IExecutionResult } from "./interfaces";
+import { IArgumentProvider, IExecutionResult } from "./interfaces";
 import { TfvcError, TfvcErrorCodes } from "./tfvcerror";
 import { Repository } from "./repository";
 import { TfvcSettings } from "./tfvcsettings";
@@ -21,6 +21,7 @@ var fs = require("fs");
 export class Tfvc {
 
     private _tfvcPath: string;
+    public get Location(): string { return this._tfvcPath; }
 
     private _onOutput = new EventEmitter<string>();
     public get onOutput(): Event<string> { return this._onOutput.event; }
@@ -87,13 +88,13 @@ export class Tfvc {
         return new Repository(serverContext, this, repositoryRootFolder, env);
     }
 
-    public async Exec(cwd: string, args: string[], options: any = {}): Promise<IExecutionResult> {
+    public async Exec(cwd: string, args: IArgumentProvider, options: any = {}): Promise<IExecutionResult> {
         // default to the cwd passed in, but allow options.cwd to overwrite it
         options = _.extend({ cwd }, options || {});
         return await this._exec(args, options);
     }
 
-    private spawn(args: string[], options: any = {}): cp.ChildProcess {
+    private spawn(args: IArgumentProvider, options: any = {}): cp.ChildProcess {
         if (!options) {
             options = {};
         }
@@ -105,13 +106,13 @@ export class Tfvc {
         options.env = _.assign({}, process.env, options.env || {});
 
         if (options.log !== false) {
-            this.log(`tf ${args.join(" ")}\n`);
+            this.log(`tf ${args.GetArgumentsForDisplay()}\n`);
         }
 
-        return cp.spawn(this._tfvcPath, args, options);
+        return cp.spawn(this._tfvcPath, args.GetArguments(), options);
     }
 
-    private async _exec(args: string[], options: any = {}): Promise<IExecutionResult> {
+    private async _exec(args: IArgumentProvider, options: any = {}): Promise<IExecutionResult> {
         const child = this.spawn(args, options);
 
         if (options.input) {
@@ -151,7 +152,7 @@ export class Tfvc {
                 stderr: result.stderr,
                 exitCode: result.exitCode,
                 tfvcErrorCode: tfvcErrorCode,
-                tfvcCommand: args[0]
+                tfvcCommand: args.GetCommand()
             }));
         }
 

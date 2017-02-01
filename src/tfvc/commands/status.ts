@@ -5,7 +5,7 @@
 "use strict";
 
 import { TeamServerContext} from "../../contexts/servercontext";
-import { IExecutionResult, ITfvcCommand, IPendingChange } from "../interfaces";
+import { IArgumentProvider, IExecutionResult, ITfvcCommand, IPendingChange } from "../interfaces";
 import { ArgumentBuilder } from "./argumentbuilder";
 import { CommandHelper } from "./commandhelper";
 
@@ -29,7 +29,7 @@ export class Status implements ITfvcCommand<IPendingChange[]> {
     }
 
     //TODO need to pass in context here as an optional parameter
-    public GetArguments(): string[] {
+    public GetArguments(): IArgumentProvider {
         const builder: ArgumentBuilder = new ArgumentBuilder("status", this._serverContext)
             .AddSwitchWithValue("format", "xml", false)
             .AddSwitch("recursive");
@@ -40,7 +40,7 @@ export class Status implements ITfvcCommand<IPendingChange[]> {
             }
         }
 
-        return builder.Build();
+        return builder;
     }
 
     public GetOptions(): any {
