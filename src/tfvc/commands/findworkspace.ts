@@ -4,9 +4,10 @@
 *--------------------------------------------------------------------------------------------*/
 "use strict";
 
-import {IArgumentProvider, IExecutionResult, ITfvcCommand, IWorkspace, IWorkspaceMapping } from "../interfaces";
+import { IArgumentProvider, IExecutionResult, ITfvcCommand, IWorkspace, IWorkspaceMapping } from "../interfaces";
 import { TfvcError } from "../tfvcerror";
 import { ArgumentBuilder } from "./argumentbuilder";
+import { CommandHelper } from "./commandhelper";
 
 /**
  * This command only returns a partial workspace object that allows you to get the name and server.
@@ -49,15 +50,15 @@ export class FindWorkspace implements ITfvcCommand<IWorkspace> {
         }
 
         // Find the workspace name and collectionUrl
-        const lines = stdout.replace("\r\n", "\n").split("\n");
+        const lines = CommandHelper.SplitIntoLines(stdout);
         let workspaceName: string = "";
         let collectionUrl: string = "";
         let equalsLineFound: boolean = false;
         let mappings: IWorkspaceMapping[] = [];
         let teamProject: string = undefined;
 
-        for (let i = 0; i <= lines.length; i++) {
-            const line = lines[i];
+        for (let i: number = 0; i <= lines.length; i++) {
+            const line: string = lines[i];
             if (!line) {
                 continue;
             }
