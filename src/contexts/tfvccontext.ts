@@ -26,7 +26,7 @@ export class TfvcContext implements IRepositoryContext {
 
     //Need to call tf.cmd to get TFVC information (and constructors can't be async)
     public async Initialize(): Promise<void> {
-        Logger.LogDebug(`Looking for TFVC repository at ${this._tfvcFolder})`);
+        Logger.LogDebug(`Looking for TFVC repository at ${this._tfvcFolder}`);
         const tfvc: Tfvc = new Tfvc();
         const repo: Repository = tfvc.Open(undefined, this._tfvcFolder);
         const tfvcWorkspace: IWorkspace = await repo.FindWorkspace(this._tfvcFolder);

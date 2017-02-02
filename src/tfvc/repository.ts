@@ -5,6 +5,7 @@
 "use strict";
 
 import { TeamServerContext} from "../contexts/servercontext";
+import { Logger } from "../helpers/logger";
 import { ITfvcCommand, IExecutionResult } from "./interfaces";
 import { Tfvc } from "./tfvc";
 import { IArgumentProvider, IWorkspace, IPendingChange } from "./interfaces";
@@ -26,6 +27,7 @@ export class Repository {
     private _versionAlreadyChecked = false;
 
     public constructor(serverContext: TeamServerContext, tfvc: Tfvc, repositoryRootFolder: string, env: any = {}) {
+        Logger.LogDebug(`TFVC Repository created with repositoryRootFolder='${repositoryRootFolder}'`);
         this._serverContext = serverContext;
         this._tfvc = tfvc;
         this._repositoryRootFolder = repositoryRootFolder;
@@ -46,17 +48,20 @@ export class Repository {
     }
 
     public async FindWorkspace(localPath: string): Promise<IWorkspace> {
+        Logger.LogDebug(`TFVC Repository.FindWorkspace with localPath='${localPath}'`);
         return this.RunCommand<IWorkspace>(
             new FindWorkspace(localPath));
     }
 
     public async GetStatus(ignoreFiles?: boolean): Promise<IPendingChange[]> {
+        Logger.LogDebug(`TFVC Repository.GetStatus`);
         return this.RunCommand<IPendingChange[]>(
             new Status(this._serverContext, ignoreFiles === undefined ? true : ignoreFiles));
     }
 
     public async CheckVersion(): Promise<string> {
         if (!this._versionAlreadyChecked) {
+            Logger.LogDebug(`TFVC Repository.CheckVersion`);
             // Set the versionAlreadyChecked flag first in case one of the other lines throws
             this._versionAlreadyChecked = true;
             const version: string = await this.RunCommand<string>(new GetVersion());

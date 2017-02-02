@@ -7,6 +7,7 @@
 import * as cp from "child_process";
 import { EventEmitter, Event } from "vscode";
 import { TeamServerContext } from "../contexts/servercontext";
+import { Logger } from "../helpers/logger";
 import { Strings } from "../helpers/strings";
 import { IDisposable, toDisposable, dispose } from "./util";
 import { IArgumentProvider, IExecutionResult } from "./interfaces";
@@ -27,13 +28,16 @@ export class Tfvc {
     public get onOutput(): Event<string> { return this._onOutput.event; }
 
     public constructor(localPath?: string) {
+        Logger.LogDebug(`TFVC Creating Tfvc object with localPath='${localPath}'`);
         if (localPath !== undefined) {
             this._tfvcPath = localPath;
         } else {
             // get the location from settings
             const settings = new TfvcSettings();
             this._tfvcPath = settings.Location;
+            Logger.LogDebug(`TFVC Retrieved from settings; localPath='${this._tfvcPath}'`);
             if (!this._tfvcPath) {
+                Logger.LogWarning(`TFVC Couldn't find where the TF command lives on disk.`);
                 throw new TfvcError({
                     message: Strings.TfvcLocationMissingError,
                     tfvcErrorCode: TfvcErrorCodes.TfvcLocationMissing
@@ -47,12 +51,14 @@ export class Tfvc {
             // if it exists, check to ensure that it's a file and not a folder
             const stats: any = fs.lstatSync(this._tfvcPath);
             if (!stats || !stats.isFile()) {
+                Logger.LogWarning(`TFVC ${this._tfvcPath} exists but isn't a file.`);
                 throw new TfvcError({
                     message: Strings.TfMissingError + this._tfvcPath,
                     tfvcErrorCode: TfvcErrorCodes.TfvcNotFound
                 });
             }
         } else {
+            Logger.LogWarning(`TFVC ${this._tfvcPath} does not exist.`);
             throw new TfvcError({
                 message: Strings.TfMissingError + this._tfvcPath,
                 tfvcErrorCode: TfvcErrorCodes.TfvcNotFound
@@ -67,6 +73,7 @@ export class Tfvc {
     public CheckVersion(version: string) {
         if (!version) {
             // If the version isn't set just return
+            Logger.LogDebug(`TFVC CheckVersion called without a version.`);
             return;
         }
 
@@ -74,6 +81,7 @@ export class Tfvc {
         const minVersion: TfvcVersion = TfvcVersion.FromString("14.0.4");
         const curVersion: TfvcVersion = TfvcVersion.FromString(version);
         if (TfvcVersion.Compare(curVersion, minVersion) < 0) {
+            Logger.LogWarning(`TFVC ${version} is less that the min version of 14.0.4.`);
             throw new TfvcError({
                 message: Strings.TfVersionWarning + minVersion.ToString(),
                 tfvcErrorCode: TfvcErrorCodes.TfvcMinVersionWarning
@@ -105,6 +113,7 @@ export class Tfvc {
 
         options.env = _.assign({}, process.env, options.env || {});
 
+        Logger.LogDebug(`TFVC: tf ${args.GetArgumentsForDisplay()}`);
         if (options.log !== false) {
             this.log(`tf ${args.GetArgumentsForDisplay()}\n`);
         }
@@ -120,6 +129,7 @@ export class Tfvc {
         }
 
         const result = await Tfvc.execProcess(child);
+        Logger.LogDebug(`TFVC exit code: ${result.exitCode}`);
 
         if (result.exitCode) {
             let tfvcErrorCode: string = null;
@@ -142,6 +152,7 @@ export class Tfvc {
                 message = Strings.NotATfvcRepository;
             }
 
+            Logger.LogDebug(`TFVC errors: ${result.stderr}`);
             if (options.log !== false) {
                 this.log(`${result.stderr}\n`);
             }
