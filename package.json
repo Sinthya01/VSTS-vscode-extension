@@ -141,7 +141,7 @@
     "vscode": "^1.0.0",
     "vsts-task-lib": "^0.9.18",
     "yargs": "^5.0.0",
-    "@types/applicationinsights": "0.15.16",
+    "@types/applicationinsights": "0.15.33",
     "@types/chai": "^3.4.1",
     "@types/mocha": "^2.2.32",
     "@types/node": "^6.0.40",
