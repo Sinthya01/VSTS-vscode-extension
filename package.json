@@ -121,7 +121,6 @@
   },
   "scripts": {
     "compile": "tsc -watch -p ./",
-    "vscode:prepublish": "tsc -p ./",
     "postinstall": "node ./node_modules/vscode/bin/install"
   },
   "devDependencies": {
