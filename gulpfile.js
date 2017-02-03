@@ -5,6 +5,8 @@ var gulp  = require('gulp'),
     gutil = require('gulp-util');
 var exec  = require('child_process').exec;
 var tslint = require('gulp-tslint');
+var typescript = require('gulp-typescript');
+var sourcemaps = require('gulp-sourcemaps');
 var del = require('del');
 var argv = require('yargs').argv;
 var istanbul = require('gulp-istanbul');
@@ -50,12 +52,21 @@ gulp.task('clean', ['tslint-src', 'tslint-test', 'tslint-test-integration'], fun
     return del(['out/**', '!out', '!out/src/credentialstore/linux', '!out/src/credentialstore/osx', '!out/src/credentialstore/win32'], done);
 });
 
-gulp.task('build', ['clean'], function (cb) {
-  exec('node ./node_modules/vscode/bin/compile', function (err, stdout, stderr) {
-    console.log(stdout);
-    console.log(stderr);
-    cb(err);
-  });
+gulp.task('build', ['clean'], function () {
+    let tsProject = typescript.createProject('./tsconfig.json');
+    let tsResult = tsProject.src()
+        .pipe(sourcemaps.init())
+        .pipe(tsProject());
+
+    return tsResult.js
+        .pipe(sourcemaps.write('.', {
+            sourceRoot: function (file) {
+                // This override is needed because of a bug in sourcemaps base logic.
+                // "file.base"" is the out dir where all the js and map files are located.
+                return file.base;
+            }
+        }))
+        .pipe(gulp.dest('./out'));
 });
 
 gulp.task('publishbuild', ['build'], function () {
