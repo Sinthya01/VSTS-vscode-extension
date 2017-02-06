@@ -141,10 +141,11 @@ export class TeamExtension  {
 
     //Opens the file history page for the currently active file
     public OpenFileHistory(): void {
-        //TODO: Add History support for TFVC
-        if (this._manager.EnsureInitialized(RepositoryType.GIT)) {
-            if (this._gitClient) {
+        if (this._manager.EnsureInitialized(RepositoryType.ANY)) {
+            if (this._manager.RepoContext.Type === RepositoryType.GIT && this._gitClient) {
                 this._gitClient.OpenFileHistory(this._manager.RepoContext);
+            } else if (this._manager.RepoContext.Type === RepositoryType.TFVC) {
+                this._manager.Tfvc.TfvcViewHistory();
             }
         } else {
             this._manager.DisplayErrorMessage();
