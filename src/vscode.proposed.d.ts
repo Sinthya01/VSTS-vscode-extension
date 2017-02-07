@@ -7,6 +7,9 @@
 /* tslint:disable */
 declare module 'vscode' {
 
+// I (jpricket) added this one by hand to allow compilation against 1.7
+export type ProviderResult<T> = T | undefined | null | Thenable<T | undefined | null>
+
 	/**
 	 * Defines a generalized way of reporing progress updates.
 	 */
