@@ -30,6 +30,7 @@
   "engines": {
     "vscode": "^1.7.0"
   },
+  "enableProposedApi": false,
   "activationEvents": [
     "*"
   ],

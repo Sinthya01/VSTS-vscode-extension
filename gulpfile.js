@@ -52,7 +52,12 @@ gulp.task('clean', ['tslint-src', 'tslint-test', 'tslint-test-integration'], fun
     return del(['out/**', '!out', '!out/src/credentialstore/linux', '!out/src/credentialstore/osx', '!out/src/credentialstore/win32'], done);
 });
 
-gulp.task('build', ['clean'], function () {
+gulp.task('copyresources', ['clean'],  function() {
+    return gulp.src('resources/**/*')
+        .pipe(gulp.dest('out/resources'));
+});
+
+gulp.task('build', ['copyresources'], function () {
     let tsProject = typescript.createProject('./tsconfig.json');
     let tsResult = tsProject.src()
         .pipe(sourcemaps.init())

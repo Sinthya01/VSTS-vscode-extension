@@ -4,13 +4,25 @@
 *--------------------------------------------------------------------------------------------*/
 "use strict";
 
-import { commands, ExtensionContext } from "vscode";
+import { commands, Disposable, ExtensionContext } from "vscode";
 import { CommandNames, TfvcCommandNames } from "./helpers/constants";
 import { ExtensionManager } from "./extensionmanager";
+import { TfvcSCMProvider } from "./tfvc/tfvcscmprovider";
 
 let _extensionManager: ExtensionManager;
+let _scmProvider: TfvcSCMProvider;
 
 export function activate(context: ExtensionContext) {
+    // Initialize the SCM provider for TFVC
+    const disposables: Disposable[] = [];
+    context.subscriptions.push(new Disposable(() => Disposable.from(...disposables).dispose()));
+    _scmProvider = new TfvcSCMProvider(this);
+    _scmProvider.Initialize(disposables)
+        .catch(err => console.error(err));
+
+    //TODO: It would be good to have only one ref to Tfvc and Repository via the SCMProvider and pass that into the extention manager here.
+
+    // Construct the extension manager that handles Team and Tfvc commands
     _extensionManager = new ExtensionManager();
 
     context.subscriptions.push(commands.registerCommand(CommandNames.GetPullRequests, () => _extensionManager.Team.GetMyPullRequests()));

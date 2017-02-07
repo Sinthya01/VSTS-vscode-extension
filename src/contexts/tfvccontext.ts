@@ -20,6 +20,9 @@ export class TfvcContext implements IRepositoryContext {
     private _isTeamServicesUrl: boolean = false;
     private _isTeamFoundationServer: boolean = false;
     private _teamProjectName: string;
+    private _tfvc: Tfvc;
+    private _repo: Repository;
+    private _tfvcWorkspace: IWorkspace;
 
     constructor(rootPath: string) {
         this._tfvcFolder = rootPath;
@@ -28,13 +31,13 @@ export class TfvcContext implements IRepositoryContext {
     //Need to call tf.cmd to get TFVC information (and constructors can't be async)
     public async Initialize(settings: ISettings): Promise<boolean> {
         Logger.LogDebug(`Looking for TFVC repository at ${this._tfvcFolder}`);
-        const tfvc: Tfvc = new Tfvc();
-        const repo: Repository = tfvc.Open(undefined, this._tfvcFolder);
-        const tfvcWorkspace: IWorkspace = await repo.FindWorkspace(this._tfvcFolder);
-        this._tfvcRemoteUrl = tfvcWorkspace.server;
+        this._tfvc = new Tfvc();
+        this._repo = this._tfvc.Open(undefined, this._tfvcFolder);
+        this._tfvcWorkspace = await this._repo.FindWorkspace(this._tfvcFolder);
+        this._tfvcRemoteUrl = this._tfvcWorkspace.server;
         this._isTeamServicesUrl = RepoUtils.IsTeamFoundationServicesRepo(this._tfvcRemoteUrl);
         this._isTeamFoundationServer = RepoUtils.IsTeamFoundationServerRepo(this._tfvcRemoteUrl);
-        this._teamProjectName = tfvcWorkspace.defaultTeamProject;
+        this._teamProjectName = this._tfvcWorkspace.defaultTeamProject;
         Logger.LogDebug(`Found a TFVC repository for url: '${this._tfvcRemoteUrl}' and team project: '${this._teamProjectName}'.`);
         return true;
     }
@@ -42,6 +45,18 @@ export class TfvcContext implements IRepositoryContext {
     // Tfvc implementation
     public get TeamProjectName(): string {
         return this._teamProjectName;
+    }
+
+    public get Tfvc(): Tfvc {
+        return this._tfvc;
+    }
+
+    public get TfvcRepository(): Repository {
+        return this._repo;
+    }
+
+    public get TfvcWorkspace(): IWorkspace {
+        return this._tfvcWorkspace;
     }
 
     // Git implementation
