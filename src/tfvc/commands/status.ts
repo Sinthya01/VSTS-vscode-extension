@@ -79,7 +79,8 @@ export class Status implements ITfvcCommand<IPendingChange[]> {
     }
 
     private add(changes: IPendingChange[], newChange: IPendingChange, ignoreFolders: boolean) {
-        if (ignoreFolders) {
+        // Deleted files won't exist, but we still include them in the results
+        if (ignoreFolders && fs.existsSync(newChange.localItem)) {
             // check to see if the local item is a file or folder
             const f: string = newChange.localItem;
             const stats: any = fs.lstatSync(f);

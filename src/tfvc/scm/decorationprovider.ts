@@ -9,7 +9,7 @@ import { ConflictType, Status } from "./status";
 import * as path from "path";
 
 export class DecorationProvider {
-    private static iconsRootPath: string = path.join(path.dirname(__dirname), "resources", "icons");
+    private static iconsRootPath: string = path.join(path.dirname(__dirname), "..", "..", "resources", "icons");
 
     public static getDecorations(status: Status, conflictType?: ConflictType): SCMResourceDecorations {
         const light = { iconPath: DecorationProvider.getIconPath(status, "light") };

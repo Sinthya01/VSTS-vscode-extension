@@ -44,7 +44,7 @@ export class TfvcSCMProvider implements SCMProvider {
 
         // Check if this is a TFVC repository
         const repoContext: TfvcContext = new TfvcContext(rootPath);
-        await repoContext.Initialize();
+        await repoContext.Initialize(undefined);
         if (!repoContext || repoContext.IsTeamFoundation === false) {
             // We don't have a TFVC repository so we don't need to register this scm provider
             return;
