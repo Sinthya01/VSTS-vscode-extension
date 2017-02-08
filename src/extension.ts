@@ -13,8 +13,6 @@ let _extensionManager: ExtensionManager;
 let _scmProvider: TfvcSCMProvider;
 
 export async function activate(context: ExtensionContext) {
-    //TODO: It would be good to have only one ref to Tfvc and Repository via the SCMProvider and pass that into the extention manager here.
-
     // Construct the extension manager that handles Team and Tfvc commands
     _extensionManager = new ExtensionManager();
     await _extensionManager.Initialize();

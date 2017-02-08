@@ -7,6 +7,7 @@
 import url = require("url");
 import { window, workspace } from "vscode";
 import { RepositoryType } from "../contexts/repositorycontext";
+import { TfvcContext } from "../contexts/tfvccontext";
 import { ExtensionManager } from "../extensionmanager";
 import { TfvcTelemetryEvents } from "../helpers/constants";
 import { Utils } from "../helpers/utils";
@@ -98,19 +99,9 @@ export class TfvcExtension  {
             return;
         }
 
-        this._tfvc = new Tfvc();
-        this._repo = this._tfvc.Open(this._manager.ServerContext, workspace.rootPath);
-
-        let version: string = "unknown";
-        try {
-            version = await this._repo.CheckVersion();
-        } catch (err) {
-            this._manager.DisplayWarningMessage(err.message);
-        }
-
-        const outputChannel = window.createOutputChannel("TFVC");
-        outputChannel.appendLine("Using TFVC command line: " + this._tfvc.Location + " (" + version + ")");
-        this._tfvc.onOutput(line => outputChannel.append(line)); //TODO add disposable to unhook event
+        const tfvcContext: TfvcContext = <TfvcContext>this._manager.RepoContext;
+        this._tfvc = tfvcContext.Tfvc;
+        this._repo = tfvcContext.TfvcRepository;
     }
 
     private showRepositoryHistory(): void {

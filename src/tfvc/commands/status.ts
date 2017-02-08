@@ -71,13 +71,17 @@ export class Status implements ITfvcCommand<IPendingChange[]> {
         if (json && json.status) {
             // get all the pending changes first
             const pending: any = json.status.pendingchanges[0].pendingchange;
-            for (let i = 0; i < pending.length; i++) {
-                this.add(changes, this.convert(pending[i].$, false), this._ignoreFolers);
+            if (pending) {
+                for (let i = 0; i < pending.length; i++) {
+                    this.add(changes, this.convert(pending[i].$, false), this._ignoreFolers);
+                }
             }
             // next, get all the candidate pending changes
             const candidate: any = json.status.candidatependingchanges[0].pendingchange;
-            for (let i = 0; i < candidate.length; i++) {
-                this.add(changes, this.convert(candidate[i].$, false), this._ignoreFolers);
+            if (candidate) {
+                for (let i = 0; i < candidate.length; i++) {
+                    this.add(changes, this.convert(candidate[i].$, false), this._ignoreFolers);
+                }
             }
         }
         return changes;

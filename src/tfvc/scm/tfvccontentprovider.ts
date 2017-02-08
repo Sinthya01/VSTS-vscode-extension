@@ -41,6 +41,11 @@ export class TfvcContentProvider {
         let path: string = uri.fsPath;
         const versionSpec: string = uri.query;
 
+        if (versionSpec.toLowerCase() === "c0") {
+            // Changeset 0 does not exist. This is most likely an Add, so just return empty contents
+            return "";
+        }
+
         // If path is a server path, we need to fix the format
         if (path && path.startsWith("\\$\\")) {
             // convert "/$/proj/folder/file" to "$/proj/folder/file";

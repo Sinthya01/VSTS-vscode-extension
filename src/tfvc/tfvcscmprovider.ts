@@ -85,7 +85,6 @@ export class TfvcSCMProvider implements SCMProvider {
             //autoFetcher,
             //mergeDecorator
         );
-
     }
 
     /* Implement SCMProvider interface */
@@ -165,7 +164,8 @@ export class TfvcSCMProvider implements SCMProvider {
             case Status.DELETE:
                 return resource.GetServerUri();
             default:
-                return resource.uri;
+                // Adding the version spec query, because this eventually gets passed to getOriginalResource
+                return resource.uri.with({ query: `C${resource.PendingChange.version}` });
         }
     }
 
