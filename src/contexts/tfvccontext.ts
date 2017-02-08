@@ -55,6 +55,13 @@ export class TfvcContext implements IRepositoryContext {
         return this._repo;
     }
 
+    public set TfvcRepository(newRepository: Repository) {
+        // Don't let the repository be undefined
+        if (newRepository) {
+            this._repo = newRepository;
+        }
+    }
+
     public get TfvcWorkspace(): IWorkspace {
         return this._tfvcWorkspace;
     }

@@ -200,6 +200,9 @@ export class ExtensionManager  {
             if (this._repoContext) {
                 this.setupFileSystemWatcherOnHead();
                 this._serverContext = new TeamServerContext(this._repoContext.RemoteUrl);
+                //Now that we have a server context, we can update it on the repository context
+                RepositoryContextFactory.UpdateRepositoryContext(this._repoContext, this._serverContext);
+
                 //We need to be able to send feedback even if we aren't authenticated with the server
                 this._feedbackClient = new FeedbackClient(new TelemetryService(this._settings));
 
