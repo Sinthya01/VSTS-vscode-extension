@@ -4,6 +4,19 @@
 *--------------------------------------------------------------------------------------------*/
 "use strict";
 
+export function CreateStatus(statusText: string) {
+    switch (statusText.trim().toLowerCase()) {
+        case "add": return Status.ADD;
+        case "branch": return Status.BRANCH;
+        case "delete": return Status.DELETE;
+        case "edit": return Status.EDIT;
+        case "lock": return Status.LOCK;
+        case "merge": return Status.MERGE;
+        case "rename": return Status.RENAME;
+        case "undelete": return Status.UNDELETE;
+    }
+}
+
 export enum Status {
     ADD,
     RENAME,
@@ -42,5 +55,6 @@ export enum ConflictType {
     DELETE,
     DELETE_TARGET,
     NAME_AND_CONTENT,
-    MERGE, RESOLVED
+    MERGE,
+    RESOLVED
 }

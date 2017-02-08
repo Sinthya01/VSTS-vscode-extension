@@ -46,6 +46,7 @@ export interface IPendingChange {
     computer: string;
     date: string;
     localItem: string;
+    sourceItem: string;
     lock: string;
     owner: string;
     serverItem: string;

@@ -88,17 +88,20 @@ export class Model {
         const merge: Resource[] = [];
 
         changes.forEach(raw => {
+            const resource: Resource = new Resource(raw);
             const uri = Uri.file(raw.localItem);
 
-            switch (raw.changeType.toLowerCase()) {
-                case "add": return workingTree.push(new Resource(uri, Status.ADD));
-                case "branch": return workingTree.push(new Resource(uri, Status.BRANCH));
-                case "delete": return workingTree.push(new Resource(uri, Status.DELETE));
-                case "edit": return workingTree.push(new Resource(uri, Status.EDIT));
-                case "lock": return workingTree.push(new Resource(uri, Status.LOCK));
-                case "merge": return merge.push(new Resource(uri, Status.MERGE));
-                case "rename": return workingTree.push(new Resource(uri, Status.RENAME));
-                case "undelete": return workingTree.push(new Resource(uri, Status.UNDELETE));
+            switch (resource.Type) {
+                case Status.ADD:
+                case Status.BRANCH:
+                case Status.DELETE:
+                case Status.EDIT:
+                case Status.RENAME:
+                case Status.UNDELETE:
+                    return index.push(resource);
+                case Status.LOCK:
+                case Status.MERGE:
+                    return merge.push(resource);
             }
         });
 

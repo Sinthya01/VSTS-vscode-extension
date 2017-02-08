@@ -12,18 +12,19 @@ import { TfvcSCMProvider } from "./tfvc/tfvcscmprovider";
 let _extensionManager: ExtensionManager;
 let _scmProvider: TfvcSCMProvider;
 
-export function activate(context: ExtensionContext) {
-    // Initialize the SCM provider for TFVC
-    const disposables: Disposable[] = [];
-    context.subscriptions.push(new Disposable(() => Disposable.from(...disposables).dispose()));
-    _scmProvider = new TfvcSCMProvider(this);
-    _scmProvider.Initialize(disposables)
-        .catch(err => console.error(err));
-
+export async function activate(context: ExtensionContext) {
     //TODO: It would be good to have only one ref to Tfvc and Repository via the SCMProvider and pass that into the extention manager here.
 
     // Construct the extension manager that handles Team and Tfvc commands
     _extensionManager = new ExtensionManager();
+    await _extensionManager.Initialize();
+
+    // Initialize the SCM provider for TFVC
+    const disposables: Disposable[] = [];
+    context.subscriptions.push(new Disposable(() => Disposable.from(...disposables).dispose()));
+    _scmProvider = new TfvcSCMProvider(_extensionManager);
+    _scmProvider.Initialize(disposables)
+        .catch(err => console.error(err));
 
     context.subscriptions.push(commands.registerCommand(CommandNames.GetPullRequests, () => _extensionManager.Team.GetMyPullRequests()));
     context.subscriptions.push(commands.registerCommand(CommandNames.Login, () => _extensionManager.Team.Signin()));

@@ -10,10 +10,11 @@ import { Status } from "./scm/status";
 import { Resource } from "./scm/resource";
 import { ResourceGroup } from "./scm/resourcegroups";
 import { TfvcContext } from "../contexts/tfvccontext";
-import { anyEvent /*, filterEvent */ } from "./util";
+import { anyEvent, filterEvent } from "./util";
 import { ExtensionManager } from "../extensionmanager";
+import { RepositoryType } from "../contexts/repositorycontext";
 import { TfvcOutput } from "./tfvcoutput";
-//import { TfvcContentProvider } from "./scm/tfvccontentprovider";
+import { TfvcContentProvider } from "./scm/tfvccontentprovider";
 
 import * as path from "path";
 
@@ -26,10 +27,10 @@ import * as path from "path";
 export class TfvcSCMProvider implements SCMProvider {
     public static scmScheme: string = "tfvc";
 
-    private _repositoryContext: TfvcContext;
     private _extensionManager: ExtensionManager;
-    private model: Model;
-    private disposables: Disposable[] = [];
+    private _repoContext: TfvcContext;
+    private _model: Model;
+    private _disposables: Disposable[] = [];
 
     constructor(extensionManager: ExtensionManager) {
         this._extensionManager = extensionManager;
@@ -43,29 +44,29 @@ export class TfvcSCMProvider implements SCMProvider {
         }
 
         // Check if this is a TFVC repository
-        const repoContext: TfvcContext = new TfvcContext(rootPath);
-        await repoContext.Initialize(undefined);
-        if (!repoContext || repoContext.IsTeamFoundation === false) {
-            // We don't have a TFVC repository so we don't need to register this scm provider
+        if (!this._extensionManager.RepoContext
+            || this._extensionManager.RepoContext.Type !== RepositoryType.TFVC
+            || this._extensionManager.RepoContext.IsTeamFoundation === false) {
+            // We don't have a TFVC context, so don't load the provider
             return;
         }
 
-        this._repositoryContext = repoContext;
+        this._repoContext = <TfvcContext>this._extensionManager.RepoContext;
         const fsWatcher = workspace.createFileSystemWatcher("**");
         const onWorkspaceChange = anyEvent(fsWatcher.onDidChange, fsWatcher.onDidCreate, fsWatcher.onDidDelete);
-        //const onTfvcChange = filterEvent(onWorkspaceChange, uri => /^\.tf\//.test(workspace.asRelativePath(uri)));
-        this.model = new Model(repoContext.RepoFolder, repoContext.TfvcRepository, onWorkspaceChange);
+        const onTfvcChange = filterEvent(onWorkspaceChange, uri => /^\$tf\//.test(workspace.asRelativePath(uri)));
+        this._model = new Model(this._repoContext.RepoFolder, this._repoContext.TfvcRepository, onWorkspaceChange);
 
         let version: string = "unknown";
         try {
-            version = await repoContext.TfvcRepository.CheckVersion();
+            version = await this._repoContext.TfvcRepository.CheckVersion();
         } catch (err) {
             this._extensionManager.DisplayWarningMessage(err.message);
         }
-        TfvcOutput.CreateChannel(repoContext.Tfvc, version, disposables);
+        TfvcOutput.CreateChannel(this._repoContext.Tfvc, version, disposables);
 
         //const commitHandler = new CommitController(model);
-        //const contentProvider = new TfvcContentProvider(repoContext.Tfvc, rootPath, onTfvcChange);
+        const contentProvider = new TfvcContentProvider(this._repoContext.TfvcRepository, rootPath, onTfvcChange);
         //const checkoutStatusBar = new CheckoutStatusBar(model);
         //const syncStatusBar = new SyncStatusBar(model);
         //const autoFetcher = new AutoFetcher(model);
@@ -77,7 +78,7 @@ export class TfvcSCMProvider implements SCMProvider {
         disposables.push(
             //commitHandler,
             this,
-            //contentProvider,
+            contentProvider,
             fsWatcher
             //checkoutStatusBar,
             //syncStatusBar,
@@ -89,23 +90,29 @@ export class TfvcSCMProvider implements SCMProvider {
 
     /* Implement SCMProvider interface */
 
-    get resources(): SCMResourceGroup[] { return this.model.resources; }
-    get onDidChange(): Event<SCMResourceGroup[]> { return this.model.onDidChange; }
+    get resources(): SCMResourceGroup[] { return this._model.resources; }
+    get onDidChange(): Event<SCMResourceGroup[]> { return this._model.onDidChange; }
     get label(): string { return "TFVC"; }
     get count(): number {
         const countBadge = workspace.getConfiguration("tfvc").get<string>("countBadge");
 
         switch (countBadge) {
             case "off": return 0;
-            case "tracked": return this.model.indexGroup.resources.length;
-            default: return this.model.resources.reduce((r, g) => r + g.resources.length, 0);
+            case "tracked": return this._model.indexGroup.resources.length;
+            default: return this._model.resources.reduce((r, g) => r + g.resources.length, 0);
         }
     }
 
+    /**
+     * This is the default action when an resource is clicked in the viewlet.
+     * For ADD, AND UNDELETE just show the local file.
+     * For DELETE just show the server file.
+     * For EDIT AND RENAME show the diff window (server on left, local on right).
+     */
     open(resource: Resource): ProviderResult<void> {
-        const left = this.getLeftResource(resource);
-        const right = this.getRightResource(resource);
-        const title = this.getTitle(resource);
+        const left: Uri = this.getLeftResource(resource);
+        const right: Uri = this.getRightResource(resource);
+        const title: string = this.getTitle(resource);
 
         if (!left) {
             if (!right) {
@@ -133,56 +140,44 @@ export class TfvcSCMProvider implements SCMProvider {
     }
 
     dispose(): void {
-        this.disposables.forEach(d => d.dispose());
-        this.disposables = [];
+        this._disposables.forEach(d => d.dispose());
+        this._disposables = [];
     }
 
     /**
-     * Gets the uri for the server version of the file.
+     * Gets the uri for the previous version of the file.
      */
-    private getLeftResource(resource: Resource): Uri | undefined {
-        switch (resource.type) {
+    private getLeftResource(resource: Resource): Uri {
+        switch (resource.Type) {
             case Status.EDIT:
             case Status.RENAME:
-                return resource.uri.with({ scheme: TfvcSCMProvider.scmScheme, query: "HEAD" });
-
-            case Status.EDIT:
-                const uriString = resource.uri.toString();
-                const [indexStatus] = this.model.indexGroup.resources.filter(r => r.uri.toString() === uriString);
-
-                if (indexStatus) {
-                    return resource.uri.with({ scheme: TfvcSCMProvider.scmScheme });
-                }
-
-                return resource.uri.with({ scheme: TfvcSCMProvider.scmScheme, query: "HEAD" });
+                return resource.GetServerUri();
+            default:
+                return undefined;
         }
     }
 
     /**
-     * Gets the uri for the local version of the file.
+     * Gets the uri for the current version of the file (except for deleted files).
      */
-    private getRightResource(resource: Resource): Uri | undefined {
-        switch (resource.type) {
-            case Status.EDIT:
-            case Status.ADD:
-            case Status.RENAME:
-                return resource.uri.with({ scheme: TfvcSCMProvider.scmScheme });
-
+    private getRightResource(resource: Resource): Uri {
+        switch (resource.Type) {
             case Status.DELETE:
-                return resource.uri.with({ scheme: TfvcSCMProvider.scmScheme, query: "HEAD" });
-
+                return resource.GetServerUri();
             default:
                 return resource.uri;
         }
     }
 
     private getTitle(resource: Resource): string {
-        const basename = path.basename(resource.uri.fsPath);
+        const basename = path.basename(resource.PendingChange.localItem);
+        const sourceBasename = resource.PendingChange.sourceItem ? path.basename(resource.PendingChange.sourceItem) : "";
 
-        switch (resource.type) {
+        switch (resource.Type) {
             case Status.EDIT:
-            case Status.RENAME:
                 return `${basename}`;
+            case Status.RENAME:
+                return sourceBasename ? `${basename} <- ${sourceBasename}` : `${basename}`;
         }
 
         return "";
