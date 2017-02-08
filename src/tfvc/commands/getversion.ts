@@ -24,6 +24,9 @@ export class GetVersion implements ITfvcCommand<string> {
     }
 
     public async ParseOutput(executionResult: IExecutionResult): Promise<string> {
+        // Throw if any errors are found in stderr or if exitcode is not 0
+        CommandHelper.ProcessErrors(this.GetArguments().GetCommand(), executionResult);
+
         const lines: string[] = CommandHelper.SplitIntoLines(executionResult.stdout);
         // Find just the version number and return it. Ex. Team Explorer Everywhere Command Line Client (Version 14.0.3.201603291047)
         if (lines && lines.length > 0) {

@@ -102,6 +102,10 @@ export class Tfvc {
         return await this._exec(args, options);
     }
 
+    public Log(output: string): void {
+        this._onOutput.fire(output);
+    }
+
     private spawn(args: IArgumentProvider, options: any = {}): cp.ChildProcess {
         if (!options) {
             options = {};
@@ -115,7 +119,7 @@ export class Tfvc {
 
         Logger.LogDebug(`TFVC: tf ${args.GetArgumentsForDisplay()}`);
         if (options.log !== false) {
-            this.log(`tf ${args.GetArgumentsForDisplay()}\n`);
+            this.Log(`tf ${args.GetArgumentsForDisplay()}\n`);
         }
 
         return cp.spawn(this._tfvcPath, args.GetArguments(), options);
@@ -130,51 +134,6 @@ export class Tfvc {
 
         const result = await Tfvc.execProcess(child);
         Logger.LogDebug(`TFVC exit code: ${result.exitCode}`);
-
-        if (result.exitCode) {
-            let tfvcErrorCode: string = null;
-            let message: string;
-
-            if (/Authentication failed/.test(result.stderr)) {
-                tfvcErrorCode = TfvcErrorCodes.AuthenticationFailed;
-            } else if (/workspace could not be determined/.test(result.stderr)) {
-                tfvcErrorCode = TfvcErrorCodes.NotATfvcRepository;
-            } else if (/bad config file/.test(result.stderr)) {
-                tfvcErrorCode = TfvcErrorCodes.BadConfigFile;
-            } else if (/cannot make pipe for command substitution|cannot create standard input pipe/.test(result.stderr)) {
-                tfvcErrorCode = TfvcErrorCodes.CantCreatePipe;
-            } else if (/Repository not found/.test(result.stderr)) {
-                tfvcErrorCode = TfvcErrorCodes.RepositoryNotFound;
-            } else if (/unable to access/.test(result.stderr)) {
-                tfvcErrorCode = TfvcErrorCodes.CantAccessRemote;
-            } else if (/project collection URL to use could not be determined/i.test(result.stderr)) {
-                tfvcErrorCode = TfvcErrorCodes.NotATfvcRepository;
-                message = Strings.NotATfvcRepository;
-            } else if (/Access denied connecting.*authenticating as OAuth/i.test(result.stderr)) {
-                tfvcErrorCode = TfvcErrorCodes.AuthenticationFailed;
-                message = Strings.TokenNotAllScopes;
-            } else if (/'java' is not recognized as an internal or external command/.test(result.stderr)) {
-                tfvcErrorCode = TfvcErrorCodes.TfvcNotFound;
-                message = Strings.TfInitializeFailureError;
-            } else if (/There is no working folder mapping/i.test(result.stderr)) {
-                tfvcErrorCode = TfvcErrorCodes.FileNotInMappings;
-            }
-
-            Logger.LogDebug(`TFVC errors: ${result.stderr}`);
-            if (options.log !== false) {
-                this.log(`${result.stderr}\n`);
-            }
-
-            return Promise.reject<IExecutionResult>(new TfvcError({
-                message: message || Strings.TfExecFailedError,
-                stdout: result.stdout,
-                stderr: result.stderr,
-                exitCode: result.exitCode,
-                tfvcErrorCode: tfvcErrorCode,
-                tfvcCommand: args.GetCommand()
-            }));
-        }
-
         return result;
     }
 
@@ -211,9 +170,5 @@ export class Tfvc {
         dispose(disposables);
 
         return { exitCode, stdout, stderr };
-    }
-
-    private log(output: string): void {
-        this._onOutput.fire(output);
     }
 }

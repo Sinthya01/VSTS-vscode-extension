@@ -44,9 +44,9 @@ export class ExtensionManager  {
     private _teamExtension: TeamExtension;
     private _tfvcExtension: TfvcExtension;
 
-    constructor() {
-        this.setupFileSystemWatcherOnConfig();
-        this.initializeExtension();
+    public async Initialize(): Promise<void> {
+        await this.setupFileSystemWatcherOnConfig();
+        await this.initializeExtension();
 
         // Add the event listener for settings changes, then re-initialized the extension
         if (workspace) {

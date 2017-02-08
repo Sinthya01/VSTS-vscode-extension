@@ -13,6 +13,7 @@ import { GetVersion } from "./commands/getversion";
 import { FindWorkspace } from "./commands/findworkspace";
 import { Status } from "./commands/status";
 import { GetInfo } from "./commands/getinfo";
+import { GetFileContent } from "./commands/getfilecontent";
 
 var _ = require("underscore");
 
@@ -60,6 +61,12 @@ export class Repository {
             new GetInfo(this._serverContext, itemPaths));
     }
 
+    public async GetFileContent(itemPath: string, versionSpec?: string): Promise<string> {
+        Logger.LogDebug(`TFVC Repository.GetFileContent`);
+        return this.RunCommand<string>(
+            new GetFileContent(this._serverContext, itemPath, versionSpec, true));
+    }
+
     public async GetStatus(ignoreFiles?: boolean): Promise<IPendingChange[]> {
         Logger.LogDebug(`TFVC Repository.GetStatus`);
         return this.RunCommand<IPendingChange[]>(
@@ -80,8 +87,10 @@ export class Repository {
     }
 
     public async RunCommand<T>(cmd: ITfvcCommand<T>): Promise<T> {
-        const result = await this.exec(cmd.GetArguments(), cmd.GetOptions());
-        return await cmd.ParseOutput(result);
+        const result: IExecutionResult = await this.exec(cmd.GetArguments(), cmd.GetOptions());
+        // We will call ParseOutput to give the command a chance to handle any specific errors itself.
+        const output: T = await cmd.ParseOutput(result);
+        return output;
     }
 
     private async exec(args: IArgumentProvider, options: any = {}): Promise<IExecutionResult> {

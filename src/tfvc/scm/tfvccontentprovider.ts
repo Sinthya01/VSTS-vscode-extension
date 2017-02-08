@@ -7,12 +7,11 @@
 
 import { workspace, Uri, Disposable, Event, EventEmitter } from "vscode";
 import { TfvcSCMProvider } from "../tfvcscmprovider";
-import { Tfvc } from "../tfvc";
-//import * as path from "path";
+import { Repository } from "../repository";
 
 export class TfvcContentProvider {
 
-    private _tfvc: Tfvc;
+    private _tfvcRepository: Repository;
     private _rootPath: string;
     private disposables: Disposable[] = [];
 
@@ -21,8 +20,8 @@ export class TfvcContentProvider {
 
     private uris = new Set<Uri>();
 
-    constructor(tfvc: Tfvc, rootPath: string, onTfvcChange: Event<Uri>) {
-        this._tfvc = tfvc;
+    constructor(repository: Repository, rootPath: string, onTfvcChange: Event<Uri>) {
+        this._tfvcRepository = repository;
         this._rootPath = rootPath;
         this.disposables.push(
             onTfvcChange(this.fireChangeEvents, this),
@@ -31,28 +30,27 @@ export class TfvcContentProvider {
     }
 
     private fireChangeEvents(): void {
-        for (let uri of this.uris) {
-            this.onDidChangeEmitter.fire(uri);
-        }
+        //TODO need to understand why these events are needed and how the list of uris should be purged
+        //     Currently firing these events creates an infinite loop
+        //for (let uri of this.uris) {
+        //    this.onDidChangeEmitter.fire(uri);
+        //}
     }
 
     async provideTextDocumentContent(uri: Uri): Promise<string> {
-        //const treeish = uri.query;
-        //const relativePath = path.relative(this.rootPath, uri.fsPath).replace(/\\/g, "/");
+        let path: string = uri.fsPath;
+        const versionSpec: string = uri.query;
+
+        // If path is a server path, we need to fix the format
+        if (path && path.startsWith("\\$\\")) {
+            // convert "/$/proj/folder/file" to "$/proj/folder/file";
+            path = uri.path.slice(1);
+        }
 
         try {
-            //TODO call download command
-            // Should we exec the command directly? seems like we should push this logic into tfvc or repository
-            // Should we have a reference to the repository object here instead of the tfvc?
-            const result = { exitCode: 1, stdout: "" }; //await this.git.exec(this.rootPath, ["show", `${treeish}:${relativePath}`]);
-
-            if (result.exitCode !== 0) {
-                this.uris.delete(uri);
-                return "";
-            }
-
+            const contents: string = await this._tfvcRepository.GetFileContent(path, versionSpec);
             this.uris.add(uri);
-            return result.stdout;
+            return contents;
         } catch (err) {
             this.uris.delete(uri);
             return "";

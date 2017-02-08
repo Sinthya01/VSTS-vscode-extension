@@ -52,13 +52,18 @@ export class Status implements ITfvcCommand<IPendingChange[]> {
      * SAMPLE
      * <?xml version="1.0" encoding="utf-8"?>
      * <status>
-     * <pending-changes/>
+     * <pending-changes>
+     * <pending-change server-item="$/tfsTest_03/Folder333/DemandEquals_renamed.java" version="217" owner="NORTHAMERICA\jpricket" date="2017-02-08T11:12:06.766-0500" lock="none" change-type="rename" workspace="Folder1_00" source-item="$/tfsTest_03/Folder333/DemandEquals.java" computer="JPRICKET-DEV2" local-item="D:\tmp\tfsTest03_44\Folder333\DemandEquals_renamed.java" file-type="windows-1252"/>
+     * </pending-changes>
      * <candidate-pending-changes>
      * <pending-change server-item="$/tfsTest_01/test.txt" version="0" owner="jason" date="2016-07-13T12:36:51.060-0400" lock="none" change-type="add" workspace="MyNewWorkspace2" computer="JPRICKET-DEV2" local-item="D:\tmp\test\test.txt"/>
      * </candidate-pending-changes>
      * </status>
      */
     public async ParseOutput(executionResult: IExecutionResult): Promise<IPendingChange[]> {
+        // Throw if any errors are found in stderr or if exitcode is not 0
+        CommandHelper.ProcessErrors(this.GetArguments().GetCommand(), executionResult);
+
         let changes: IPendingChange[] = [];
         const xml: string = CommandHelper.TrimToXml(executionResult.stdout);
         // Parse the xml using xml2js
@@ -99,6 +104,7 @@ export class Status implements ITfvcCommand<IPendingChange[]> {
             computer: jsonChange.computer,
             date: jsonChange.date,
             localItem: jsonChange.localitem,
+            sourceItem: jsonChange.sourceitem,
             lock: jsonChange.lock,
             owner: jsonChange.owner,
             serverItem: jsonChange.serveritem,

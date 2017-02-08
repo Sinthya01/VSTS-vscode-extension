@@ -5,8 +5,78 @@
 "use strict";
 
 import { parseString } from "xml2js";
+import { Logger } from "../../helpers/logger";
+import { Strings } from "../../helpers/strings";
+import { TfvcError, TfvcErrorCodes } from "../tfvcerror";
+import { IExecutionResult } from "../interfaces";
 
 export class CommandHelper {
+    public static RequireStringArgument(argument: string, argumentName: string) {
+        if (!argument || argument.trim().length === 0) {
+            throw TfvcError.CreateArgumentMissingError(argumentName);
+        }
+    }
+
+    public static RequireStringArrayArgument(argument: string[], argumentName: string) {
+        if (!argument || argument.length === 0) {
+            throw TfvcError.CreateArgumentMissingError(argumentName);
+        }
+    }
+
+    public static HasError(result: IExecutionResult, errorPattern: string): boolean {
+        return new RegExp(errorPattern, "i").test(result.stderr);
+    }
+
+    public static ProcessErrors(command: string, result: IExecutionResult) {
+        if (result.exitCode) {
+            let tfvcErrorCode: string = null;
+            let message: string;
+
+            if (/Authentication failed/.test(result.stderr)) {
+                tfvcErrorCode = TfvcErrorCodes.AuthenticationFailed;
+            } else if (/workspace could not be determined/.test(result.stderr)) {
+                tfvcErrorCode = TfvcErrorCodes.NotATfvcRepository;
+            } else if (/bad config file/.test(result.stderr)) {
+                tfvcErrorCode = TfvcErrorCodes.BadConfigFile;
+            } else if (/cannot make pipe for command substitution|cannot create standard input pipe/.test(result.stderr)) {
+                tfvcErrorCode = TfvcErrorCodes.CantCreatePipe;
+            } else if (/Repository not found/.test(result.stderr)) {
+                tfvcErrorCode = TfvcErrorCodes.RepositoryNotFound;
+            } else if (/unable to access/.test(result.stderr)) {
+                tfvcErrorCode = TfvcErrorCodes.CantAccessRemote;
+            } else if (/project collection URL to use could not be determined/i.test(result.stderr)) {
+                tfvcErrorCode = TfvcErrorCodes.NotATfvcRepository;
+                message = Strings.NotATfvcRepository;
+            } else if (/Access denied connecting.*authenticating as OAuth/i.test(result.stderr)) {
+                tfvcErrorCode = TfvcErrorCodes.AuthenticationFailed;
+                message = Strings.TokenNotAllScopes;
+            } else if (/'java' is not recognized as an internal or external command/.test(result.stderr)) {
+                tfvcErrorCode = TfvcErrorCodes.TfvcNotFound;
+                message = Strings.TfInitializeFailureError;
+            } else if (/There is no working folder mapping/i.test(result.stderr)) {
+                tfvcErrorCode = TfvcErrorCodes.FileNotInMappings;
+            }
+
+            Logger.LogDebug(`TFVC errors: ${result.stderr}`);
+
+            return Promise.reject<IExecutionResult>(new TfvcError({
+                message: message || Strings.TfExecFailedError,
+                stdout: result.stdout,
+                stderr: result.stderr,
+                exitCode: result.exitCode,
+                tfvcErrorCode: tfvcErrorCode,
+                tfvcCommand: command
+            }));
+        }
+    }
+
+    public static GetNewLineCharacter(stdout: string): string {
+        if (stdout && /\r\n/.test(stdout)) {
+            return "\r\n";
+        }
+        return "\n";
+    }
+
     public static SplitIntoLines(stdout: string, skipWarnings?: boolean): string[] {
         let lines: string[] = stdout.replace(/\r\n/g, "\n").split("\n");
         skipWarnings = skipWarnings === undefined ? true : skipWarnings;

@@ -6,7 +6,6 @@
 
 import { TeamServerContext} from "../../contexts/servercontext";
 import { IArgumentProvider, IExecutionResult, IItemInfo, ITfvcCommand } from "../interfaces";
-import { TfvcError } from "../tfvcerror";
 import { ArgumentBuilder } from "./argumentbuilder";
 import { CommandHelper } from "./commandhelper";
 
@@ -20,9 +19,7 @@ export class GetInfo implements ITfvcCommand<IItemInfo[]> {
     private _itemPaths: string[];
 
     public constructor(serverContext: TeamServerContext, itemPaths: string[]) {
-        if (!itemPaths || itemPaths.length === 0) {
-            throw TfvcError.CreateArgumentMissingError("itemPaths");
-        }
+        CommandHelper.RequireStringArrayArgument(itemPaths, "itemPaths");
         this._serverContext = serverContext;
         this._itemPaths = itemPaths;
     }
@@ -56,6 +53,9 @@ export class GetInfo implements ITfvcCommand<IItemInfo[]> {
      * Size:          1385
      */
     public async ParseOutput(executionResult: IExecutionResult): Promise<IItemInfo[]> {
+        // Throw if any errors are found in stderr or if exitcode is not 0
+        CommandHelper.ProcessErrors(this.GetArguments().GetCommand(), executionResult);
+
         let itemInfos: IItemInfo[] = [];
         if (!executionResult.stdout) {
             return itemInfos;

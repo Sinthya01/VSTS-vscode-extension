@@ -5,7 +5,6 @@
 "use strict";
 
 import { IArgumentProvider, IExecutionResult, ITfvcCommand, IWorkspace, IWorkspaceMapping } from "../interfaces";
-import { TfvcError } from "../tfvcerror";
 import { ArgumentBuilder } from "./argumentbuilder";
 import { CommandHelper } from "./commandhelper";
 
@@ -19,9 +18,7 @@ export class FindWorkspace implements ITfvcCommand<IWorkspace> {
     private _localPath: string;
 
     public constructor(localPath: string) {
-        if (!localPath) {
-            throw TfvcError.CreateArgumentMissingError("localPath");
-        }
+        CommandHelper.RequireStringArgument(localPath, "localPath");
         this._localPath = localPath;
     }
 
@@ -43,8 +40,10 @@ export class FindWorkspace implements ITfvcCommand<IWorkspace> {
      * $/tfsTest_01: D:\tmp\test
      */
     public async ParseOutput(executionResult: IExecutionResult): Promise<IWorkspace> {
-        const stdout = executionResult.stdout;
+        // Throw if any errors are found in stderr or if exitcode is not 0
+        CommandHelper.ProcessErrors(this.GetArguments().GetCommand(), executionResult);
 
+        const stdout = executionResult.stdout;
         if (!stdout) {
             return undefined;
         }
