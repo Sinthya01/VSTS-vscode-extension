@@ -41,12 +41,6 @@ export class DecorationProvider {
             return statuses[index];
         }
 
-        // The next dominant type is RENAME
-        index = statuses.findIndex((s) => s === Status.RENAME);
-        if (index >= 0) {
-            return statuses[index];
-        }
-
         // After that, just return the first one
         return statuses[0];
     }

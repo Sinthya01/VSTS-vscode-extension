@@ -22,6 +22,8 @@ export function GetStatuses(statusText: string): Status[] {
             case "rename": result.push(Status.RENAME); break;
             case "source rename": result.push(Status.RENAME); break;
             case "undelete": result.push(Status.UNDELETE); break;
+            default:
+                result.push(Status.UNKNOWN); break;
         }
     }
 
