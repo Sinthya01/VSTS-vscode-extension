@@ -27,7 +27,7 @@ export class CommandHelper {
         return new RegExp(errorPattern, "i").test(result.stderr);
     }
 
-    public static ProcessErrors(command: string, result: IExecutionResult) {
+    public static ProcessErrors(command: string, result: IExecutionResult): void {
         if (result.exitCode) {
             let tfvcErrorCode: string = null;
             let message: string;
@@ -59,14 +59,14 @@ export class CommandHelper {
 
             Logger.LogDebug(`TFVC errors: ${result.stderr}`);
 
-            return Promise.reject<IExecutionResult>(new TfvcError({
+            throw new TfvcError({
                 message: message || Strings.TfExecFailedError,
                 stdout: result.stdout,
                 stderr: result.stderr,
                 exitCode: result.exitCode,
                 tfvcErrorCode: tfvcErrorCode,
                 tfvcCommand: command
-            }));
+            });
         }
     }
 
@@ -77,7 +77,10 @@ export class CommandHelper {
         return "\n";
     }
 
-    public static SplitIntoLines(stdout: string, skipWarnings?: boolean): string[] {
+    public static SplitIntoLines(stdout: string, skipWarnings?: boolean, filterEmptyLines?: boolean): string[] {
+        if (!stdout) {
+            return [];
+        }
         let lines: string[] = stdout.replace(/\r\n/g, "\n").split("\n");
         skipWarnings = skipWarnings === undefined ? true : skipWarnings;
 
@@ -88,6 +91,9 @@ export class CommandHelper {
                 index++;
             }
             lines = lines.splice(index);
+        }
+        if (filterEmptyLines) {
+            lines = lines.filter(e => e.trim() !== "");
         }
         return lines;
     }

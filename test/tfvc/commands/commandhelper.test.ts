@@ -21,6 +21,20 @@ describe("Tfvc-CommandHelper", function() {
         assert.equal(lines[5], "");
     });
 
+    it("should verify SplitIntoLines - undefined input", function() {
+        let text: string;
+        let lines: string[] = CommandHelper.SplitIntoLines(text);
+        assert.isDefined(lines);
+        assert.equal(lines.length, 0);
+    });
+
+    it("should verify SplitIntoLines - empty input", function() {
+        let text: string = "";
+        let lines: string[] = CommandHelper.SplitIntoLines(text);
+        assert.isDefined(lines);
+        assert.equal(lines.length, 0);
+    });
+
     it("should verify SplitIntoLines - trim WARNings", function() {
         let text: string = "WARN 1\nWARN 2\nwarning\none\ntwo\r\n\n";
         let lines: string[] = CommandHelper.SplitIntoLines(text);
@@ -41,6 +55,28 @@ describe("Tfvc-CommandHelper", function() {
         assert.equal(lines[2], "warning");
         assert.equal(lines[3], "one");
         assert.equal(lines[4], "two");
+        assert.equal(lines[5], "");
+        assert.equal(lines[6], "");
+    });
+
+    it("should verify SplitIntoLines - filter empty lines", function() {
+        let text: string = "zero\n      \none\ntwo\r\n"; //ensure there's a line with just spaces too
+        let lines: string[] = CommandHelper.SplitIntoLines(text, false, true);
+        assert.equal(lines.length, 3);
+        assert.equal(lines[0], "zero");
+        assert.equal(lines[1], "one");
+        assert.equal(lines[2], "two");
+    });
+
+    it("should verify SplitIntoLines - leave empty lines", function() {
+        let text: string = "one\ntwo\n\nthree\nfour\n\n";
+        let lines: string[] = CommandHelper.SplitIntoLines(text);
+        assert.equal(lines.length, 7);
+        assert.equal(lines[0], "one");
+        assert.equal(lines[1], "two");
+        assert.equal(lines[2], "");
+        assert.equal(lines[3], "three");
+        assert.equal(lines[4], "four");
         assert.equal(lines[5], "");
         assert.equal(lines[6], "");
     });

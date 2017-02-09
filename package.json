@@ -143,8 +143,22 @@
         "title": "team signout"
       },
       {
+        "command": "tfvc.Undo",
+        "title": "Undo",
+        "category": "TFVC",
+        "icon": {
+          "light": "resources/icons/light/check.svg",
+          "dark": "resources/icons/dark/check.svg"
+        }
+      },
+      {
         "command": "tfvc.Status",
-        "title": "TFVC: Status"
+        "title": "Status",
+        "category": "TFVC",
+        "icon": {
+          "light": "resources/icons/light/refresh.svg",
+          "dark": "resources/icons/dark/refresh.svg"
+        }
       }
     ]
   },
