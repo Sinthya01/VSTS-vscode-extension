@@ -10,20 +10,17 @@ import { TfvcSCMProvider } from "../tfvcscmprovider";
 import { Repository } from "../repository";
 
 export class TfvcContentProvider {
-
     private _tfvcRepository: Repository;
     private _rootPath: string;
-    private disposables: Disposable[] = [];
+    private _disposables: Disposable[] = [];
 
-    private onDidChangeEmitter = new EventEmitter<Uri>();
-    get onDidChange(): Event<Uri> { return this.onDidChangeEmitter.event; }
-
-    private uris = new Set<Uri>();
+    private _onDidChangeEmitter = new EventEmitter<Uri>();
+    get onDidChange(): Event<Uri> { return this._onDidChangeEmitter.event; }
 
     constructor(repository: Repository, rootPath: string, onTfvcChange: Event<Uri>) {
         this._tfvcRepository = repository;
         this._rootPath = rootPath;
-        this.disposables.push(
+        this._disposables.push(
             onTfvcChange(this.fireChangeEvents, this),
             workspace.registerTextDocumentContentProvider(TfvcSCMProvider.scmScheme, this)
         );
@@ -54,15 +51,13 @@ export class TfvcContentProvider {
 
         try {
             const contents: string = await this._tfvcRepository.GetFileContent(path, versionSpec);
-            this.uris.add(uri);
             return contents;
         } catch (err) {
-            this.uris.delete(uri);
             return "";
         }
     }
 
     dispose(): void {
-        this.disposables.forEach(d => d.dispose());
+        this._disposables.forEach(d => d.dispose());
     }
 }

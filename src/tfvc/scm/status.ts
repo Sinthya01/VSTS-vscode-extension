@@ -4,17 +4,28 @@
 *--------------------------------------------------------------------------------------------*/
 "use strict";
 
-export function CreateStatus(statusText: string) {
-    switch (statusText.trim().toLowerCase()) {
-        case "add": return Status.ADD;
-        case "branch": return Status.BRANCH;
-        case "delete": return Status.DELETE;
-        case "edit": return Status.EDIT;
-        case "lock": return Status.LOCK;
-        case "merge": return Status.MERGE;
-        case "rename": return Status.RENAME;
-        case "undelete": return Status.UNDELETE;
+export function GetStatuses(statusText: string): Status[] {
+    let result: Status[] = [];
+    if (!statusText) {
+        return result;
     }
+
+    const statusStrings: string[] = statusText.split(",");
+    for (let i: number = 0; i < statusStrings.length; i++) {
+        switch (statusStrings[i].trim().toLowerCase()) {
+            case "add": result.push(Status.ADD); break;
+            case "branch": result.push(Status.BRANCH); break;
+            case "delete": result.push(Status.DELETE); break;
+            case "edit": result.push(Status.EDIT); break;
+            case "lock": result.push(Status.LOCK); break;
+            case "merge": result.push(Status.MERGE); break;
+            case "rename": result.push(Status.RENAME); break;
+            case "source rename": result.push(Status.RENAME); break;
+            case "undelete": result.push(Status.UNDELETE); break;
+        }
+    }
+
+    return result;
 }
 
 export enum Status {
@@ -27,26 +38,6 @@ export enum Status {
     BRANCH,
     MERGE,
     UNKNOWN
-/*
-    INDEX_MODIFIED,
-    INDEX_ADDED,
-    INDEX_DELETED,
-    INDEX_RENAMED,
-    INDEX_COPIED,
-
-    MODIFIED,
-    DELETED,
-    UNTRACKED,
-    IGNORED,
-
-    ADDED_BY_US,
-    ADDED_BY_THEM,
-    DELETED_BY_US,
-    DELETED_BY_THEM,
-    BOTH_ADDED,
-    BOTH_DELETED,
-    BOTH_MODIFIED
-*/
 }
 
 export enum ConflictType {

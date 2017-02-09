@@ -5,6 +5,7 @@
 "use strict";
 
 import { SCMResourceGroup } from "vscode";
+import { Strings } from "../../helpers/strings";
 import { Resource } from "./resource";
 
 export class ResourceGroup implements SCMResourceGroup {
@@ -12,7 +13,9 @@ export class ResourceGroup implements SCMResourceGroup {
     get label(): string { return this._label; }
     get resources(): Resource[] { return this._resources; }
 
-    constructor(private _id: string, private _label: string, private _resources: Resource[]) {
+    public constructor(private _id: string,
+                       private _label: string,
+                       private _resources: Resource[]) {
     }
 }
 
@@ -20,27 +23,24 @@ export class MergeGroup extends ResourceGroup {
     static readonly ID = "merge";
 
     constructor(resources: Resource[]) {
-        //TODO localize
-        super(MergeGroup.ID, "Merge Changes", resources);
+        super(MergeGroup.ID, Strings.MergeGroupName, resources);
     }
 }
 
-export class IndexGroup extends ResourceGroup {
+export class IncludedGroup extends ResourceGroup {
 
     static readonly ID = "included";
 
     constructor(resources: Resource[]) {
-        //TODO localize
-        super(IndexGroup.ID, "Included Changes", resources);
+        super(IncludedGroup.ID, Strings.IncludedGroupName, resources);
     }
 }
 
-export class WorkingTreeGroup extends ResourceGroup {
+export class ExcludedGroup extends ResourceGroup {
 
     static readonly ID = "excluded";
 
     constructor(resources: Resource[]) {
-        //TODO localize
-        super(WorkingTreeGroup.ID, "Excluded Changes", resources);
+        super(ExcludedGroup.ID, Strings.ExcludedGroupName, resources);
     }
 }
