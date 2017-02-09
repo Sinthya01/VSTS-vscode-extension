@@ -5,6 +5,7 @@
 "use strict";
 
 import { commands, scm, Uri, Disposable, SCMProvider, SCMResource, SCMResourceGroup, Event, ProviderResult, workspace } from "vscode";
+import { CommitHoverProvider } from "./scm/commithoverprovider";
 import { Model } from "./scm/model";
 import { Status } from "./scm/status";
 import { Resource } from "./scm/resource";
@@ -66,7 +67,7 @@ export class TfvcSCMProvider implements SCMProvider {
         await TfvcOutput.CreateChannel(disposables);
         TfvcOutput.AppendLine("Using TFVC command line: " + this._repoContext.Tfvc.Location + " (" + version + ")");
 
-        //const commitHandler = new CommitController(model);
+        const commitHoverProvider = new CommitHoverProvider(this._model);
         const contentProvider = new TfvcContentProvider(this._repoContext.TfvcRepository, rootPath, onTfvcChange);
         //const checkoutStatusBar = new CheckoutStatusBar(model);
         //const syncStatusBar = new SyncStatusBar(model);
@@ -77,7 +78,7 @@ export class TfvcSCMProvider implements SCMProvider {
         scm.registerSCMProvider(TfvcSCMProvider.scmScheme, this);
 
         disposables.push(
-            //commitHandler,
+            commitHoverProvider,
             this,
             contentProvider,
             fsWatcher
