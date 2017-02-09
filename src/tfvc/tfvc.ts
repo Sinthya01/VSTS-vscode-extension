@@ -5,7 +5,6 @@
 "use strict";
 
 import * as cp from "child_process";
-import { EventEmitter, Event } from "vscode";
 import { TeamServerContext } from "../contexts/servercontext";
 import { Logger } from "../helpers/logger";
 import { Strings } from "../helpers/strings";
@@ -15,17 +14,13 @@ import { TfvcError, TfvcErrorCodes } from "./tfvcerror";
 import { Repository } from "./repository";
 import { TfvcSettings } from "./tfvcsettings";
 import { TfvcVersion } from "./tfvcversion";
+import { TfvcOutput } from "./tfvcoutput";
 
 var _ = require("underscore");
 var fs = require("fs");
 
 export class Tfvc {
-
     private _tfvcPath: string;
-    public get Location(): string { return this._tfvcPath; }
-
-    private _onOutput = new EventEmitter<string>();
-    public get onOutput(): Event<string> { return this._onOutput.event; }
 
     public constructor(localPath?: string) {
         Logger.LogDebug(`TFVC Creating Tfvc object with localPath='${localPath}'`);
@@ -66,6 +61,8 @@ export class Tfvc {
         }
     }
 
+    public get Location(): string { return this._tfvcPath; }
+
     /**
      * This method checks the version of the CLC against the minimum version that we expect.
      * It throws an error if the version does not meet or exceed the minimum.
@@ -102,10 +99,6 @@ export class Tfvc {
         return await this._exec(args, options);
     }
 
-    public Log(output: string): void {
-        this._onOutput.fire(output);
-    }
-
     private spawn(args: IArgumentProvider, options: any = {}): cp.ChildProcess {
         if (!options) {
             options = {};
@@ -119,7 +112,7 @@ export class Tfvc {
 
         Logger.LogDebug(`TFVC: tf ${args.GetArgumentsForDisplay()}`);
         if (options.log !== false) {
-            this.Log(`tf ${args.GetArgumentsForDisplay()}\n`);
+            TfvcOutput.AppendLine(`tf ${args.GetArgumentsForDisplay()}`);
         }
 
         return cp.spawn(this._tfvcPath, args.GetArguments(), options);

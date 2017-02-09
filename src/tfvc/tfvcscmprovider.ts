@@ -63,7 +63,8 @@ export class TfvcSCMProvider implements SCMProvider {
         } catch (err) {
             this._extensionManager.DisplayWarningMessage(err.message);
         }
-        TfvcOutput.CreateChannel(this._repoContext.Tfvc, version, disposables);
+        await TfvcOutput.CreateChannel(disposables);
+        TfvcOutput.AppendLine("Using TFVC command line: " + this._repoContext.Tfvc.Location + " (" + version + ")");
 
         //const commitHandler = new CommitController(model);
         const contentProvider = new TfvcContentProvider(this._repoContext.TfvcRepository, rootPath, onTfvcChange);
@@ -89,17 +90,12 @@ export class TfvcSCMProvider implements SCMProvider {
 
     /* Implement SCMProvider interface */
 
-    get resources(): SCMResourceGroup[] { return this._model.resources; }
-    get onDidChange(): Event<SCMResourceGroup[]> { return this._model.onDidChange; }
-    get label(): string { return "TFVC"; }
-    get count(): number {
-        const countBadge = workspace.getConfiguration("tfvc").get<string>("countBadge");
-
-        switch (countBadge) {
-            case "off": return 0;
-            case "tracked": return this._model.indexGroup.resources.length;
-            default: return this._model.resources.reduce((r, g) => r + g.resources.length, 0);
-        }
+    public get resources(): SCMResourceGroup[] { return this._model.Resources; }
+    public get onDidChange(): Event<SCMResourceGroup[]> { return this._model.onDidChange; }
+    public get label(): string { return "TFVC"; }
+    public get count(): number {
+        // TODO is this too simple? The Git provider does more
+        return this._model.Resources.reduce((r, g) => r + g.resources.length, 0);
     }
 
     /**
@@ -119,10 +115,8 @@ export class TfvcSCMProvider implements SCMProvider {
                 console.error("oh no");
                 return;
             }
-
             return commands.executeCommand<void>("vscode.open", right);
         }
-
         return commands.executeCommand<void>("vscode.diff", left, right, title);
     }
 
@@ -147,12 +141,11 @@ export class TfvcSCMProvider implements SCMProvider {
      * Gets the uri for the previous version of the file.
      */
     private getLeftResource(resource: Resource): Uri {
-        switch (resource.Type) {
-            case Status.EDIT:
-            case Status.RENAME:
+        if (resource.HasStatus(Status.EDIT) ||
+            resource.HasStatus(Status.RENAME)) {
                 return resource.GetServerUri();
-            default:
-                return undefined;
+        } else {
+            return undefined;
         }
     }
 
@@ -160,12 +153,11 @@ export class TfvcSCMProvider implements SCMProvider {
      * Gets the uri for the current version of the file (except for deleted files).
      */
     private getRightResource(resource: Resource): Uri {
-        switch (resource.Type) {
-            case Status.DELETE:
-                return resource.GetServerUri();
-            default:
-                // Adding the version spec query, because this eventually gets passed to getOriginalResource
-                return resource.uri.with({ query: `C${resource.PendingChange.version}` });
+        if (resource.HasStatus(Status.DELETE)) {
+            return resource.GetServerUri();
+        } else {
+            // Adding the version spec query, because this eventually gets passed to getOriginalResource
+            return resource.uri.with({ query: `C${resource.PendingChange.version}` });
         }
     }
 
@@ -173,11 +165,10 @@ export class TfvcSCMProvider implements SCMProvider {
         const basename = path.basename(resource.PendingChange.localItem);
         const sourceBasename = resource.PendingChange.sourceItem ? path.basename(resource.PendingChange.sourceItem) : "";
 
-        switch (resource.Type) {
-            case Status.EDIT:
-                return `${basename}`;
-            case Status.RENAME:
-                return sourceBasename ? `${basename} <- ${sourceBasename}` : `${basename}`;
+        if (resource.HasStatus(Status.RENAME)) {
+            return sourceBasename ? `${basename} <- ${sourceBasename}` : `${basename}`;
+        } else if (resource.HasStatus(Status.EDIT)) {
+            return `${basename}`;
         }
 
         return "";

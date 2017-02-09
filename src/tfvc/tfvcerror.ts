@@ -8,7 +8,6 @@ import { Strings } from "../helpers/strings";
 import { ITfvcErrorData } from "./interfaces";
 
 export class TfvcError {
-
     error: Error;
     message: string;
     stdout: string;

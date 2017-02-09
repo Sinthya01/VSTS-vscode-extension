@@ -4,14 +4,11 @@
 *--------------------------------------------------------------------------------------------*/
 "use strict";
 
-/* tslint:disable */
-
 import { Uri, EventEmitter, Event, SCMResourceGroup, Disposable, window } from "vscode";
 import { Repository } from "../repository";
 import { filterEvent } from "../util";
 import { Resource } from "./resource";
-import { Operation } from "./operations";
-import { ResourceGroup, IndexGroup, WorkingTreeGroup, MergeGroup } from "./resourcegroups";
+import { ResourceGroup, IncludedGroup, ExcludedGroup, MergeGroup } from "./resourcegroups";
 import { IPendingChange } from "../interfaces";
 import { Status } from "./status";
 
@@ -19,33 +16,17 @@ export class Model {
     private _disposables: Disposable[] = [];
     private _repositoryRoot: string;
     private _repository: Repository;
-    private _statusInProgress: boolean;
 
     private _onDidChange = new EventEmitter<SCMResourceGroup[]>();
-    readonly onDidChange: Event<SCMResourceGroup[]> = this._onDidChange.event;
-
-    private _mergeGroup = new MergeGroup([]);
-    get mergeGroup(): MergeGroup { return this._mergeGroup; }
-
-    private _indexGroup = new IndexGroup([]);
-    get indexGroup(): IndexGroup { return this._indexGroup; }
-
-    private _workingTreeGroup = new WorkingTreeGroup([]);
-    get workingTreeGroup(): WorkingTreeGroup { return this._workingTreeGroup; }
-
-    get resources(): ResourceGroup[] {
-        const result: ResourceGroup[] = [];
-        if (this._mergeGroup.resources.length > 0) {
-            result.push(this._mergeGroup);
-        }
-        if (this._indexGroup.resources.length > 0) {
-            result.push(this._indexGroup);
-        }
-        result.push(this._workingTreeGroup);
-        return result;
+    public get onDidChange(): Event<SCMResourceGroup[]> {
+        return this._onDidChange.event;
     }
 
-    constructor(repositoryRoot: string, repository: Repository, onWorkspaceChange: Event<Uri>) {
+    private _mergeGroup = new MergeGroup([]);
+    private _includedGroup = new IncludedGroup([]);
+    private _excludedGroup = new ExcludedGroup([]);
+
+    public constructor(repositoryRoot: string, repository: Repository, onWorkspaceChange: Event<Uri>) {
         this._repositoryRoot = repositoryRoot;
         this._repository = repository;
         const onNonGitChange = filterEvent(onWorkspaceChange, uri => !/\/\.tf\//.test(uri.fsPath));
@@ -53,99 +34,61 @@ export class Model {
         this.status();
     }
 
-    get repositoryRoot(): string {
-        return this._repositoryRoot;
+    public get MergeGroup(): MergeGroup { return this._mergeGroup; }
+    public get IndexGroup(): IncludedGroup { return this._includedGroup; }
+    public get WorkingTreeGroup(): ExcludedGroup { return this._excludedGroup; }
+
+    public get Resources(): ResourceGroup[] {
+        const result: ResourceGroup[] = [];
+        if (this._mergeGroup.resources.length > 0) {
+            result.push(this._mergeGroup);
+        }
+        if (this._includedGroup.resources.length > 0) {
+            result.push(this._includedGroup);
+        }
+        result.push(this._excludedGroup);
+        return result;
     }
 
-    async status(): Promise<void> {
-        await this.run(Operation.Status);
+    private async status(): Promise<void> {
+        await this.run(undefined);
     }
 
     private onFileSystemChange(uri: Uri): void {
         this.status();
     }
 
-    private async run(operation: Operation, fn: () => Promise<void> = () => Promise.resolve()): Promise<void> {
+    private async run(fn: () => Promise<void>): Promise<void> {
         return window.withScmProgress(async () => {
-            //this._operations = this._operations.start(operation);
-            //this._onRunOperation.fire(operation);
-
-            try {
+            if (fn) {
                 await fn();
-                await this.update();
-            } finally {
-                //this._operations = this._operations.end(operation);
-                //this._onDidRunOperation.fire(operation);
+            } else {
+                Promise.resolve();
             }
+            await this.update();
         });
     }
 
-    //@throttle
     private async update(): Promise<void> {
         const changes: IPendingChange[] = await this._repository.GetStatus();
-        const index: Resource[] = [];
-        const workingTree: Resource[] = [];
+        const included: Resource[] = [];
+        const excluded: Resource[] = [];
         const merge: Resource[] = [];
 
         changes.forEach(raw => {
             const resource: Resource = new Resource(raw);
-            const uri = Uri.file(raw.localItem);
 
-            switch (resource.Type) {
-                case Status.ADD:
-                case Status.BRANCH:
-                case Status.DELETE:
-                case Status.EDIT:
-                case Status.RENAME:
-                case Status.UNDELETE:
-                    return index.push(resource);
-                case Status.LOCK:
-                case Status.MERGE:
-                    return merge.push(resource);
+            if (resource.HasStatus(Status.MERGE)) {
+                return merge.push(resource);
+            } else {
+                return included.push(resource);
             }
         });
 
         this._mergeGroup = new MergeGroup(merge);
-        this._indexGroup = new IndexGroup(index);
-        this._workingTreeGroup = new WorkingTreeGroup(workingTree);
+        this._includedGroup = new IncludedGroup(included);
+        this._excludedGroup = new ExcludedGroup(excluded);
 
-        this._onDidChange.fire(this.resources);
+        this._onDidChange.fire(this.Resources);
     }
-
-/*
-    private onFSChange(uri: Uri): void {
-        const config = workspace.getConfiguration("git");
-        const autorefresh = config.get<boolean>("autorefresh");
-
-        if (!autorefresh) {
-            return;
-        }
-
-        if (!this.operations.isIdle()) {
-            return;
-        }
-
-        this.eventuallyUpdateWhenIdleAndWait();
-    }
-
-    //@debounce(1000)
-    private eventuallyUpdateWhenIdleAndWait(): void {
-        this.updateWhenIdleAndWait();
-    }
-
-    //@throttle
-    private async updateWhenIdleAndWait(): Promise<void> {
-        await this.whenIdle();
-        await this.status();
-        await new Promise(c => setTimeout(c, 5000));
-    }
-
-    private async whenIdle(): Promise<void> {
-        while (!this.operations.isIdle()) {
-            await eventToPromise(this.onDidRunOperation);
-        }
-    }
-*/
-
 }
-    /* tslint:enable */

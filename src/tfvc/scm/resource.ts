@@ -7,22 +7,26 @@
 import { SCMResource, SCMResourceDecorations, Uri } from "vscode";
 import { IPendingChange } from "../interfaces";
 import { TfvcSCMProvider } from "../tfvcscmprovider";
-import { CreateStatus, Status } from "./status";
+import { GetStatuses, Status } from "./status";
 import { DecorationProvider } from "./decorationprovider";
 
 export class Resource implements SCMResource {
     private _uri: Uri;
-    private _type: Status;
+    private _statuses: Status[];
     private _change: IPendingChange;
 
     constructor(change: IPendingChange) {
         this._change = change;
         this._uri = Uri.file(change.localItem);
-        this._type = CreateStatus(change.changeType);
+        this._statuses = GetStatuses(change.changeType);
     }
 
     public get PendingChange(): IPendingChange { return this._change; }
-    public get Type(): Status { return this._type; }
+    public get Statuses(): Status[] { return this._statuses; }
+
+    public HasStatus(status: Status): boolean {
+        return this._statuses.findIndex(s => s === status) >= 0;
+    }
 
     /**
      * This method gets a vscode file uri that represents the server path and version that the local item is based on.
@@ -37,6 +41,6 @@ export class Resource implements SCMResource {
     get uri(): Uri { return this._uri; }
     get decorations(): SCMResourceDecorations {
         // TODO Add conflict type to the resource constructor and pass it here
-        return DecorationProvider.getDecorations(this._type);
+        return DecorationProvider.getDecorations(this._statuses);
     }
 }

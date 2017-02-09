@@ -9,17 +9,44 @@ import { ConflictType, Status } from "./status";
 import * as path from "path";
 
 export class DecorationProvider {
-    private static iconsRootPath: string = path.join(path.dirname(__dirname), "..", "..", "resources", "icons");
+    private static _iconsRootPath: string = path.join(path.dirname(__dirname), "..", "..", "resources", "icons");
 
-    public static getDecorations(status: Status, conflictType?: ConflictType): SCMResourceDecorations {
+    public static getDecorations(statuses: Status[], conflictType?: ConflictType): SCMResourceDecorations {
+        const status: Status = this.getDominantStatus(statuses);
         const light = { iconPath: DecorationProvider.getIconPath(status, "light") };
         const dark = { iconPath: DecorationProvider.getIconPath(status, "dark") };
 
         return { strikeThrough: DecorationProvider.useStrikeThrough(status, conflictType), light, dark };
     }
 
+    private static getDominantStatus(statuses: Status[]) {
+        if (!statuses || statuses.length === 0) {
+            return undefined;
+        }
+
+        // if there's only one just return it
+        if (statuses.length === 1) {
+            return statuses[0];
+        }
+
+        // The most dominant types are ADD, EDIT, and DELETE
+        let index: number = statuses.findIndex((s) => s === Status.ADD || s === Status.EDIT || s === Status.DELETE);
+        if (index >= 0) {
+            return statuses[index];
+        }
+
+        // The next dominant type is RENAME
+        index = statuses.findIndex((s) => s === Status.RENAME);
+        if (index >= 0) {
+            return statuses[index];
+        }
+
+        // After that, just return the first one
+        return statuses[0];
+    }
+
     private static getIconUri(iconName: string, theme: string): Uri {
-        return Uri.file(path.join(DecorationProvider.iconsRootPath, theme, `${iconName}.svg`));
+        return Uri.file(path.join(DecorationProvider._iconsRootPath, theme, `${iconName}.svg`));
     }
 
     private static getIconPath(status: Status, theme: string): Uri | undefined {
