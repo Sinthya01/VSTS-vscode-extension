@@ -110,4 +110,29 @@ describe("Tfvc-CommandHelper", function() {
             };
         assert.equal(JSON.stringify(xml), JSON.stringify(expectedJSON));
     });
+
+    it("should verify GetChangesetNumber", async function() {
+        let text: string = "/Users/leantk/tfvc-tfs/tfsTest_01/addFold:\n" +
+                    "Checking in edit: testHere.txt\n" +
+                    "\n" +
+                    "/Users/leantk/tfvc-tfs/tfsTest_01:\n" +
+                    "Checking in edit: test3.txt\n" +
+                    "Checking in edit: TestAdd.txt\n" +
+                    "\n" +
+                    "Changeset #23 checked in.\n";
+        let changeset: string = CommandHelper.GetChangesetNumber(text);
+        assert.equal(changeset, "23");
+    });
+
+    it("should verify GetChangesetNumber - exact", async function() {
+        let text: string = "Changeset #20 checked in.";
+        let changeset: string = CommandHelper.GetChangesetNumber(text);
+        assert.equal(changeset, "20");
+    });
+
+    it("should verify GetChangesetNumber - no match", async function() {
+        let text: string = "WARN 1\nWARN 2\ntext\nChangeset # checked in.\n\r\ntext\r\nmore text\n\n";
+        let changeset: string = CommandHelper.GetChangesetNumber(text);
+        assert.equal(changeset, "");
+    });
 });

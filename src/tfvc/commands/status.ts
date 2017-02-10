@@ -28,7 +28,6 @@ export class Status implements ITfvcCommand<IPendingChange[]> {
         this._localPaths = localPaths;
     }
 
-    //TODO need to pass in context here as an optional parameter
     public GetArguments(): IArgumentProvider {
         const builder: ArgumentBuilder = new ArgumentBuilder("status", this._serverContext)
             .AddSwitchWithValue("format", "xml", false)

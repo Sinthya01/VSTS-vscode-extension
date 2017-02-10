@@ -9,11 +9,12 @@ import { Logger } from "../helpers/logger";
 import { ITfvcCommand, IExecutionResult } from "./interfaces";
 import { Tfvc } from "./tfvc";
 import { IArgumentProvider, IItemInfo, IWorkspace, IPendingChange } from "./interfaces";
-import { GetVersion } from "./commands/getversion";
+import { Checkin } from "./commands/checkin";
 import { FindWorkspace } from "./commands/findworkspace";
-import { Status } from "./commands/status";
 import { GetInfo } from "./commands/getinfo";
 import { GetFileContent } from "./commands/getfilecontent";
+import { GetVersion } from "./commands/getversion";
+import { Status } from "./commands/status";
 import { Undo } from "./commands/undo";
 
 var _ = require("underscore");
@@ -48,6 +49,12 @@ export class Repository {
 
     public get Path(): string {
         return this._repositoryRootFolder;
+    }
+
+    public async Checkin(files: string[], comment: string, workItemIds: number[]): Promise<string> {
+        Logger.LogDebug(`TFVC Repository.Checkin`);
+        return this.RunCommand<string>(
+            new Checkin(this._serverContext, files, comment, workItemIds));
     }
 
     public async FindWorkspace(localPath: string): Promise<IWorkspace> {

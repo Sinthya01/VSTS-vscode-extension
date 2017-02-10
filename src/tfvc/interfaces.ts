@@ -25,6 +25,12 @@ export interface IItemInfo {
     fileSize?: string;
 }
 
+export interface ICheckinInfo {
+    comment: string;
+    files: string[];
+    workItemIds: number[];
+}
+
 export interface IWorkspace {
     name: string;
     server: string;
