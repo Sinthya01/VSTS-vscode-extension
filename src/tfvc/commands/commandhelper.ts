@@ -70,6 +70,24 @@ export class CommandHelper {
         }
     }
 
+    /**
+     * This method is used by Checkin to parse out the changeset number.
+     */
+    public static GetChangesetNumber(stdout: string): string {
+        // parse output for changeset number
+        if (stdout) {
+            let prefix: string = "Changeset #";
+            let start: number = stdout.indexOf(prefix) + prefix.length;
+            if (start >= 0) {
+                let end: number = stdout.indexOf(" ", start);
+                if (end > start) {
+                    return stdout.slice(start, end);
+                }
+            }
+        }
+        return "";
+    }
+
     public static GetNewLineCharacter(stdout: string): string {
         if (stdout && /\r\n/.test(stdout)) {
             return "\r\n";
