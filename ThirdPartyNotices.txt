@@ -22,6 +22,7 @@ otherwise.
 11. underscore (https://github.com/jashkenas/underscore)
 12.	vso-node-api (https://github.com/Microsoft/vso-node-api)
 13.	winston (https://github.com/winstonjs/winston)
+14. xml2js (https://github.com/Leonidas-from-XIV/node-xml2js)
 
 
 %% Application Insights for Node.js NOTICES, INFORMATION, AND LICENSE BEGIN HERE
