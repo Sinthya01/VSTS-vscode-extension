@@ -9,19 +9,19 @@ Microsoft reserves all other rights not expressly granted, whether by implicatio
 otherwise. 
 
 
-1.	Application Insights for Node.js (https://github.com/Microsoft/ApplicationInsights-node.js)
+1.  Application Insights for Node.js (https://github.com/Microsoft/ApplicationInsights-node.js)
 2.  event-stream (https://github.com/dominictarr/event-stream)
-3.	git-repo-info (https://github.com/rwjblue/git-repo-info)
-4.	node-open (https://github.com/pwnall/node-open)
-5.	node-url (https://github.com/defunctzombie/node-url)
-6.	node-uuid (https://github.com/broofa/node-uuid)
-7.	opener (https://github.com/domenic/opener)
-8.	parse-git-config (https://github.com/jonschlinkert/parse-git-config)
-9.	path (https://github.com/jinder/path)
+3.  git-repo-info (https://github.com/rwjblue/git-repo-info)
+4.  node-open (https://github.com/pwnall/node-open)
+5.  node-url (https://github.com/defunctzombie/node-url)
+6.  node-uuid (https://github.com/broofa/node-uuid)
+7.  opener (https://github.com/domenic/opener)
+8.  parse-git-config (https://github.com/jonschlinkert/parse-git-config)
+9.  path (https://github.com/jinder/path)
 10. readable-stream (https://github.com/nodejs/readable-stream)
 11. underscore (https://github.com/jashkenas/underscore)
-12.	vso-node-api (https://github.com/Microsoft/vso-node-api)
-13.	winston (https://github.com/winstonjs/winston)
+12. vso-node-api (https://github.com/Microsoft/vso-node-api)
+13. winston (https://github.com/winstonjs/winston)
 14. xml2js (https://github.com/Leonidas-from-XIV/node-xml2js)
 
 
