@@ -18,7 +18,8 @@ import { TfvcSCMProvider } from "./tfvcscmprovider";
 import { TfvcErrorCodes } from "./tfvcerror";
 import { Repository } from "./repository";
 import { UIHelper } from "./uihelper";
-import { IItemInfo, IPendingChange } from "./interfaces";
+import { ICheckinInfo, IItemInfo, IPendingChange } from "./interfaces";
+import { TfvcSCMProvider } from "./tfvcscmprovider";
 import { TfvcOutput } from "./tfvcoutput";
 
 export class TfvcExtension  {
@@ -31,7 +32,29 @@ export class TfvcExtension  {
     }
 
     public async TfvcCheckin(): Promise<void> {
-        //
+        if (!this._manager.EnsureInitialized(RepositoryType.TFVC)) {
+            this._manager.DisplayErrorMessage();
+            return;
+        }
+
+        try {
+            this._manager.Telemetry.SendEvent(TfvcTelemetryEvents.Checkin);
+
+            // get the checkin info from the SCM viewlet
+            const checkinInfo: ICheckinInfo = TfvcSCMProvider.GetCheckinInfo();
+            if (!checkinInfo) {
+                // TODO localize
+                window.showInformationMessage("There are no changes to checkin. Changes must be added to the 'Included' section to be checked in.");
+                return;
+            }
+
+            const changeset: string =
+                await this._repo.Checkin(checkinInfo.files, checkinInfo.comment, checkinInfo.workItemIds);
+            //TODO should this be localized?
+            TfvcOutput.AppendLine("Changeset " + changeset + " checked in.");
+        } catch (err) {
+            this._manager.DisplayErrorMessage(err.message);
+        }
     }
 
     public async TfvcExclude(): Promise<void> {

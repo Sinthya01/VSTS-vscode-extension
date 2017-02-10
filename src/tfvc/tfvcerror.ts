@@ -24,6 +24,24 @@ export class TfvcError {
             });
     }
 
+    /**
+     * Only throw this error in the case where you detect an invalid state and cannot continue.
+     */
+    public static CreateInvalidStateError(): TfvcError {
+        return new TfvcError({
+            message: "The TFVC SCMProvider is in an invalid state for this action.",
+            tfvcErrorCode: TfvcErrorCodes.TfvcInInvalidState
+        });
+    }
+
+    public static CreateUnknownError(err: Error) {
+        return new TfvcError({
+                error: err,
+                message: err.message,
+                tfvcErrorCode: TfvcErrorCodes.UnknownError
+            });
+    }
+
     public constructor(data: ITfvcErrorData) {
         if (data.error) {
             this.error = data.error;
@@ -63,24 +81,25 @@ export class TfvcError {
 
 export class TfvcErrorCodes {
     public static get MissingArgument(): string { return "MissingArgument"; }
-    public static get BadConfigFile(): string { return "BadConfigFile"; }
+    //public static get BadConfigFile(): string { return "BadConfigFile"; }
     public static get AuthenticationFailed(): string { return "AuthenticationFailed"; }
-    public static get NoUserNameConfigured(): string { return "NoUserNameConfigured"; }
-    public static get NoUserEmailConfigured(): string { return "NoUserEmailConfigured"; }
-    public static get NoRemoteRepositorySpecified(): string { return "NoRemoteRepositorySpecified"; }
+    //public static get NoUserNameConfigured(): string { return "NoUserNameConfigured"; }
+    //public static get NoUserEmailConfigured(): string { return "NoUserEmailConfigured"; }
+    //public static get NoRemoteRepositorySpecified(): string { return "NoRemoteRepositorySpecified"; }
     public static get NotATfvcRepository(): string { return "NotATfvcRepository"; }
-    public static get NotAtRepositoryRoot(): string { return "NotAtRepositoryRoot"; }
-    public static get Conflict(): string { return "Conflict"; }
-    public static get UnmergedChanges(): string { return "UnmergedChanges"; }
-    public static get PushRejected(): string { return "PushRejected"; }
-    public static get RemoteConnectionError(): string { return "RemoteConnectionError"; }
-    public static get DirtyWorkTree(): string { return "DirtyWorkTree"; }
-    public static get CantOpenResource(): string { return "CantOpenResource"; }
+    //public static get NotAtRepositoryRoot(): string { return "NotAtRepositoryRoot"; }
+    //public static get Conflict(): string { return "Conflict"; }
+    //public static get UnmergedChanges(): string { return "UnmergedChanges"; }
+    //public static get PushRejected(): string { return "PushRejected"; }
+    //public static get RemoteConnectionError(): string { return "RemoteConnectionError"; }
+    //public static get CantOpenResource(): string { return "CantOpenResource"; }
     public static get TfvcLocationMissing(): string { return "TfvcLocationMissing"; }
     public static get TfvcNotFound(): string { return "TfvcNotFound"; }
     public static get TfvcMinVersionWarning(): string { return "TfvcMinVersionWarning"; }
-    public static get CantCreatePipe(): string { return "CantCreatePipe"; }
-    public static get CantAccessRemote(): string { return "CantAccessRemote"; }
+    //public static get CantCreatePipe(): string { return "CantCreatePipe"; }
+    //public static get CantAccessRemote(): string { return "CantAccessRemote"; }
     public static get RepositoryNotFound(): string { return "RepositoryNotFound"; }
     public static get FileNotInMappings(): string { return "FileNotInMappings"; }
+    public static get TfvcInInvalidState(): string { return "TfvcInInvalidState"; }
+    public static get UnknownError(): string { return "UnknownError"; }
 };

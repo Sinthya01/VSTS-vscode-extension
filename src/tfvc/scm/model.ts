@@ -16,6 +16,7 @@ export class Model {
     private _disposables: Disposable[] = [];
     private _repositoryRoot: string;
     private _repository: Repository;
+    private _statusAlreadyInProgress: boolean;
 
     private _onDidChange = new EventEmitter<SCMResourceGroup[]>();
     public get onDidChange(): Event<SCMResourceGroup[]> {
@@ -35,8 +36,8 @@ export class Model {
     }
 
     public get MergeGroup(): MergeGroup { return this._mergeGroup; }
-    public get IndexGroup(): IncludedGroup { return this._includedGroup; }
-    public get WorkingTreeGroup(): ExcludedGroup { return this._excludedGroup; }
+    public get IncludedGroup(): IncludedGroup { return this._includedGroup; }
+    public get ExcludedGroup(): ExcludedGroup { return this._excludedGroup; }
 
     public get Resources(): ResourceGroup[] {
         const result: ResourceGroup[] = [];
@@ -51,7 +52,15 @@ export class Model {
     }
 
     private async status(): Promise<void> {
-        await this.run(undefined);
+        if (this._statusAlreadyInProgress) {
+            return;
+        }
+        this._statusAlreadyInProgress = true;
+        try {
+            await this.run(undefined);
+        } finally {
+            this._statusAlreadyInProgress = false;
+        }
     }
 
     private onFileSystemChange(uri: Uri): void {

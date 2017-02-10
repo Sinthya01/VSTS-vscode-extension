@@ -4,6 +4,7 @@
 *--------------------------------------------------------------------------------------------*/
 "use strict";
 
+import { Logger } from "../helpers/logger";
 import { commands, scm, Uri, Disposable, SCMProvider, SCMResource, SCMResourceGroup, Event, ProviderResult, workspace } from "vscode";
 import { CommitHoverProvider } from "./scm/commithoverprovider";
 import { Model } from "./scm/model";
@@ -16,6 +17,8 @@ import { ExtensionManager } from "../extensionmanager";
 import { RepositoryType } from "../contexts/repositorycontext";
 import { TfvcOutput } from "./tfvcoutput";
 import { TfvcContentProvider } from "./scm/tfvccontentprovider";
+import { TfvcError } from "./tfvcerror";
+import { ICheckinInfo } from "./interfaces";
 
 import * as path from "path";
 
@@ -27,6 +30,7 @@ import * as path from "path";
  */
 export class TfvcSCMProvider implements SCMProvider {
     public static scmScheme: string = "tfvc";
+    public static instance: TfvcSCMProvider = undefined;
 
     private _extensionManager: ExtensionManager;
     private _repoContext: TfvcContext;
@@ -36,6 +40,42 @@ export class TfvcSCMProvider implements SCMProvider {
     constructor(extensionManager: ExtensionManager) {
         this._extensionManager = extensionManager;
     }
+
+    /* Static helper methods */
+    public static GetCheckinInfo(): ICheckinInfo {
+        const tfvcProvider: TfvcSCMProvider = TfvcSCMProvider.instance;
+        if (!tfvcProvider) {
+            // We are not the active provider
+            Logger.LogDebug("Failed to GetCheckinInfo. TFVC is not the active provider.");
+            throw TfvcError.CreateInvalidStateError();
+        }
+
+        try {
+            const files: string[] = [];
+            const commitMessage: string = scm.inputBox.value;
+            const workItemIds: number[] = [];
+
+            const resources: Resource[] = tfvcProvider._model.IncludedGroup.resources;
+            if (!resources || resources.length === 0) {
+                return undefined;
+            }
+
+            for (let i: number = 0; i < resources.length; i++) {
+                files.push(resources[i].PendingChange.localItem);
+            }
+
+            return {
+                files: files,
+                comment: commitMessage,
+                workItemIds: workItemIds
+            };
+        } catch (err) {
+            Logger.LogDebug("Failed to GetCheckinInfo. Details: " + err.message);
+            throw TfvcError.CreateUnknownError(err);
+        }
+    }
+
+    /* Public methods */
 
     public async Initialize(disposables: Disposable[]): Promise<void> {
         const rootPath = workspace.rootPath;
@@ -74,7 +114,8 @@ export class TfvcSCMProvider implements SCMProvider {
         //const autoFetcher = new AutoFetcher(model);
         //const mergeDecorator = new MergeDecorator(model);
 
-        // Now that everything is setup, we can register the provider
+        // Now that everything is setup, we can register the provider and set up our singleton instance
+        TfvcSCMProvider.instance = this;
         scm.registerSCMProvider(TfvcSCMProvider.scmScheme, this);
 
         disposables.push(

@@ -27,7 +27,7 @@ export class CommandHelper {
         return new RegExp(errorPattern, "i").test(result.stderr);
     }
 
-    public static ProcessErrors(command: string, result: IExecutionResult): void {
+    public static ProcessErrors(command: string, result: IExecutionResult, showFirstError?: boolean): void {
         if (result.exitCode) {
             let tfvcErrorCode: string = null;
             let message: string;
@@ -36,14 +36,8 @@ export class CommandHelper {
                 tfvcErrorCode = TfvcErrorCodes.AuthenticationFailed;
             } else if (/workspace could not be determined/.test(result.stderr)) {
                 tfvcErrorCode = TfvcErrorCodes.NotATfvcRepository;
-            } else if (/bad config file/.test(result.stderr)) {
-                tfvcErrorCode = TfvcErrorCodes.BadConfigFile;
-            } else if (/cannot make pipe for command substitution|cannot create standard input pipe/.test(result.stderr)) {
-                tfvcErrorCode = TfvcErrorCodes.CantCreatePipe;
             } else if (/Repository not found/.test(result.stderr)) {
                 tfvcErrorCode = TfvcErrorCodes.RepositoryNotFound;
-            } else if (/unable to access/.test(result.stderr)) {
-                tfvcErrorCode = TfvcErrorCodes.CantAccessRemote;
             } else if (/project collection URL to use could not be determined/i.test(result.stderr)) {
                 tfvcErrorCode = TfvcErrorCodes.NotATfvcRepository;
                 message = Strings.NotATfvcRepository;
@@ -55,6 +49,8 @@ export class CommandHelper {
                 message = Strings.TfInitializeFailureError;
             } else if (/There is no working folder mapping/i.test(result.stderr)) {
                 tfvcErrorCode = TfvcErrorCodes.FileNotInMappings;
+            } else if (showFirstError) {
+                message = result.stderr ? result.stderr : result.stdout;
             }
 
             Logger.LogDebug(`TFVC errors: ${result.stderr}`);
