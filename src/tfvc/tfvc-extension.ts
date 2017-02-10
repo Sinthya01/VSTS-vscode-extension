@@ -19,7 +19,6 @@ import { TfvcErrorCodes } from "./tfvcerror";
 import { Repository } from "./repository";
 import { UIHelper } from "./uihelper";
 import { ICheckinInfo, IItemInfo, IPendingChange } from "./interfaces";
-import { TfvcSCMProvider } from "./tfvcscmprovider";
 import { TfvcOutput } from "./tfvcoutput";
 
 export class TfvcExtension  {
