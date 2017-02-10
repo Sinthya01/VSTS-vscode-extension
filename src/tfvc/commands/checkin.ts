@@ -80,7 +80,7 @@ export class Checkin implements ITfvcCommand<string> {
      */
     public async ParseOutput(executionResult: IExecutionResult): Promise<string> {
         if (executionResult.exitCode === 100) {
-            //TODO Look for error details in the stdout string.
+            //TODO Look for error details in the stdout string. For now the stderr string will suffice.
             CommandHelper.ProcessErrors(this.GetArguments().GetCommand(), executionResult);
         } else {
             return CommandHelper.GetChangesetNumber(executionResult.stdout);

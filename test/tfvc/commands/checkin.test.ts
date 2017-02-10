@@ -135,7 +135,12 @@ describe("Tfvc-CheckinCommand", function() {
             stderr: "A resolvable conflict was flagged by the server: No files checked in due to conflicting changes.  Resolve the conflicts and try the check-in again.\n"
         };
 
-        assert.throws(async () => await cmd.ParseOutput(executionResult), TfvcError, /resolvable conflict was flagged/);
+        try {
+            await cmd.ParseOutput(executionResult);
+        } catch (err) {
+            assert.equal(err.exitCode, 100);
+            assert.equal(err.tfvcCommand, "checkin");
+        }
     });
 
 });
