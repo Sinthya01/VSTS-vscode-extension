@@ -65,6 +65,7 @@ export class Strings {
     static TfVersionWarning: string = "The installed version of the TF command line does not meet the minimum suggested version. You may run into errors or limitations with certain commands until you upgrade. Minimum suggested version: ";
     static TfNoPendingChanges: string = "There are no matching pending changes.";
     static UndoChanges: string = "Undo Changes";
+    static NoChangesToCheckin: string = "There are no changes to checkin. Changes must be added to the 'Included' section to be checked in.";
 
     // TFVC viewlet Strings
     static ExcludedGroupName: string = "Excluded changes";

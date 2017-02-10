@@ -37,19 +37,16 @@ export class TfvcExtension  {
         }
 
         try {
-            this._manager.Telemetry.SendEvent(TfvcTelemetryEvents.Checkin);
-
             // get the checkin info from the SCM viewlet
             const checkinInfo: ICheckinInfo = TfvcSCMProvider.GetCheckinInfo();
             if (!checkinInfo) {
-                // TODO localize
-                window.showInformationMessage("There are no changes to checkin. Changes must be added to the 'Included' section to be checked in.");
+                window.showInformationMessage(Strings.NoChangesToCheckin);
                 return;
             }
 
+            this._manager.Telemetry.SendEvent(TfvcTelemetryEvents.Checkin);
             const changeset: string =
                 await this._repo.Checkin(checkinInfo.files, checkinInfo.comment, checkinInfo.workItemIds);
-            //TODO should this be localized?
             TfvcOutput.AppendLine("Changeset " + changeset + " checked in.");
         } catch (err) {
             this._manager.DisplayErrorMessage(err.message);

@@ -52,7 +52,7 @@ export class Repository {
     }
 
     public async Checkin(files: string[], comment: string, workItemIds: number[]): Promise<string> {
-        Logger.LogDebug(`TFVC Repository.Undo`);
+        Logger.LogDebug(`TFVC Repository.Checkin`);
         return this.RunCommand<string>(
             new Checkin(this._serverContext, files, comment, workItemIds));
     }
