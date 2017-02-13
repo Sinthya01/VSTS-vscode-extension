@@ -46,18 +46,15 @@ export async function activate(context: ExtensionContext) {
     // TFVC Commands
     context.subscriptions.push(commands.registerCommand(TfvcCommandNames.Status, () => _extensionManager.Tfvc.TfvcStatus()));
     context.subscriptions.push(commands.registerCommand(TfvcCommandNames.Undo, (...args) => {
-            if (args) {
-                //TODO: Multi-select?
-                _extensionManager.Tfvc.TfvcUndo(args[0]);
-            } else {
-                _extensionManager.Tfvc.TfvcUndo();
-            }
-        }
-    ));
-    context.subscriptions.push(commands.registerCommand(TfvcCommandNames.Exclude, () => _extensionManager.Tfvc.TfvcExclude()));
-    context.subscriptions.push(commands.registerCommand(TfvcCommandNames.ExcludeAll, () => _extensionManager.Tfvc.TfvcExcludeAll()));
-    context.subscriptions.push(commands.registerCommand(TfvcCommandNames.Include, () => _extensionManager.Tfvc.TfvcInclude()));
-    context.subscriptions.push(commands.registerCommand(TfvcCommandNames.IncludeAll, () => _extensionManager.Tfvc.TfvcIncludeAll()));
+            _extensionManager.Tfvc.TfvcUndo(args ? args[0] : undefined);
+        }));
+    context.subscriptions.push(commands.registerCommand(TfvcCommandNames.Exclude, (...args) => {
+            _extensionManager.Tfvc.TfvcExclude(args ? args[0] : undefined);
+        }));
+    context.subscriptions.push(commands.registerCommand(TfvcCommandNames.Include, (...args) => {
+            _extensionManager.Tfvc.TfvcInclude(args ? args[0] : undefined);
+        }));
+    context.subscriptions.push(commands.registerCommand(TfvcCommandNames.Refresh, () => _extensionManager.Tfvc.TfvcRefresh()));
     context.subscriptions.push(commands.registerCommand(TfvcCommandNames.ShowOutput, () => _extensionManager.Tfvc.TfvcShowOutput()));
     context.subscriptions.push(commands.registerCommand(TfvcCommandNames.Checkin, () => _extensionManager.Tfvc.TfvcCheckin()));
 }
