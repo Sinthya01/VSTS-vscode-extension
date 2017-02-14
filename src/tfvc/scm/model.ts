@@ -9,10 +9,11 @@ import { Repository } from "../repository";
 import { filterEvent } from "../util";
 import { Resource } from "./resource";
 import { ResourceGroup, IncludedGroup, ExcludedGroup, ConflictsGroup } from "./resourcegroups";
-import { IPendingChange } from "../interfaces";
-import { Status } from "./status";
+import { IConflict, IPendingChange } from "../interfaces";
+import { ConflictType, Status } from "./status";
 
 import * as _ from "underscore";
+import * as path from "path";
 
 export class Model {
     private _disposables: Disposable[] = [];
@@ -110,12 +111,19 @@ export class Model {
 
     private async update(): Promise<void> {
         const changes: IPendingChange[] = await this._repository.GetStatus();
+        const foundConflicts: IConflict[] = await this._repository.FindConflicts();
+
+        //if (foundConflicts.find(c => c.type === ConflictType.NAME_AND_CONTENT || c.type === ConflictType.RENAME)) {
+        //    TODO: Send telemetry
+        //}
+
         const included: Resource[] = [];
         const excluded: Resource[] = [];
         const conflicts: Resource[] = [];
 
         changes.forEach(raw => {
-            const resource: Resource = new Resource(raw);
+            const conflict: IConflict = foundConflicts.find(c => this.conflictMatchesPendingChange(raw, c));
+            const resource: Resource = new Resource(raw, conflict);
 
             if (resource.HasStatus(Status.CONFLICT)) {
                 return conflicts.push(resource);
@@ -143,5 +151,21 @@ export class Model {
         this._excludedGroup = new ExcludedGroup(excluded);
 
         this._onDidChange.fire(this.Resources);
+    }
+
+    private conflictMatchesPendingChange(change: IPendingChange, conflict: IConflict): boolean {
+        let result: boolean = false;
+        if (change && change.localItem && conflict && conflict.localPath) {
+            // TODO: If resource or conflict are renames we have a lot more work to do
+            //       We are postponing this work for now until we have evidence that it happens a lot
+            let path2: string = conflict.localPath;
+            // If path2 is relative then assume it is relative to the repo root
+            if (!path.isAbsolute(path2)) {
+                path2 = path.join(this._repositoryRoot, path2);
+            }
+            // First compare the source item
+            result = change.localItem.toLowerCase() === path2.toLowerCase();
+        }
+        return result;
     }
 }

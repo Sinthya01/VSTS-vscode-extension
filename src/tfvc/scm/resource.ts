@@ -5,9 +5,9 @@
 "use strict";
 
 import { SCMResource, SCMResourceDecorations, Uri } from "vscode";
-import { IPendingChange } from "../interfaces";
+import { IConflict, IPendingChange } from "../interfaces";
 import { TfvcSCMProvider } from "../tfvcscmprovider";
-import { GetStatuses, Status } from "./status";
+import { ConflictType, GetStatuses, Status } from "./status";
 import { DecorationProvider } from "./decorationprovider";
 
 export class Resource implements SCMResource {
@@ -15,11 +15,16 @@ export class Resource implements SCMResource {
     private _statuses: Status[];
     private _change: IPendingChange;
     private _version: string;
+    private _conflictType: ConflictType;
 
-    constructor(change: IPendingChange) {
+    constructor(change: IPendingChange, conflict: IConflict) {
         this._change = change;
         this._uri = Uri.file(change.localItem);
         this._statuses = GetStatuses(change.changeType);
+        if (conflict) {
+            this._statuses.push(Status.CONFLICT);
+            this._conflictType = conflict.type;
+        }
         this._version = change.version;
     }
 
