@@ -10,7 +10,7 @@ import { filterEvent } from "../util";
 import { Resource } from "./resource";
 import { ResourceGroup, IncludedGroup, ExcludedGroup, ConflictsGroup } from "./resourcegroups";
 import { IConflict, IPendingChange } from "../interfaces";
-import { ConflictType, Status } from "./status";
+import { Status } from "./status";
 
 import * as _ from "underscore";
 import * as path from "path";

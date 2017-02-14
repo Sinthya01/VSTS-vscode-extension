@@ -21,11 +21,11 @@ export class Resource implements SCMResource {
         this._change = change;
         this._uri = Uri.file(change.localItem);
         this._statuses = GetStatuses(change.changeType);
+        this._version = change.version;
         if (conflict) {
             this._statuses.push(Status.CONFLICT);
             this._conflictType = conflict.type;
         }
-        this._version = change.version;
     }
 
     public get PendingChange(): IPendingChange { return this._change; }
@@ -42,7 +42,8 @@ export class Resource implements SCMResource {
      */
     public GetServerUri(): Uri {
         const serverItem: string = this._change.sourceItem ? this._change.sourceItem : this._change.serverItem;
-        const versionSpec: string = "C" + this._change.version;
+        // For conflicts set the version to "T"ip so that we will compare against the latest version
+        const versionSpec: string = this.HasStatus(Status.CONFLICT) ? "T" : "C" + this._change.version;
         return Uri.file(serverItem).with({ scheme: TfvcSCMProvider.scmScheme, query: versionSpec });
     }
 

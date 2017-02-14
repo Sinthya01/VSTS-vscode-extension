@@ -200,7 +200,8 @@ export class TfvcSCMProvider implements SCMProvider {
      * Gets the uri for the previous version of the file.
      */
     private getLeftResource(resource: Resource): Uri {
-        if (resource.HasStatus(Status.EDIT) ||
+        if (resource.HasStatus(Status.CONFLICT) ||
+            resource.HasStatus(Status.EDIT) ||
             resource.HasStatus(Status.RENAME)) {
                 return resource.GetServerUri();
         } else {
