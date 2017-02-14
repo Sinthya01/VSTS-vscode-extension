@@ -19,11 +19,11 @@ export class ResourceGroup implements SCMResourceGroup {
     }
 }
 
-export class MergeGroup extends ResourceGroup {
-    static readonly ID = "merge";
+export class ConflictsGroup extends ResourceGroup {
+    static readonly ID = "conflicts";
 
     constructor(resources: Resource[]) {
-        super(MergeGroup.ID, Strings.MergeGroupName, resources);
+        super(ConflictsGroup.ID, Strings.ConflictsGroupName, resources);
     }
 }
 

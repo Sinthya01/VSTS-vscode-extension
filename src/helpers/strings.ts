@@ -71,7 +71,7 @@ export class Strings {
     // TFVC viewlet Strings
     static ExcludedGroupName: string = "Excluded changes";
     static IncludedGroupName: string = "Included changes";
-    static MergeGroupName: string = "Merge changes";
+    static ConflictsGroupName: string = "Conflicting changes";
 
     // TFVC Sync Types
     static SyncTypeConflict: string = "Conflict";
