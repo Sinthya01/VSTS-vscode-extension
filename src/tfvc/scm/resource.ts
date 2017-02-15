@@ -4,27 +4,36 @@
 *--------------------------------------------------------------------------------------------*/
 "use strict";
 
+import * as path from "path";
+
 import { SCMResource, SCMResourceDecorations, Uri } from "vscode";
-import { IPendingChange } from "../interfaces";
+import { IConflict, IPendingChange } from "../interfaces";
 import { TfvcSCMProvider } from "../tfvcscmprovider";
-import { GetStatuses, Status } from "./status";
+import { ConflictType, GetStatuses, Status } from "./status";
 import { DecorationProvider } from "./decorationprovider";
+import { Strings } from "../../helpers/strings";
 
 export class Resource implements SCMResource {
     private _uri: Uri;
     private _statuses: Status[];
     private _change: IPendingChange;
     private _version: string;
+    private _conflictType: ConflictType;
 
-    constructor(change: IPendingChange) {
+    constructor(change: IPendingChange, conflict: IConflict) {
         this._change = change;
         this._uri = Uri.file(change.localItem);
         this._statuses = GetStatuses(change.changeType);
         this._version = change.version;
+        if (conflict) {
+            this._statuses.push(Status.CONFLICT);
+            this._conflictType = conflict.type;
+        }
     }
 
     public get PendingChange(): IPendingChange { return this._change; }
     public get Statuses(): Status[] { return this._statuses; }
+    public get ConflictType(): ConflictType { return this._conflictType; }
 
     public HasStatus(status: Status): boolean {
         return this._statuses.findIndex(s => s === status) >= 0;
@@ -37,8 +46,40 @@ export class Resource implements SCMResource {
      */
     public GetServerUri(): Uri {
         const serverItem: string = this._change.sourceItem ? this._change.sourceItem : this._change.serverItem;
-        const versionSpec: string = "C" + this._change.version;
+        // For conflicts set the version to "T"ip so that we will compare against the latest version
+        const versionSpec: string = this.HasStatus(Status.CONFLICT) ? "T" : "C" + this._change.version;
         return Uri.file(serverItem).with({ scheme: TfvcSCMProvider.scmScheme, query: versionSpec });
+    }
+
+    public GetTitle(): string {
+        const basename = path.basename(this._change.localItem);
+        const sourceBasename = this._change.sourceItem ? path.basename(this._change.sourceItem) : "";
+
+        if (this.HasStatus(Status.CONFLICT)) {
+            switch (this._conflictType) {
+                case ConflictType.CONTENT:
+                case ConflictType.MERGE:
+                case ConflictType.RENAME:
+                case ConflictType.NAME_AND_CONTENT:
+                    if (this.HasStatus(Status.ADD)) {
+                        return `${basename} (${Strings.ConflictAlreadyExists})`;
+                    }
+                    // Use the default title for all other cases
+                    break;
+                case ConflictType.DELETE:
+                    return `${basename} (${Strings.ConflictAlreadyDeleted})`;
+                case ConflictType.DELETE_TARGET:
+                    return `${basename} (${Strings.ConflictDeletedLocally})`;
+            }
+        }
+
+        if (this.HasStatus(Status.RENAME)) {
+            return sourceBasename ? `${basename} <- ${sourceBasename}` : `${basename}`;
+        } else if (this.HasStatus(Status.EDIT)) {
+            return `${basename}`;
+        }
+
+        return "";
     }
 
     /* Implement SCMResource */

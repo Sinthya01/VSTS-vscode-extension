@@ -20,8 +20,6 @@ import { TfvcContentProvider } from "./scm/tfvccontentprovider";
 import { TfvcError } from "./tfvcerror";
 import { ICheckinInfo } from "./interfaces";
 
-import * as path from "path";
-
 /**
  * This class provides the SCM implementation for TFVC.
  * Note: to switch SCM providers you must do the following:
@@ -166,7 +164,7 @@ export class TfvcSCMProvider implements SCMProvider {
     open(resource: Resource): ProviderResult<void> {
         const left: Uri = this.getLeftResource(resource);
         const right: Uri = this.getRightResource(resource);
-        const title: string = this.getTitle(resource);
+        const title: string = resource.GetTitle();
 
         if (!left) {
             if (!right) {
@@ -200,7 +198,8 @@ export class TfvcSCMProvider implements SCMProvider {
      * Gets the uri for the previous version of the file.
      */
     private getLeftResource(resource: Resource): Uri {
-        if (resource.HasStatus(Status.EDIT) ||
+        if (resource.HasStatus(Status.CONFLICT) ||
+            resource.HasStatus(Status.EDIT) ||
             resource.HasStatus(Status.RENAME)) {
                 return resource.GetServerUri();
         } else {
@@ -218,19 +217,6 @@ export class TfvcSCMProvider implements SCMProvider {
             // Adding the version spec query, because this eventually gets passed to getOriginalResource
             return resource.uri.with({ query: `C${resource.PendingChange.version}` });
         }
-    }
-
-    private getTitle(resource: Resource): string {
-        const basename = path.basename(resource.PendingChange.localItem);
-        const sourceBasename = resource.PendingChange.sourceItem ? path.basename(resource.PendingChange.sourceItem) : "";
-
-        if (resource.HasStatus(Status.RENAME)) {
-            return sourceBasename ? `${basename} <- ${sourceBasename}` : `${basename}`;
-        } else if (resource.HasStatus(Status.EDIT)) {
-            return `${basename}`;
-        }
-
-        return "";
     }
 
     private static ResolveTfvcURI(uri: Uri): SCMResource | SCMResourceGroup | undefined {

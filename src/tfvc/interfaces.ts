@@ -4,6 +4,8 @@
 *--------------------------------------------------------------------------------------------*/
 "use strict";
 
+import { ConflictType } from "./scm/status";
+
 export interface ITfvc {
     path: string;
     version: string;
@@ -80,6 +82,11 @@ export interface ISyncResults {
     hasErrors: boolean;
     hasConflicts: boolean;
     itemResults: ISyncItemResult[];
+}
+
+export interface IConflict {
+    localPath: string;
+    type: ConflictType;
 }
 
 export interface IExecutionResult {

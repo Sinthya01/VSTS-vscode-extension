@@ -71,7 +71,7 @@ export class Strings {
     // TFVC viewlet Strings
     static ExcludedGroupName: string = "Excluded changes";
     static IncludedGroupName: string = "Included changes";
-    static MergeGroupName: string = "Merge changes";
+    static ConflictsGroupName: string = "Conflicting changes";
 
     // TFVC Sync Types
     static SyncTypeConflict: string = "Conflict";
@@ -80,5 +80,10 @@ export class Strings {
     static SyncTypeNew: string = "New";
     static SyncTypeUpdated: string = "Updated";
     static SyncTypeWarning: string = "Warning";
+
+    // TFVC Conflict Titles
+    static ConflictAlreadyDeleted: string = "ALREADY DELETED";
+    static ConflictAlreadyExists: string = "ALREADY EXISTS";
+    static ConflictDeletedLocally: string = "DELETED LOCALLY";
 }
 /* tslint:enable:variable-name */

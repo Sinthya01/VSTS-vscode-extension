@@ -8,9 +8,10 @@ import { TeamServerContext} from "../contexts/servercontext";
 import { Logger } from "../helpers/logger";
 import { ITfvcCommand, IExecutionResult } from "./interfaces";
 import { Tfvc } from "./tfvc";
-import { IArgumentProvider, IItemInfo, IWorkspace, IPendingChange, ISyncResults } from "./interfaces";
+import { IArgumentProvider, IConflict, IItemInfo, IPendingChange, ISyncResults, IWorkspace } from "./interfaces";
 import { Add } from "./commands/add";
 import { Checkin } from "./commands/checkin";
+import { FindConflicts } from "./commands/findconflicts";
 import { FindWorkspace } from "./commands/findworkspace";
 import { GetInfo } from "./commands/getinfo";
 import { GetFileContent } from "./commands/getfilecontent";
@@ -63,6 +64,12 @@ export class Repository {
         Logger.LogDebug(`TFVC Repository.Add`);
         return this.RunCommand<string[]>(
             new Add(this._serverContext, itemPaths));
+    }
+
+    public async FindConflicts(itemPath?: string): Promise<IConflict[]> {
+        Logger.LogDebug(`TFVC Repository.FindConflicts`);
+        return this.RunCommand<IConflict[]>(
+            new FindConflicts(this._serverContext, itemPath ? itemPath : this._repositoryRootFolder));
     }
 
     public async FindWorkspace(localPath: string): Promise<IWorkspace> {

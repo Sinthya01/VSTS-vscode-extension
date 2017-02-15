@@ -8,11 +8,12 @@ import { Uri, EventEmitter, Event, SCMResourceGroup, Disposable, window } from "
 import { Repository } from "../repository";
 import { filterEvent } from "../util";
 import { Resource } from "./resource";
-import { ResourceGroup, IncludedGroup, ExcludedGroup, MergeGroup } from "./resourcegroups";
-import { IPendingChange } from "../interfaces";
+import { ResourceGroup, IncludedGroup, ExcludedGroup, ConflictsGroup } from "./resourcegroups";
+import { IConflict, IPendingChange } from "../interfaces";
 import { Status } from "./status";
 
 import * as _ from "underscore";
+import * as path from "path";
 
 export class Model {
     private _disposables: Disposable[] = [];
@@ -26,26 +27,27 @@ export class Model {
         return this._onDidChange.event;
     }
 
-    private _mergeGroup = new MergeGroup([]);
+    private _conflictsGroup = new ConflictsGroup([]);
     private _includedGroup = new IncludedGroup([]);
     private _excludedGroup = new ExcludedGroup([]);
 
     public constructor(repositoryRoot: string, repository: Repository, onWorkspaceChange: Event<Uri>) {
         this._repositoryRoot = repositoryRoot;
         this._repository = repository;
+        // TODO handle $tf folder as well
         const onNonGitChange = filterEvent(onWorkspaceChange, uri => !/\/\.tf\//.test(uri.fsPath));
         onNonGitChange(this.onFileSystemChange, this, this._disposables);
         this.status();
     }
 
-    public get MergeGroup(): MergeGroup { return this._mergeGroup; }
+    public get ConflictsGroup(): ConflictsGroup { return this._conflictsGroup; }
     public get IncludedGroup(): IncludedGroup { return this._includedGroup; }
     public get ExcludedGroup(): ExcludedGroup { return this._excludedGroup; }
 
     public get Resources(): ResourceGroup[] {
         const result: ResourceGroup[] = [];
-        if (this._mergeGroup.resources.length > 0) {
-            result.push(this._mergeGroup);
+        if (this._conflictsGroup.resources.length > 0) {
+            result.push(this._conflictsGroup);
         }
         if (this._includedGroup.resources.length > 0) {
             result.push(this._includedGroup);
@@ -109,15 +111,22 @@ export class Model {
 
     private async update(): Promise<void> {
         const changes: IPendingChange[] = await this._repository.GetStatus();
+        const foundConflicts: IConflict[] = await this._repository.FindConflicts();
+
+        //if (foundConflicts.find(c => c.type === ConflictType.NAME_AND_CONTENT || c.type === ConflictType.RENAME)) {
+        //    TODO: Send telemetry
+        //}
+
         const included: Resource[] = [];
         const excluded: Resource[] = [];
-        const merge: Resource[] = [];
+        const conflicts: Resource[] = [];
 
         changes.forEach(raw => {
-            const resource: Resource = new Resource(raw);
+            const conflict: IConflict = foundConflicts.find(c => this.conflictMatchesPendingChange(raw, c));
+            const resource: Resource = new Resource(raw, conflict);
 
-            if (resource.HasStatus(Status.MERGE)) {
-                return merge.push(resource);
+            if (resource.HasStatus(Status.CONFLICT)) {
+                return conflicts.push(resource);
             } else {
                 //If explicitly excluded, that has highest priority
                 if (_.contains(this._explicitlyExcluded, resource.uri.fsPath.toLowerCase())) {
@@ -137,10 +146,26 @@ export class Model {
             }
         });
 
-        this._mergeGroup = new MergeGroup(merge);
+        this._conflictsGroup = new ConflictsGroup(conflicts);
         this._includedGroup = new IncludedGroup(included);
         this._excludedGroup = new ExcludedGroup(excluded);
 
         this._onDidChange.fire(this.Resources);
+    }
+
+    private conflictMatchesPendingChange(change: IPendingChange, conflict: IConflict): boolean {
+        let result: boolean = false;
+        if (change && change.localItem && conflict && conflict.localPath) {
+            // TODO: If resource or conflict are renames we have a lot more work to do
+            //       We are postponing this work for now until we have evidence that it happens a lot
+            let path2: string = conflict.localPath;
+            // If path2 is relative then assume it is relative to the repo root
+            if (!path.isAbsolute(path2)) {
+                path2 = path.join(this._repositoryRoot, path2);
+            }
+            // First compare the source item
+            result = change.localItem.toLowerCase() === path2.toLowerCase();
+        }
+        return result;
     }
 }

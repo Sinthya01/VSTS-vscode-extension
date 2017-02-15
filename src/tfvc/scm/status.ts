@@ -39,6 +39,7 @@ export enum Status {
     LOCK,
     BRANCH,
     MERGE,
+    CONFLICT,
     UNKNOWN
 }
 
