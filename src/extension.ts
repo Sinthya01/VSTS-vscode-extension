@@ -45,30 +45,30 @@ export async function activate(context: ExtensionContext) {
     context.subscriptions.push(commands.registerCommand(CommandNames.Reinitialize, () => _extensionManager.Reinitialize()));
 
     // TFVC Commands
-    context.subscriptions.push(commands.registerCommand(TfvcCommandNames.Status, () => _extensionManager.Tfvc.TfvcStatus()));
+    context.subscriptions.push(commands.registerCommand(TfvcCommandNames.Status, () => _extensionManager.Tfvc.Status()));
     context.subscriptions.push(commands.registerCommand(TfvcCommandNames.Undo, (...args) => {
-            _extensionManager.Tfvc.TfvcUndo(args ? args[0] : undefined);
+            _extensionManager.Tfvc.Undo(args ? args[0] : undefined);
         }));
     context.subscriptions.push(commands.registerCommand(TfvcCommandNames.Exclude, (...args) => {
-            _extensionManager.Tfvc.TfvcExclude(args ? args[0] : undefined);
+            _extensionManager.Tfvc.Exclude(args ? args[0] : undefined);
         }));
     context.subscriptions.push(commands.registerCommand(TfvcCommandNames.Include, (...args) => {
-            _extensionManager.Tfvc.TfvcInclude(args ? args[0] : undefined);
+            _extensionManager.Tfvc.Include(args ? args[0] : undefined);
         }));
     context.subscriptions.push(commands.registerCommand(TfvcCommandNames.OpenDiff, (...args) => {
-            _extensionManager.Tfvc.TfvcOpenDiff(args ? args[0] : undefined);
+            _extensionManager.Tfvc.OpenDiff(args ? args[0] : undefined);
         }));
     context.subscriptions.push(commands.registerCommand(TfvcCommandNames.OpenFile, (...args) => {
-            _extensionManager.Tfvc.TfvcOpenFile(args ? args[0] : undefined);
+            _extensionManager.Tfvc.OpenFile(args ? args[0] : undefined);
         }));
-    context.subscriptions.push(commands.registerCommand(TfvcCommandNames.Refresh, () => _extensionManager.Tfvc.TfvcRefresh()));
-    context.subscriptions.push(commands.registerCommand(TfvcCommandNames.ShowOutput, () => _extensionManager.Tfvc.TfvcShowOutput()));
+    context.subscriptions.push(commands.registerCommand(TfvcCommandNames.Refresh, () => _extensionManager.Tfvc.Refresh()));
+    context.subscriptions.push(commands.registerCommand(TfvcCommandNames.ShowOutput, () => _extensionManager.Tfvc.ShowOutput()));
     context.subscriptions.push(commands.registerCommand(TfvcCommandNames.ResolveKeepYours, (...args) => {
-            _extensionManager.Tfvc.TfvcResolve(args ? args[0] : undefined, AutoResolveType.KeepYours);
+            _extensionManager.Tfvc.Resolve(args ? args[0] : undefined, AutoResolveType.KeepYours);
         }));
     context.subscriptions.push(commands.registerCommand(TfvcCommandNames.ResolveTakeTheirs, (...args) => {
-            _extensionManager.Tfvc.TfvcResolve(args ? args[0] : undefined, AutoResolveType.TakeTheirs);
+            _extensionManager.Tfvc.Resolve(args ? args[0] : undefined, AutoResolveType.TakeTheirs);
         }));
-    context.subscriptions.push(commands.registerCommand(TfvcCommandNames.Checkin, () => _extensionManager.Tfvc.TfvcCheckin()));
-    context.subscriptions.push(commands.registerCommand(TfvcCommandNames.Sync, () => _extensionManager.Tfvc.TfvcSync()));
+    context.subscriptions.push(commands.registerCommand(TfvcCommandNames.Checkin, () => _extensionManager.Tfvc.Checkin()));
+    context.subscriptions.push(commands.registerCommand(TfvcCommandNames.Sync, () => _extensionManager.Tfvc.Sync()));
 }
