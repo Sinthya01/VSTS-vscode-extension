@@ -32,7 +32,7 @@ export class TfvcExtension  {
         this._manager = manager;
     }
 
-    public async TfvcCheckin(): Promise<void> {
+    public async Checkin(): Promise<void> {
         this.displayErrors(async () => {
             // get the checkin info from the SCM viewlet
             const checkinInfo: ICheckinInfo = TfvcSCMProvider.GetCheckinInfo();
@@ -49,7 +49,7 @@ export class TfvcExtension  {
         });
     }
 
-    public async TfvcExclude(uri?: Uri): Promise<void> {
+    public async Exclude(uri?: Uri): Promise<void> {
         this.displayErrors(async () => {
         if (uri) {
             //Keep an in-memory list of items that were explicitly excluded. The list is not persisted at this time.
@@ -58,7 +58,7 @@ export class TfvcExtension  {
         });
     }
 
-    public async TfvcInclude(uri?: Uri): Promise<void> {
+    public async Include(uri?: Uri): Promise<void> {
         this.displayErrors(async () => {
             if (uri) {
                 let resource: Resource = TfvcSCMProvider.ResolveTfvcResource(uri);
@@ -77,7 +77,7 @@ export class TfvcExtension  {
         });
     }
 
-    public async TfvcOpenDiff(uri?: Uri): Promise<void> {
+    public async OpenDiff(uri?: Uri): Promise<void> {
         this.displayErrors(async () => {
             if (uri) {
                 let resource: Resource = TfvcSCMProvider.ResolveTfvcResource(uri);
@@ -86,7 +86,7 @@ export class TfvcExtension  {
         });
     }
 
-    public async TfvcOpenFile(uri?: Uri): Promise<void> {
+    public async OpenFile(uri?: Uri): Promise<void> {
         this.displayErrors(async () => {
             if (uri) {
                 let path: string = TfvcSCMProvider.GetPathFromUri(uri);
@@ -95,13 +95,13 @@ export class TfvcExtension  {
         });
     }
 
-    public async TfvcRefresh(): Promise<void> {
+    public async Refresh(): Promise<void> {
         this.displayErrors(async () => {
             TfvcSCMProvider.Refresh();
         });
     }
 
-    public async TfvcResolve(uri: Uri, autoResolveType: AutoResolveType): Promise<void> {
+    public async Resolve(uri: Uri, autoResolveType: AutoResolveType): Promise<void> {
         this.displayErrors(async () => {
             if (uri) {
                 let localPath: string = TfvcSCMProvider.GetPathFromUri(uri);
@@ -118,7 +118,7 @@ export class TfvcExtension  {
         });
     }
 
-    public async TfvcShowOutput(): Promise<void> {
+    public async ShowOutput(): Promise<void> {
         TfvcOutput.Show();
     }
 
@@ -127,7 +127,7 @@ export class TfvcExtension  {
      * displays the results to the user. Selecting one of the files in the list will 
      * open the file in the editor.
      */
-    public async TfvcStatus(): Promise<void> {
+    public async Status(): Promise<void> {
         this.displayErrors(async () => {
             Telemetry.SendEvent(TfvcTelemetryEvents.Status);
             const chosenItem: IPendingChange = await UIHelper.ChoosePendingChange(await this._repo.GetStatus());
@@ -141,7 +141,7 @@ export class TfvcExtension  {
      * This command runs a 'tf get' command on the VSCode workspace folder and 
      * displays the results to the user.
      */
-    public async TfvcSync(): Promise<void> {
+    public async Sync(): Promise<void> {
         this.displayErrors(async () => {
             Telemetry.SendEvent(TfvcTelemetryEvents.Sync);
             const results: ISyncResults = await this._repo.Sync([this._repo.Path], true);
@@ -154,7 +154,7 @@ export class TfvcExtension  {
      * editor.  If the undo command applies to the file, the pending changes will be undone.  The 
      * file system watcher will update the UI soon thereafter.  No results are displayed to the user.
      */
-    public async TfvcUndo(uri?: Uri): Promise<void> {
+    public async Undo(uri?: Uri): Promise<void> {
         this.displayErrors(async () => {
             //When calling from UI, we have the uri of the resource from which the command was invoked
             let pathToUndo: string = TfvcSCMProvider.GetPathFromUri(uri);
@@ -179,7 +179,7 @@ export class TfvcExtension  {
      * This command runs the info command on the passed in itemPath and
      * opens a web browser to the appropriate history page.
      */
-    public async TfvcViewHistory(): Promise<void> {
+    public async ViewHistory(): Promise<void> {
         if (!this._manager.EnsureInitialized(RepositoryType.TFVC)) {
             this._manager.DisplayErrorMessage();
             return;

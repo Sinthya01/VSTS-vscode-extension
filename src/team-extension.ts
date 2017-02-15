@@ -146,7 +146,7 @@ export class TeamExtension  {
             if (this._manager.RepoContext.Type === RepositoryType.GIT && this._gitClient) {
                 this._gitClient.OpenFileHistory(this._manager.RepoContext);
             } else if (this._manager.RepoContext.Type === RepositoryType.TFVC) {
-                this._manager.Tfvc.TfvcViewHistory();
+                this._manager.Tfvc.ViewHistory();
             } else {
                 this._manager.DisplayErrorMessage(Strings.NoRepoInformation);
             }

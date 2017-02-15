@@ -55,16 +55,16 @@ export class Repository {
         return this._repositoryRootFolder;
     }
 
-    public async Checkin(files: string[], comment: string, workItemIds: number[]): Promise<string> {
-        Logger.LogDebug(`TFVC Repository.Checkin`);
-        return this.RunCommand<string>(
-            new Checkin(this._serverContext, files, comment, workItemIds));
-    }
-
     public async Add(itemPaths: string[]): Promise<string[]> {
         Logger.LogDebug(`TFVC Repository.Add`);
         return this.RunCommand<string[]>(
             new Add(this._serverContext, itemPaths));
+    }
+
+    public async Checkin(files: string[], comment: string, workItemIds: number[]): Promise<string> {
+        Logger.LogDebug(`TFVC Repository.Checkin`);
+        return this.RunCommand<string>(
+            new Checkin(this._serverContext, files, comment, workItemIds));
     }
 
     public async FindConflicts(itemPath?: string): Promise<IConflict[]> {
