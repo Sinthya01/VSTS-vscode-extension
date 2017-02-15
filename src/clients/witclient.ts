@@ -107,6 +107,17 @@ export class WitClient {
         }
     }
 
+    public async ChooseWorkItems(): Promise<string[]> {
+        Logger.LogInfo("Getting work items...");
+        // TODO: There isn't a way to do a multi select pick list right now, but when there is we should change this to use it.
+        let workItem: BaseQuickPickItem = await window.showQuickPick(await this.getMyWorkItems(this._serverContext.RepoInfo.TeamProject, WitQueries.MyWorkItems), { matchOnDescription: true, placeHolder: Strings.ChooseWorkItem });
+        if (workItem) {
+            return ["#" + workItem.id + " - " + workItem.description];
+        } else {
+            return [];
+        }
+    }
+
     private async showWorkItems(wiql: string): Promise<void> {
         Logger.LogInfo("Getting work items...");
         let workItem: BaseQuickPickItem = await window.showQuickPick(await this.getMyWorkItems(this._serverContext.RepoInfo.TeamProject, wiql), { matchOnDescription: true, placeHolder: Strings.ChooseWorkItem });

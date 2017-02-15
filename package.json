@@ -245,6 +245,11 @@
         "category": "Team"
       },
       {
+        "command": "tfvc.AssociateWorkItems",
+        "title": "Associate Work Items",
+        "category": "TFVC"
+      },
+      {
         "command": "tfvc.Checkin",
         "title": "Checkin",
         "category": "TFVC",

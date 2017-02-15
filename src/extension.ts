@@ -71,4 +71,5 @@ export async function activate(context: ExtensionContext) {
         }));
     context.subscriptions.push(commands.registerCommand(TfvcCommandNames.Checkin, () => _extensionManager.Tfvc.Checkin()));
     context.subscriptions.push(commands.registerCommand(TfvcCommandNames.Sync, () => _extensionManager.Tfvc.Sync()));
+    context.subscriptions.push(commands.registerCommand(TfvcCommandNames.AssociateWorkItems, () => _extensionManager.Tfvc.AssociateWorkItems()));
 }
