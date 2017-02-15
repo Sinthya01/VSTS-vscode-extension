@@ -50,7 +50,7 @@ export class TfvcSCMProvider implements SCMProvider {
         try {
             const files: string[] = [];
             const commitMessage: string = scm.inputBox.value;
-            const workItemIds: number[] = [];
+            const workItemIds: number[] = TfvcSCMProvider.getWorkItemIdsFromMessage(commitMessage);
 
             const resources: Resource[] = tfvcProvider._model.IncludedGroup.resources;
             if (!resources || resources.length === 0) {
@@ -70,6 +70,26 @@ export class TfvcSCMProvider implements SCMProvider {
             Logger.LogDebug("Failed to GetCheckinInfo. Details: " + err.message);
             throw TfvcError.CreateUnknownError(err);
         }
+    }
+
+    private static getWorkItemIdsFromMessage(message: string) {
+        let ids: number[] = [];
+        try {
+            // Find all the work item mentions in the string.
+            // This returns an array like: ["#1", "#12", "#33"]
+            const matches: string[] = message ? message.match(/#(\d+)/gm) : [];
+            if (matches) {
+                for (let i: number = 0; i < matches.length; i++) {
+                    const id: number = parseInt(matches[i].slice(1));
+                    if (!isNaN(id)) {
+                        ids.push(id);
+                    }
+                }
+            }
+        } catch (err) {
+            Logger.LogDebug("Failed to get all workitems from message: " + message);
+        }
+        return ids;
     }
 
     public static async Exclude(path: string): Promise<void> {
