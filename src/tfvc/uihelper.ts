@@ -6,7 +6,7 @@
 
 import { QuickPickItem, window, workspace } from "vscode";
 import { Strings } from "../helpers/strings";
-import { IPendingChange, ISyncResults, ISyncItemResult, SyncType } from "./interfaces";
+import { AutoResolveType, IPendingChange, ISyncResults, ISyncItemResult, SyncType } from "./interfaces";
 import { TfvcOutput } from "./tfvcoutput";
 
 var path = require("path");
@@ -106,6 +106,18 @@ export class UIHelper {
         }
     }
 
+    public static GetDisplayTextForAutoResolveType(type: AutoResolveType): string {
+        switch (type) {
+            case AutoResolveType.AutoMerge: return Strings.AutoResolveTypeAutoMerge;
+            case AutoResolveType.DeleteConflict: return Strings.AutoResolveTypeDeleteConflict;
+            case AutoResolveType.KeepYours: return Strings.AutoResolveTypeKeepYours;
+            case AutoResolveType.KeepYoursRenameTheirs: return Strings.AutoResolveTypeKeepYoursRenameTheirs;
+            case AutoResolveType.OverwriteLocal: return Strings.AutoResolveTypeOverwriteLocal;
+            case AutoResolveType.TakeTheirs: return Strings.AutoResolveTypeTakeTheirs;
+            default: return Strings.AutoResolveTypeAutoMerge;
+        }
+    }
+
     public static GetFileName(change: IPendingChange) {
         if (change && change.localItem) {
             var filename = path.parse(change.localItem).base;
@@ -121,5 +133,12 @@ export class UIHelper {
         }
 
         return change.localItem;
+    }
+
+    public static async PromptForConfirmation(message: string, okButtonText?: string): Promise<boolean> {
+        okButtonText = okButtonText ? okButtonText : "OK";
+        //TODO: use Modal api once vscode.d.ts exposes it (currently proposed)
+        const pick: string = await window.showWarningMessage(message, /*{ modal: true },*/ okButtonText);
+        return pick === okButtonText;
     }
 }

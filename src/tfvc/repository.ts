@@ -8,7 +8,7 @@ import { TeamServerContext} from "../contexts/servercontext";
 import { Logger } from "../helpers/logger";
 import { ITfvcCommand, IExecutionResult } from "./interfaces";
 import { Tfvc } from "./tfvc";
-import { IArgumentProvider, IConflict, IItemInfo, IPendingChange, ISyncResults, IWorkspace } from "./interfaces";
+import { AutoResolveType, IArgumentProvider, IConflict, IItemInfo, IPendingChange, ISyncResults, IWorkspace } from "./interfaces";
 import { Add } from "./commands/add";
 import { Checkin } from "./commands/checkin";
 import { FindConflicts } from "./commands/findconflicts";
@@ -16,6 +16,7 @@ import { FindWorkspace } from "./commands/findworkspace";
 import { GetInfo } from "./commands/getinfo";
 import { GetFileContent } from "./commands/getfilecontent";
 import { GetVersion } from "./commands/getversion";
+import { ResolveConflicts } from "./commands/resolveconflicts";
 import { Status } from "./commands/status";
 import { Sync } from "./commands/sync";
 import { Undo } from "./commands/undo";
@@ -94,6 +95,12 @@ export class Repository {
         Logger.LogDebug(`TFVC Repository.GetStatus`);
         return this.RunCommand<IPendingChange[]>(
             new Status(this._serverContext, ignoreFiles === undefined ? true : ignoreFiles));
+    }
+
+    public async ResolveConflicts(itemPaths: string[], autoResolveType: AutoResolveType): Promise<IConflict[]> {
+        Logger.LogDebug(`TFVC Repository.ResolveConflicts`);
+        return this.RunCommand<IConflict[]>(
+            new ResolveConflicts(this._serverContext, itemPaths, autoResolveType));
     }
 
     public async Sync(itemPaths: string[], recursive: boolean): Promise<ISyncResults> {

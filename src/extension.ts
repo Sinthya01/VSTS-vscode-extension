@@ -8,6 +8,7 @@ import { commands, Disposable, ExtensionContext } from "vscode";
 import { CommandNames, TfvcCommandNames } from "./helpers/constants";
 import { ExtensionManager } from "./extensionmanager";
 import { TfvcSCMProvider } from "./tfvc/tfvcscmprovider";
+import { AutoResolveType } from "./tfvc/interfaces";
 
 let _extensionManager: ExtensionManager;
 let _scmProvider: TfvcSCMProvider;
@@ -62,6 +63,12 @@ export async function activate(context: ExtensionContext) {
         }));
     context.subscriptions.push(commands.registerCommand(TfvcCommandNames.Refresh, () => _extensionManager.Tfvc.TfvcRefresh()));
     context.subscriptions.push(commands.registerCommand(TfvcCommandNames.ShowOutput, () => _extensionManager.Tfvc.TfvcShowOutput()));
+    context.subscriptions.push(commands.registerCommand(TfvcCommandNames.ResolveKeepYours, (...args) => {
+            _extensionManager.Tfvc.TfvcResolve(args ? args[0] : undefined, AutoResolveType.KeepYours);
+        }));
+    context.subscriptions.push(commands.registerCommand(TfvcCommandNames.ResolveTakeTheirs, (...args) => {
+            _extensionManager.Tfvc.TfvcResolve(args ? args[0] : undefined, AutoResolveType.TakeTheirs);
+        }));
     context.subscriptions.push(commands.registerCommand(TfvcCommandNames.Checkin, () => _extensionManager.Tfvc.TfvcCheckin()));
     context.subscriptions.push(commands.registerCommand(TfvcCommandNames.Sync, () => _extensionManager.Tfvc.TfvcSync()));
 }

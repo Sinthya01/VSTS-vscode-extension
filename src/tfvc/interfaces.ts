@@ -89,6 +89,15 @@ export interface IConflict {
     type: ConflictType;
 }
 
+export enum AutoResolveType {
+    AutoMerge,
+    TakeTheirs,
+    KeepYours,
+    OverwriteLocal,
+    DeleteConflict,
+    KeepYoursRenameTheirs
+}
+
 export interface IExecutionResult {
     exitCode: number;
     stdout: string;
