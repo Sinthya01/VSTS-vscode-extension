@@ -67,6 +67,7 @@ export class Strings {
     static UndoChanges: string = "Undo Changes";
     static NoChangesToCheckin: string = "There are no changes to checkin. Changes must be added to the 'Included' section to be checked in.";
     static AllFilesUpToDate: string = "All files are up to date.";
+    static CommandRequiresFileContext: string = "This command requires a file context and can only be executed from the TFVC viewlet window.";
 
     // TFVC viewlet Strings
     static ExcludedGroupName: string = "Excluded changes";
@@ -85,5 +86,14 @@ export class Strings {
     static ConflictAlreadyDeleted: string = "ALREADY DELETED";
     static ConflictAlreadyExists: string = "ALREADY EXISTS";
     static ConflictDeletedLocally: string = "DELETED LOCALLY";
+
+    // TFVC AutoResolveType Strings
+    static AutoResolveTypeAutoMerge: string = "Auto Merge";
+    static AutoResolveTypeDeleteConflict: string = "Delete Conflict";
+    static AutoResolveTypeKeepYours: string = "Keep Yours";
+    static AutoResolveTypeKeepYoursRenameTheirs: string = "Keep Yours Rename Theirs";
+    static AutoResolveTypeOverwriteLocal: string = "Overwrite Local";
+    static AutoResolveTypeTakeTheirs: string = "Take Theirs";
+
 }
 /* tslint:enable:variable-name */

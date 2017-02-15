@@ -44,6 +44,8 @@ export class TfvcCommandNames {
     static OpenDiff: string = TfvcCommandNames.CommandPrefix + "OpenDiff";
     static OpenFile: string = TfvcCommandNames.CommandPrefix + "OpenFile";
     static Refresh: string = TfvcCommandNames.CommandPrefix + "Refresh";
+    static ResolveKeepYours: string = TfvcCommandNames.CommandPrefix + "ResolveKeepYours";
+    static ResolveTakeTheirs: string = TfvcCommandNames.CommandPrefix + "ResolveTakeTheirs";
     static ShowOutput: string = TfvcCommandNames.CommandPrefix + "ShowOutput";
     static Status: string = TfvcCommandNames.CommandPrefix + "Status";
     static Sync: string = TfvcCommandNames.CommandPrefix + "Sync";

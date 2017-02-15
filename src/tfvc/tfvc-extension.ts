@@ -19,7 +19,7 @@ import { TfvcSCMProvider } from "./tfvcscmprovider";
 import { TfvcErrorCodes } from "./tfvcerror";
 import { Repository } from "./repository";
 import { UIHelper } from "./uihelper";
-import { ICheckinInfo, IItemInfo, IPendingChange, ISyncResults } from "./interfaces";
+import { AutoResolveType, ICheckinInfo, IItemInfo, IPendingChange, ISyncResults } from "./interfaces";
 import { TfvcOutput } from "./tfvcoutput";
 
 export class TfvcExtension  {
@@ -134,6 +134,23 @@ export class TfvcExtension  {
         }
     }
 
+    public async TfvcResolve(uri: Uri, autoResolveType: AutoResolveType): Promise<void> {
+        this.displayErrors(async () => {
+            if (uri) {
+                let localPath: string = TfvcSCMProvider.GetPathFromUri(uri);
+                const resolveTypeString: string = UIHelper.GetDisplayTextForAutoResolveType(autoResolveType);
+                const basename: string = path.basename(localPath);
+                const message: string = `Are you sure you want to resolve changes in ${basename} as ${resolveTypeString}?`;
+                if (await UIHelper.PromptForConfirmation(message, resolveTypeString)) {
+                    await this._repo.ResolveConflicts([localPath], autoResolveType);
+                    TfvcSCMProvider.Refresh();
+                }
+            } else {
+                this._manager.DisplayWarningMessage(Strings.CommandRequiresFileContext);
+            }
+        });
+    }
+
     public async TfvcShowOutput(): Promise<void> {
         TfvcOutput.Show();
     }
@@ -202,14 +219,10 @@ export class TfvcExtension  {
             if (pathToUndo) {
                 const basename: string = path.basename(pathToUndo);
                 const message: string = `Are you sure you want to undo changes in ${basename}?`;
-                //TODO: use Modal api once vscode.d.ts exposes it (currently proposed)
-                const pick: string = await window.showWarningMessage(message, /*{ modal: true },*/ Strings.UndoChanges);
-                if (pick !== Strings.UndoChanges) {
-                    return;
+                if (await UIHelper.PromptForConfirmation(message, Strings.UndoChanges)) {
+                    this._manager.Telemetry.SendEvent(TfvcTelemetryEvents.Undo);
+                    await this._repo.Undo([pathToUndo]);
                 }
-
-                this._manager.Telemetry.SendEvent(TfvcTelemetryEvents.Undo);
-                await this._repo.Undo([pathToUndo]);
             }
         } catch (err) {
             this._manager.DisplayErrorMessage(err.message);
@@ -258,6 +271,19 @@ export class TfvcExtension  {
             } else {
                 this._manager.DisplayErrorMessage(err.message);
             }
+        }
+    }
+
+    private async displayErrors(funcToTry: () => Promise<void>): Promise<void> {
+        if (!this._manager.EnsureInitialized(RepositoryType.TFVC)) {
+            this._manager.DisplayErrorMessage();
+            return;
+        }
+
+        try {
+            await funcToTry();
+        } catch (err) {
+            this._manager.DisplayErrorMessage(err.message);
         }
     }
 
