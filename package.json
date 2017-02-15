@@ -297,7 +297,7 @@
       },
       {
         "command": "tfvc.ResolveKeepYours",
-        "title": "Resove: Keep Yours",
+        "title": "Resolve: Keep Yours",
         "category": "TFVC",
         "icon": {
           "light": "resources/icons/light/resolve-keepyours.svg",
