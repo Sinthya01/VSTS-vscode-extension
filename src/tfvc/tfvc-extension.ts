@@ -33,12 +33,7 @@ export class TfvcExtension  {
     }
 
     public async TfvcCheckin(): Promise<void> {
-        if (!this._manager.EnsureInitialized(RepositoryType.TFVC)) {
-            this._manager.DisplayErrorMessage();
-            return;
-        }
-
-        try {
+        this.displayErrors(async () => {
             // get the checkin info from the SCM viewlet
             const checkinInfo: ICheckinInfo = TfvcSCMProvider.GetCheckinInfo();
             if (!checkinInfo) {
@@ -51,88 +46,59 @@ export class TfvcExtension  {
                 await this._repo.Checkin(checkinInfo.files, checkinInfo.comment, checkinInfo.workItemIds);
             TfvcOutput.AppendLine("Changeset " + changeset + " checked in.");
             TfvcSCMProvider.ClearCheckinMessage();
-        } catch (err) {
-            this._manager.DisplayErrorMessage(err.message);
-        }
+        });
     }
 
     public async TfvcExclude(uri?: Uri): Promise<void> {
-        if (!this._manager.EnsureInitialized(RepositoryType.TFVC)) {
-            this._manager.DisplayErrorMessage();
-            return;
-        }
-
+        this.displayErrors(async () => {
         if (uri) {
             //Keep an in-memory list of items that were explicitly excluded. The list is not persisted at this time.
             await TfvcSCMProvider.Exclude(TfvcSCMProvider.GetPathFromUri(uri));
         }
+        });
     }
 
     public async TfvcInclude(uri?: Uri): Promise<void> {
-        if (!this._manager.EnsureInitialized(RepositoryType.TFVC)) {
-            this._manager.DisplayErrorMessage();
-            return;
-        }
+        this.displayErrors(async () => {
+            if (uri) {
+                let resource: Resource = TfvcSCMProvider.ResolveTfvcResource(uri);
+                let path: string = TfvcSCMProvider.GetPathFromUri(uri);
 
-        if (uri) {
-            let resource: Resource = TfvcSCMProvider.ResolveTfvcResource(uri);
-            let path: string = TfvcSCMProvider.GetPathFromUri(uri);
+                //At this point, an unversioned file could be a candidate file, so call Add.  Once it is added, it should be a Pending change.
+                if (!resource.IsVersioned) {
+                    await this._repo.Add([path]);
+                    //Don't return after adding, we may still need to unexclude it (it may have been excluded previously)
+                }
 
-            //At this point, an unversioned file could be a candidate file, so call Add.  Once it is added, it should be a Pending change.
-            if (!resource.IsVersioned) {
-                await this._repo.Add([path]);
-                //Don't return after adding, we may still need to unexclude it (it may have been excluded previously)
+                //Otherwise, ensure its not in the explicitly excluded list (if it's already there)
+                //Unexclude doesn't explicitly INclude.  It defers to the status of the individual item.
+                await TfvcSCMProvider.Unexclude(path);
             }
-
-            //Otherwise, ensure its not in the explicitly excluded list (if it's already there)
-            //Unexclude doesn't explicitly INclude.  It defers to the status of the individual item.
-            await TfvcSCMProvider.Unexclude(path);
-        }
+        });
     }
 
     public async TfvcOpenDiff(uri?: Uri): Promise<void> {
-        if (!this._manager.EnsureInitialized(RepositoryType.TFVC)) {
-            this._manager.DisplayErrorMessage();
-            return;
-        }
-
-        try {
+        this.displayErrors(async () => {
             if (uri) {
                 let resource: Resource = TfvcSCMProvider.ResolveTfvcResource(uri);
                 TfvcSCMProvider.OpenDiff(resource);
             }
-        } catch (err) {
-            this._manager.DisplayErrorMessage(err.message);
-        }
+        });
     }
 
     public async TfvcOpenFile(uri?: Uri): Promise<void> {
-        if (!this._manager.EnsureInitialized(RepositoryType.TFVC)) {
-            this._manager.DisplayErrorMessage();
-            return;
-        }
-
-        try {
+        this.displayErrors(async () => {
             if (uri) {
                 let path: string = TfvcSCMProvider.GetPathFromUri(uri);
                 await window.showTextDocument(await workspace.openTextDocument(path));
             }
-        } catch (err) {
-            this._manager.DisplayErrorMessage(err.message);
-        }
+        });
     }
 
     public async TfvcRefresh(): Promise<void> {
-        if (!this._manager.EnsureInitialized(RepositoryType.TFVC)) {
-            this._manager.DisplayErrorMessage();
-            return;
-        }
-
-        try {
+        this.displayErrors(async () => {
             TfvcSCMProvider.Refresh();
-        } catch (err) {
-            this._manager.DisplayErrorMessage(err.message);
-        }
+        });
     }
 
     public async TfvcResolve(uri: Uri, autoResolveType: AutoResolveType): Promise<void> {
@@ -162,20 +128,13 @@ export class TfvcExtension  {
      * open the file in the editor.
      */
     public async TfvcStatus(): Promise<void> {
-        if (!this._manager.EnsureInitialized(RepositoryType.TFVC)) {
-            this._manager.DisplayErrorMessage();
-            return;
-        }
-
-        try {
+        this.displayErrors(async () => {
             Telemetry.SendEvent(TfvcTelemetryEvents.Status);
             const chosenItem: IPendingChange = await UIHelper.ChoosePendingChange(await this._repo.GetStatus());
             if (chosenItem) {
                 window.showTextDocument(await workspace.openTextDocument(chosenItem.localItem));
             }
-        } catch (err) {
-            this._manager.DisplayErrorMessage(err.message);
-        }
+        });
     }
 
     /**
@@ -183,18 +142,11 @@ export class TfvcExtension  {
      * displays the results to the user.
      */
     public async TfvcSync(): Promise<void> {
-        if (!this._manager.EnsureInitialized(RepositoryType.TFVC)) {
-            this._manager.DisplayErrorMessage();
-            return;
-        }
-
-        try {
+        this.displayErrors(async () => {
             Telemetry.SendEvent(TfvcTelemetryEvents.Sync);
             const results: ISyncResults = await this._repo.Sync([this._repo.Path], true);
             await UIHelper.ShowSyncResults(results, results.hasConflicts || results.hasErrors, true);
-        } catch (err) {
-            this._manager.DisplayErrorMessage(err.message);
-        }
+        });
     }
 
     /**
@@ -203,12 +155,7 @@ export class TfvcExtension  {
      * file system watcher will update the UI soon thereafter.  No results are displayed to the user.
      */
     public async TfvcUndo(uri?: Uri): Promise<void> {
-        if (!this._manager.EnsureInitialized(RepositoryType.TFVC)) {
-            this._manager.DisplayErrorMessage();
-            return;
-        }
-
-        try {
+        this.displayErrors(async () => {
             //When calling from UI, we have the uri of the resource from which the command was invoked
             let pathToUndo: string = TfvcSCMProvider.GetPathFromUri(uri);
             if (!pathToUndo) {
@@ -225,9 +172,7 @@ export class TfvcExtension  {
                     await this._repo.Undo([pathToUndo]);
                 }
             }
-        } catch (err) {
-            this._manager.DisplayErrorMessage(err.message);
-        }
+        });
     }
 
     /**
