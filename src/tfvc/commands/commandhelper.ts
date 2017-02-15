@@ -13,6 +13,12 @@ import { TfvcError, TfvcErrorCodes } from "../tfvcerror";
 import { IExecutionResult } from "../interfaces";
 
 export class CommandHelper {
+    public static RequireArgument(argument: any, argumentName: string) {
+        if (!argument) {
+            throw TfvcError.CreateArgumentMissingError(argumentName);
+        }
+    }
+
     public static RequireStringArgument(argument: string, argumentName: string) {
         if (!argument || argument.trim().length === 0) {
             throw TfvcError.CreateArgumentMissingError(argumentName);
