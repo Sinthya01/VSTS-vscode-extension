@@ -80,5 +80,10 @@ export class Strings {
     static SyncTypeNew: string = "New";
     static SyncTypeUpdated: string = "Updated";
     static SyncTypeWarning: string = "Warning";
+
+    // TFVC Conflict Titles
+    static ConflictAlreadyDeleted: string = "ALREADY DELETED";
+    static ConflictAlreadyExists: string = "ALREADY EXISTS";
+    static ConflictDeletedLocally: string = "DELETED LOCALLY";
 }
 /* tslint:enable:variable-name */

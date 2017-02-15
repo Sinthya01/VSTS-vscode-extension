@@ -4,11 +4,14 @@
 *--------------------------------------------------------------------------------------------*/
 "use strict";
 
+import * as path from "path";
+
 import { SCMResource, SCMResourceDecorations, Uri } from "vscode";
 import { IConflict, IPendingChange } from "../interfaces";
 import { TfvcSCMProvider } from "../tfvcscmprovider";
 import { ConflictType, GetStatuses, Status } from "./status";
 import { DecorationProvider } from "./decorationprovider";
+import { Strings } from "../../helpers/strings";
 
 export class Resource implements SCMResource {
     private _uri: Uri;
@@ -30,6 +33,7 @@ export class Resource implements SCMResource {
 
     public get PendingChange(): IPendingChange { return this._change; }
     public get Statuses(): Status[] { return this._statuses; }
+    public get ConflictType(): ConflictType { return this._conflictType; }
 
     public HasStatus(status: Status): boolean {
         return this._statuses.findIndex(s => s === status) >= 0;
@@ -45,6 +49,37 @@ export class Resource implements SCMResource {
         // For conflicts set the version to "T"ip so that we will compare against the latest version
         const versionSpec: string = this.HasStatus(Status.CONFLICT) ? "T" : "C" + this._change.version;
         return Uri.file(serverItem).with({ scheme: TfvcSCMProvider.scmScheme, query: versionSpec });
+    }
+
+    public GetTitle(): string {
+        const basename = path.basename(this._change.localItem);
+        const sourceBasename = this._change.sourceItem ? path.basename(this._change.sourceItem) : "";
+
+        if (this.HasStatus(Status.CONFLICT)) {
+            switch (this._conflictType) {
+                case ConflictType.CONTENT:
+                case ConflictType.MERGE:
+                case ConflictType.RENAME:
+                case ConflictType.NAME_AND_CONTENT:
+                    if (this.HasStatus(Status.ADD)) {
+                        return `${basename} (${Strings.ConflictAlreadyExists})`;
+                    }
+                    // Use the default title for all other cases
+                    break;
+                case ConflictType.DELETE:
+                    return `${basename} (${Strings.ConflictAlreadyDeleted})`;
+                case ConflictType.DELETE_TARGET:
+                    return `${basename} (${Strings.ConflictDeletedLocally})`;
+            }
+        }
+
+        if (this.HasStatus(Status.RENAME)) {
+            return sourceBasename ? `${basename} <- ${sourceBasename}` : `${basename}`;
+        } else if (this.HasStatus(Status.EDIT)) {
+            return `${basename}`;
+        }
+
+        return "";
     }
 
     /* Implement SCMResource */
