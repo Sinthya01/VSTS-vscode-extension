@@ -32,6 +32,15 @@ export class TfvcExtension  {
         this._manager = manager;
     }
 
+    public async AssociateWorkItems(): Promise<void> {
+        this.displayErrors(async () => {
+            let workitems: string[] = await this._manager.Team.ChooseWorkItems();
+            for (let i: number = 0; i < workitems.length; i++) {
+                TfvcSCMProvider.AppendToCheckinMessage(workitems[i]);
+            }
+        });
+    }
+
     public async Checkin(): Promise<void> {
         this.displayErrors(async () => {
             // get the checkin info from the SCM viewlet

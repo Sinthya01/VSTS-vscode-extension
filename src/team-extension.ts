@@ -236,6 +236,12 @@ export class TeamExtension  {
         this._manager.FeedbackClient.SendFeedback();
     }
 
+    //Returns a list of strings representing the work items that the user chose
+    // strings are in the form "#id - description"
+    public async ChooseWorkItems(): Promise<string[]> {
+        return await this._witClient.ChooseWorkItems();
+    }
+
     //Returns the list of work items assigned directly to the current user
     public ViewMyWorkItems(): void {
         if (this._manager.EnsureInitialized(RepositoryType.ANY)) {

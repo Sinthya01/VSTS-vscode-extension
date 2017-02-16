@@ -36,6 +36,7 @@ export class CommandNames {
 
 export class TfvcCommandNames {
     static CommandPrefix: string = "tfvc.";
+    static AssociateWorkItems: string = TfvcCommandNames.CommandPrefix + "AssociateWorkItems";
     static Checkin: string = TfvcCommandNames.CommandPrefix + "Checkin";
     static Exclude: string = TfvcCommandNames.CommandPrefix + "Exclude";
     static ExcludeAll: string = TfvcCommandNames.CommandPrefix + "ExcludeAll";
