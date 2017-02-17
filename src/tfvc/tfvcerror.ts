@@ -43,6 +43,10 @@ export class TfvcError {
     }
 
     public constructor(data: ITfvcErrorData) {
+        if (!data) {
+            throw TfvcError.CreateArgumentMissingError("data");
+        }
+
         if (data.error) {
             this.error = data.error;
             this.message = data.error.message;
@@ -59,20 +63,14 @@ export class TfvcError {
     }
 
     public toString(): string {
-        let result = this.message + " " +
-            JSON.stringify(
-                {
-                    exitCode: this.exitCode,
-                    TfvcErrorCode: this.tfvcErrorCode,
-                    gitCommand: this.tfvcCommand,
-                    stdout: this.stdout,
-                    stderr: this.stderr
-                },
-                [],
-                2);
-
+        let result = this.message + " Details: " +
+                    `exitCode: ${this.exitCode}, ` +
+                    `errorCode: ${this.tfvcErrorCode}, ` +
+                    `command: ${this.tfvcCommand}, ` +
+                    `stdout: ${this.stdout}, ` +
+                    `stderr: ${this.stderr}`;
         if (this.error) {
-            result += (<any>this.error).stack;
+            result += " Stack: " + (<any>this.error).stack;
         }
 
         return result;
