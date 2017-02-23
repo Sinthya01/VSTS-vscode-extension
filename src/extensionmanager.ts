@@ -184,6 +184,7 @@ export class ExtensionManager implements Disposable {
         //If Logging is enabled, the user must have used the extension before so we can enable
         //it here.  This will allow us to log errors when we begin processing TFVC commands.
         this._settings = new Settings();
+        Telemetry.Initialize(this._settings); //We don't have the serverContext just yet
         this.logStart(this._settings.LoggingLevel, workspace.rootPath);
         this._teamServicesStatusBarItem = window.createStatusBarItem(StatusBarAlignment.Left, 100);
 
@@ -196,10 +197,7 @@ export class ExtensionManager implements Disposable {
                 //Now that we have a server context, we can update it on the repository context
                 RepositoryContextFactory.UpdateRepositoryContext(this._repoContext, this._serverContext);
 
-                //We need to be able to send feedback even if we aren't authenticated with the server
-                Telemetry.Initialize(this._settings); //We don't have the serverContext just yet
                 this._feedbackClient = new FeedbackClient();
-
                 this._credentialManager = new CredentialManager();
                 let accountSettings = new AccountSettings(this._serverContext.RepoInfo.Account);
 

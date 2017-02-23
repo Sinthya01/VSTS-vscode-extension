@@ -108,6 +108,8 @@ export class TfvcTelemetryEvents {
     static Status: string = TfvcTelemetryEvents.TelemetryPrefix + "status";
     static StartUp: string = TfvcTelemetryEvents.TelemetryPrefix + "startup";
     static Sync: string = TfvcTelemetryEvents.TelemetryPrefix + "sync";
+    static UsingClc: string = TfvcTelemetryEvents.TelemetryPrefix + "clc";
+    static UsingExe: string = TfvcTelemetryEvents.TelemetryPrefix + "exe";
 }
 
 export class WellKnownRepositoryTypes {
