@@ -98,7 +98,7 @@ describe("Tfvc-CommandHelper", function() {
         } catch (err) {
             assert.equal(err.exitCode, 100);
             assert.equal(err.tfvcCommand, "cmd");
-            assert.equal(err.message.indexOf(Strings.TfExecFailedError), 0);
+            assert.isTrue(err.message.startsWith(Strings.TfExecFailedError));
             assert.equal(err.stdout, undefined);
         }
     });
@@ -115,7 +115,7 @@ describe("Tfvc-CommandHelper", function() {
             assert.equal(err.exitCode, 100);
             assert.equal(err.tfvcCommand, "cmd");
             assert.equal(err.tfvcErrorCode, TfvcErrorCodes.AuthenticationFailed);
-            assert.equal(err.message.indexOf(Strings.TfExecFailedError), 0);
+            assert.isTrue(err.message.startsWith(Strings.TfExecFailedError));
             assert.equal(err.stdout, undefined);
         }
     });
@@ -132,7 +132,7 @@ describe("Tfvc-CommandHelper", function() {
             assert.equal(err.exitCode, 100);
             assert.equal(err.tfvcCommand, "cmd");
             assert.equal(err.tfvcErrorCode, TfvcErrorCodes.NotATfvcRepository);
-            assert.equal(err.message.indexOf(Strings.TfExecFailedError), 0);
+            assert.isTrue(err.message.startsWith(Strings.TfExecFailedError));
             assert.equal(err.stdout, undefined);
         }
     });
@@ -149,7 +149,7 @@ describe("Tfvc-CommandHelper", function() {
             assert.equal(err.exitCode, 100);
             assert.equal(err.tfvcCommand, "cmd");
             assert.equal(err.tfvcErrorCode, TfvcErrorCodes.NotATfvcRepository);
-            assert.equal(err.message.indexOf(Strings.TfExecFailedError), 0);
+            assert.isTrue(err.message.startsWith(Strings.TfExecFailedError));
             assert.equal(err.stdout, undefined);
         }
     });
@@ -166,7 +166,7 @@ describe("Tfvc-CommandHelper", function() {
             assert.equal(err.exitCode, 100);
             assert.equal(err.tfvcCommand, "cmd");
             assert.equal(err.tfvcErrorCode, TfvcErrorCodes.RepositoryNotFound);
-            assert.equal(err.message.indexOf(Strings.TfExecFailedError), 0);
+            assert.isTrue(err.message.startsWith(Strings.TfExecFailedError));
             assert.equal(err.stdout, undefined);
         }
     });
@@ -183,7 +183,7 @@ describe("Tfvc-CommandHelper", function() {
             assert.equal(err.exitCode, 100);
             assert.equal(err.tfvcCommand, "cmd");
             assert.equal(err.tfvcErrorCode, TfvcErrorCodes.NotATfvcRepository);
-            assert.equal(err.message.indexOf(Strings.NotATfvcRepository), 0);
+            assert.isTrue(err.message.startsWith(Strings.NotATfvcRepository));
             assert.equal(err.stdout, undefined);
         }
     });
@@ -200,7 +200,7 @@ describe("Tfvc-CommandHelper", function() {
             assert.equal(err.exitCode, 100);
             assert.equal(err.tfvcCommand, "cmd");
             assert.equal(err.tfvcErrorCode, TfvcErrorCodes.AuthenticationFailed);
-            assert.equal(err.message.indexOf(Strings.TokenNotAllScopes), 0);
+            assert.isTrue(err.message.startsWith(Strings.TokenNotAllScopes));
             assert.equal(err.stdout, undefined);
         }
     });
@@ -217,7 +217,7 @@ describe("Tfvc-CommandHelper", function() {
             assert.equal(err.exitCode, 100);
             assert.equal(err.tfvcCommand, "cmd");
             assert.equal(err.tfvcErrorCode, TfvcErrorCodes.TfvcNotFound);
-            assert.equal(err.message.indexOf(Strings.TfInitializeFailureError), 0);
+            assert.isTrue(err.message.startsWith(Strings.TfInitializeFailureError));
             assert.equal(err.stdout, undefined);
         }
     });
@@ -234,7 +234,7 @@ describe("Tfvc-CommandHelper", function() {
             assert.equal(err.exitCode, 100);
             assert.equal(err.tfvcCommand, "cmd");
             assert.equal(err.tfvcErrorCode, TfvcErrorCodes.FileNotInMappings);
-            assert.equal(err.message.indexOf(Strings.TfExecFailedError), 0);
+            assert.isTrue(err.message.startsWith(Strings.TfExecFailedError));
             assert.equal(err.stdout, undefined);
         }
     });
@@ -251,7 +251,7 @@ describe("Tfvc-CommandHelper", function() {
             assert.equal(err.exitCode, 100);
             assert.equal(err.tfvcCommand, "cmd");
             assert.equal(err.tfvcErrorCode, TfvcErrorCodes.FileNotInWorkspace);
-            assert.equal(err.message.indexOf(Strings.TfExecFailedError), 0);
+            assert.isTrue(err.message.startsWith(Strings.TfExecFailedError));
             assert.equal(err.stdout, undefined);
         }
     });
@@ -268,7 +268,7 @@ describe("Tfvc-CommandHelper", function() {
             assert.equal(err.exitCode, 100);
             assert.equal(err.tfvcCommand, "cmd");
             assert.equal(err.tfvcErrorCode, TfvcErrorCodes.UnknownError);
-            assert.equal(err.message.indexOf("something bad"), 0);
+            assert.isTrue(err.message.startsWith("something bad"));
             assert.equal(err.stdout, undefined);
         }
     });
@@ -285,7 +285,7 @@ describe("Tfvc-CommandHelper", function() {
             assert.equal(err.exitCode, 100);
             assert.equal(err.tfvcCommand, "cmd");
             assert.equal(err.tfvcErrorCode, TfvcErrorCodes.UnknownError);
-            assert.equal(err.message.indexOf("something bad"), 0);
+            assert.isTrue(err.message.startsWith("something bad"));
             assert.equal(err.stdout, "something bad");
         }
     });

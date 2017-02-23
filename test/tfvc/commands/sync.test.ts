@@ -310,8 +310,8 @@ describe("Tfvc-SyncCommand", function() {
         } catch (err) {
             assert.equal(err.exitCode, 100);
             assert.equal(err.tfvcCommand, "get");
-            assert.equal(err.message.indexOf(Strings.TfExecFailedError), 0);
-            assert.equal(err.stdout.indexOf("Something bad this way comes."), 0);
+            assert.isTrue(err.message.startsWith(Strings.TfExecFailedError));
+            assert.isTrue(err.stdout.startsWith("Something bad this way comes."));
         }
     });
 
@@ -519,8 +519,8 @@ describe("Tfvc-SyncCommand", function() {
         } catch (err) {
             assert.equal(err.exitCode, 100);
             assert.equal(err.tfvcCommand, "get");
-            assert.equal(err.message.indexOf(Strings.TfExecFailedError), 0);
-            assert.equal(err.stdout.indexOf("Something bad this way comes."), 0);
+            assert.isTrue(err.message.startsWith(Strings.TfExecFailedError));
+            assert.isTrue(err.stdout.startsWith("Something bad this way comes."));
         }
     });
 
