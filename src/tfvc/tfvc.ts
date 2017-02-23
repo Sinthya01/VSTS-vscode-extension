@@ -15,6 +15,8 @@ import { Repository } from "./repository";
 import { TfvcSettings } from "./tfvcsettings";
 import { TfvcVersion } from "./tfvcversion";
 import { TfvcOutput } from "./tfvcoutput";
+import { Telemetry } from "../services/telemetry";
+import { TfvcTelemetryEvents } from "../helpers/constants";
 
 var _ = require("underscore");
 import * as fs from "fs";
@@ -63,6 +65,9 @@ export class Tfvc {
             this._isExe = path.extname(this._tfvcPath) === ".exe";
             if (this._isExe) {
                 this._minVersion = "14.0.0";  //Minimum tf.exe version
+                Telemetry.SendEvent(TfvcTelemetryEvents.UsingExe);
+            } else {
+                Telemetry.SendEvent(TfvcTelemetryEvents.UsingClc);
             }
         } else {
             Logger.LogWarning(`TFVC ${this._tfvcPath} does not exist.`);
