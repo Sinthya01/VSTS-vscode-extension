@@ -132,7 +132,7 @@ describe("Tfvc-CommandHelper", function() {
             assert.equal(err.exitCode, 100);
             assert.equal(err.tfvcCommand, "cmd");
             assert.equal(err.tfvcErrorCode, TfvcErrorCodes.NotATfvcRepository);
-            assert.isTrue(err.message.startsWith(Strings.TfExecFailedError));
+            assert.isTrue(err.message.startsWith(Strings.NoWorkspaceMappings));
             assert.equal(err.stdout, undefined);
         }
     });
@@ -149,7 +149,7 @@ describe("Tfvc-CommandHelper", function() {
             assert.equal(err.exitCode, 100);
             assert.equal(err.tfvcCommand, "cmd");
             assert.equal(err.tfvcErrorCode, TfvcErrorCodes.NotATfvcRepository);
-            assert.isTrue(err.message.startsWith(Strings.TfExecFailedError));
+            assert.isTrue(err.message.startsWith(Strings.NoWorkspaceMappings));
             assert.equal(err.stdout, undefined);
         }
     });
@@ -376,6 +376,15 @@ describe("Tfvc-CommandHelper", function() {
     it("should verify ParseXml - undefined input", async function() {
         let xml: any = await CommandHelper.ParseXml(undefined);
         assert.isUndefined(xml);
+    });
+
+    it("should verify ParseXml - invalid xml input", async function() {
+        try {
+            await CommandHelper.ParseXml("<?xml><<<<");
+            assert.fail("didn't throw!");
+        } catch (err) {
+            assert.isTrue(err.message.startsWith("Unexpected end"));
+        }
     });
 
     it("should verify ParseXml", async function() {

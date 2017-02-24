@@ -4,9 +4,11 @@
 *--------------------------------------------------------------------------------------------*/
 "use strict";
 
+import { Strings } from "../../helpers/strings";
 import { IArgumentProvider, IExecutionResult, ITfvcCommand, IWorkspace, IWorkspaceMapping } from "../interfaces";
 import { ArgumentBuilder } from "./argumentbuilder";
 import { CommandHelper } from "./commandhelper";
+import { TfvcError, TfvcErrorCodes } from "../tfvcerror";
 
 /**
  * This command only returns a partial workspace object that allows you to get the name and server.
@@ -88,7 +90,10 @@ export class FindWorkspace implements ITfvcCommand<IWorkspace> {
             }
         }
         if (mappings.length === 0) {
-            throw new Error("Could not find a workspace with mappings.  Perhaps the wrong version of TF is being used with the selected folder?");
+            throw new TfvcError( {
+                message: Strings.NoWorkspaceMappings,
+                tfvcErrorCode: TfvcErrorCodes.NotATfvcRepository
+             });
         }
 
         const workspace: IWorkspace = {
@@ -109,8 +114,25 @@ export class FindWorkspace implements ITfvcCommand<IWorkspace> {
         return this.GetOptions();
     }
 
+    /**
+     * Parses the output of the workfold command (the EXE output is slightly different from the CLC output parsed above)
+     * SAMPLE
+     * Access denied connecting to TFS server https://account.visualstudio.com/ (authenticating as Personal Access Token)  <-- line is optional
+     * =====================================================================================================================================================
+     * Workspace : MyNewWorkspace2 (user name)
+     * Collection: http://server:8081/tfs/
+     * $/tfsTest_01: D:\tmp\test
+     */
     public async ParseExeOutput(executionResult: IExecutionResult): Promise<IWorkspace> {
-        return this.ParseOutput(executionResult);
+        let workspace: IWorkspace = await this.ParseOutput(executionResult);
+        if (workspace && workspace.name) {
+            // The workspace name includes the user name, so let's fix that
+            const lastOpenParenIndex: number = workspace.name.lastIndexOf(" (");
+            if (lastOpenParenIndex >= 0) {
+                workspace.name = workspace.name.slice(0, lastOpenParenIndex).trim();
+            }
+        }
+        return workspace;
     }
 
     /**
