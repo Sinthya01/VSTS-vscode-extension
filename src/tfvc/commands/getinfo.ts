@@ -100,7 +100,8 @@ export class GetInfo implements ITfvcCommand<IItemInfo[]> {
         }
 
         // If all of the info objects are "empty" let's report an error
-        if (itemInfos.length === itemInfos.filter(info => info.localItem === undefined).length) {
+        if (itemInfos.length > 0 &&
+            itemInfos.length === itemInfos.filter(info => info.localItem === undefined).length) {
             throw new TfvcError({
                 message: Strings.NoMatchesFound,
                 tfvcErrorCode: TfvcErrorCodes.TfvcNoItemsMatch,
