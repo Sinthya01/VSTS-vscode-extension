@@ -80,6 +80,11 @@ describe("Tfvc-RenameCommand", function() {
         assert.deepEqual(cmd.GetOptions(), {});
     });
 
+    it("should verify GetExeOptions", function() {
+        let cmd: Rename = new Rename(context, "sourcePath", "destinationPath");
+        assert.deepEqual(cmd.GetExeOptions(), {});
+    });
+
     it("should verify arguments", function() {
         let startPath: string = "/usr/alias/repos/Tfvc.L2VSCodeExtension.RC/";
         let sourcePath: string = path.join(startPath, "README.md");
@@ -88,6 +93,16 @@ describe("Tfvc-RenameCommand", function() {
         let cmd: Rename = new Rename(context, sourcePath, destinationPath);
 
         assert.equal(cmd.GetArguments().GetArgumentsForDisplay(), "rename -noprompt -collection:" + collectionUrl + " ******** " + sourcePath + " " + destinationPath);
+    });
+
+    it("should verify GetExeArguments", function() {
+        let startPath: string = "/usr/alias/repos/Tfvc.L2VSCodeExtension.RC/";
+        let sourcePath: string = path.join(startPath, "README.md");
+        let destinationPath: string = path.join(startPath, "READU.md");
+
+        let cmd: Rename = new Rename(context, sourcePath, destinationPath);
+
+        assert.equal(cmd.GetExeArguments().GetArgumentsForDisplay(), "rename -noprompt ******** " + sourcePath + " " + destinationPath);
     });
 
     it("should verify parse output - no output", async function() {
@@ -181,4 +196,98 @@ describe("Tfvc-RenameCommand", function() {
         }
     });
 
+    /***********************************************************************************************
+     * The methods below are duplicates of the parse output methods but call the parseExeOutput.
+     ***********************************************************************************************/
+
+    it("should verify parse EXE output - no output", async function() {
+        let startPath: string = "/usr/alias/repos/Tfvc.L2VSCodeExtension.RC/";
+        let sourcePath: string = path.join(startPath, "README.md");
+        let destinationPath: string = path.join(startPath, "READU.md");
+
+        let cmd: Rename = new Rename(context, sourcePath, destinationPath);
+        let executionResult: IExecutionResult = {
+            exitCode: 0,
+            stdout: undefined,
+            stderr: undefined
+        };
+
+        let result: string = await cmd.ParseExeOutput(executionResult);
+        assert.equal(result, "");
+    });
+
+    it("should verify parse EXE output - single line", async function() {
+        let startPath: string = "/usr/alias/repos/Tfvc.L2VSCodeExtension.RC/";
+        let sourcePath: string = path.join(startPath, "README.md");
+        let destinationPath: string = path.join(startPath, "READU.md");
+
+        let cmd: Rename = new Rename(context, sourcePath, destinationPath);
+        let executionResult: IExecutionResult = {
+            exitCode: 0,
+            stdout: `READU.md`,
+            stderr: undefined
+        };
+
+        let result: string = await cmd.ParseExeOutput(executionResult);
+        assert.equal(result, "READU.md");
+    });
+
+    it("should verify parse EXE output - with path", async function() {
+        let startPath: string = "/usr/alias/repos/Tfvc.L2VSCodeExtension.RC/";
+        let sourcePath: string = path.join(startPath, "README.md");
+        let destinationPath: string = path.join(startPath, "READU.md");
+
+        let cmd: Rename = new Rename(context, sourcePath, destinationPath);
+        let executionResult: IExecutionResult = {
+            exitCode: 0,
+            stdout: `${startPath}:\nREADU.md`,
+            stderr: undefined
+        };
+
+        let result: string = await cmd.ParseExeOutput(executionResult);
+        assert.equal(result, destinationPath);
+    });
+
+    it("should verify parse EXE output - source file not in workspace", async function() {
+        let startPath: string = "/usr/alias/repos/Tfvc.L2VSCodeExtension.RC/";
+        let sourcePath: string = path.join(startPath, "README.md");
+        let destinationPath: string = path.join(startPath, "READU.md");
+
+        let cmd: Rename = new Rename(context, sourcePath, destinationPath);
+        let executionResult: IExecutionResult = {
+            exitCode: 100,
+            stdout: undefined,
+            stderr: `The item ${sourcePath} could not be found in your workspace, or you do not have permission to access it.\n`
+        };
+
+        try {
+            await cmd.ParseExeOutput(executionResult);
+        } catch (err) {
+            assert.equal(err.exitCode, 100);
+            assert.equal(err.tfvcCommand, "rename");
+            assert.equal(err.tfvcErrorCode, TfvcErrorCodes.FileNotInWorkspace);
+        }
+    });
+
+    it("should verify parse EXE output - error exit code, stdout", async function() {
+        let startPath: string = "/usr/alias/repos/Tfvc.L2VSCodeExtension.RC/";
+        let sourcePath: string = path.join(startPath, "README.md");
+        let destinationPath: string = path.join(startPath, "READU.md");
+
+        let cmd: Rename = new Rename(context, sourcePath, destinationPath);
+        let executionResult: IExecutionResult = {
+            exitCode: 42,
+            stdout: "Something bad this way comes.",
+            stderr: undefined
+        };
+
+        try {
+            await cmd.ParseExeOutput(executionResult);
+        } catch (err) {
+            assert.equal(err.exitCode, 42);
+            assert.equal(err.tfvcCommand, "rename");
+            assert.isTrue(err.message.startsWith(Strings.TfExecFailedError));
+            assert.isTrue(err.stdout.startsWith("Something bad this way comes."));
+        }
+    });
 });

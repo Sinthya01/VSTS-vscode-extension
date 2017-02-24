@@ -86,7 +86,7 @@ export class Rename implements ITfvcCommand<string> {
     }
 
     public async ParseExeOutput(executionResult: IExecutionResult): Promise<string> {
-        return this.ParseOutput(executionResult);
+        return await this.ParseOutput(executionResult);
     }
 
     private getFileFromLine(line: string): string {

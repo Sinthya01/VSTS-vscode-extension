@@ -5,7 +5,9 @@
 "use strict";
 
 import { TeamServerContext} from "../../contexts/servercontext";
+import { Strings } from "../../helpers/strings";
 import { IArgumentProvider, IExecutionResult, IItemInfo, ITfvcCommand } from "../interfaces";
+import { TfvcError, TfvcErrorCodes } from "../tfvcerror";
 import { ArgumentBuilder } from "./argumentbuilder";
 import { CommandHelper } from "./commandhelper";
 
@@ -66,7 +68,11 @@ export class GetInfo implements ITfvcCommand<IItemInfo[]> {
         let curItem: IItemInfo;
         for (let i: number = 0; i < lines.length; i++) {
             const line: string = lines[i];
-            if (line.toLowerCase().startsWith("local information:")) {
+            // Check the beginning of a new item
+            // "no items match" means that the item requested was not found. In this case
+            // we will return an empty info object in that item's place.
+            if (line.toLowerCase().startsWith("no items match ") ||
+                line.toLowerCase().startsWith("local information:")) {
                 // We are starting a new Info section for the next item.
                 // So, finish off any in progress item and start a new one.
                 curMode = "";
@@ -93,6 +99,18 @@ export class GetInfo implements ITfvcCommand<IItemInfo[]> {
             itemInfos.push(curItem);
         }
 
+        // If all of the info objects are "empty" let's report an error
+        if (itemInfos.length > 0 &&
+            itemInfos.length === itemInfos.filter(info => info.localItem === undefined).length) {
+            throw new TfvcError({
+                message: Strings.NoMatchesFound,
+                tfvcErrorCode: TfvcErrorCodes.TfvcNoItemsMatch,
+                exitCode: executionResult.exitCode,
+                stdout: executionResult.stdout,
+                stderr: executionResult.stderr
+            });
+        }
+
         return itemInfos;
     }
 
@@ -105,7 +123,7 @@ export class GetInfo implements ITfvcCommand<IItemInfo[]> {
     }
 
     public async ParseExeOutput(executionResult: IExecutionResult): Promise<IItemInfo[]> {
-        return this.ParseOutput(executionResult);
+        return await this.ParseOutput(executionResult);
     }
 
     private getPropertyName(name: string): string {
