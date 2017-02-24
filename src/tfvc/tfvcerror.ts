@@ -88,5 +88,6 @@ export class TfvcErrorCodes {
     public static get FileNotInMappings(): string { return "FileNotInMappings"; }
     public static get FileNotInWorkspace(): string { return "FileNotInWorkspace"; }
     public static get TfvcInInvalidState(): string { return "TfvcInInvalidState"; }
+    public static get TfvcNoItemsMatch(): string { return "TfvcNoItemsMatch"; }
     public static get UnknownError(): string { return "UnknownError"; }
 };

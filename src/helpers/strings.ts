@@ -70,6 +70,7 @@ export class Strings {
     static CommandRequiresFileContext: string = "This command requires a file context and can only be executed from the TFVC viewlet window.";
     static CommandRequiresExplorerContext: string = "This command requires a file context and can only be executed from the Explorer window.";
     static RenamePrompt: string = "Provide the new name for the file.";
+    static NoMatchesFound: string = "No items match any of the file paths provided.";
 
     // TFVC viewlet Strings
     static ExcludedGroupName: string = "Excluded changes";
