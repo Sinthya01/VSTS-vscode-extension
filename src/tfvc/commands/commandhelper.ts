@@ -45,8 +45,11 @@ export class CommandHelper {
 
             if (/Authentication failed/.test(result.stderr)) {
                 tfvcErrorCode = TfvcErrorCodes.AuthenticationFailed;
-            } else if (/workspace could not be determined/.test(result.stderr)) {
+            } else if (/workspace could not be determined/.test(result.stderr) ||
+                       /The workspace could not be determined from any argument paths or the current working directory/.test(result.stderr) || // CLC error
+                       /Unable to determine the source control server/.test(result.stderr)) { // EXE error
                 tfvcErrorCode = TfvcErrorCodes.NotATfvcRepository;
+                message = Strings.NoWorkspaceMappings;
             } else if (/Repository not found/.test(result.stderr)) {
                 tfvcErrorCode = TfvcErrorCodes.RepositoryNotFound;
             } else if (/project collection URL to use could not be determined/i.test(result.stderr)) {
