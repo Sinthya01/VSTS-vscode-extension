@@ -28,6 +28,13 @@ export class TfvcContext implements IRepositoryContext {
         this._tfvcFolder = rootPath;
     }
 
+    public dispose() {
+        if (this._tfvc) {
+            this._tfvc.dispose();
+            this._tfvc = undefined;
+        }
+    }
+
     //Need to call tf.cmd to get TFVC information (and constructors can't be async)
     public async Initialize(settings: ISettings): Promise<boolean> {
         Logger.LogDebug(`Looking for TFVC repository at ${this._tfvcFolder}`);

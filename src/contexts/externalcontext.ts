@@ -22,6 +22,10 @@ export class ExternalContext implements IRepositoryContext {
         this._folder = rootPath;
     }
 
+    public dispose() {
+        //nothing to do
+    }
+
     //Need to call tf.cmd to get TFVC information (and constructors can't be async)
     public async Initialize(settings: ISettings): Promise<boolean> {
         Logger.LogDebug(`Looking for an External Context at ${this._folder}`);

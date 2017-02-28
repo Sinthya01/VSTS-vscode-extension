@@ -67,10 +67,44 @@ describe("Tfvc-ArgumentBuilder", function() {
         assert.throws(() => new ArgumentBuilder(undefined), TfvcError, /Argument is required/);
     });
 
-    it("should verify GetArgumentsForDisplay", function() {
+    it("should verify ToString", function() {
         let cmd: string = "mycmd";
         let builder: ArgumentBuilder = new ArgumentBuilder(cmd, context);
         assert.equal(builder.ToString(), "mycmd -noprompt -collection:" + collectionUrl + " ********");
+    });
+
+    it("should verify BuildCommandLine with context", function() {
+        let cmd: string = "mycmd";
+        let builder: ArgumentBuilder = new ArgumentBuilder(cmd, context);
+        assert.equal(builder.BuildCommandLine().trim(), "mycmd -noprompt -collection:" + collectionUrl + " -login:" + user + "," + pass);
+    });
+
+    it("should verify BuildCommandLine", function() {
+        let cmd: string = "mycmd";
+        let builder: ArgumentBuilder = new ArgumentBuilder(cmd);
+        assert.equal(builder.BuildCommandLine().trim(), "mycmd -noprompt");
+    });
+
+    it("should verify BuildCommandLine with spaces in options", function() {
+        let cmd: string = "mycmd";
+        let path: string = "/path/with a space/file.txt";
+        let option: string = "option with space";
+        let builder: ArgumentBuilder = new ArgumentBuilder(cmd);
+        builder.Add(path);
+        builder.AddSwitch(option);
+        builder.AddSwitchWithValue(option, path, false);
+        assert.equal(builder.BuildCommandLine().trim(), "mycmd -noprompt \"/path/with a space/file.txt\" \"-option with space\" \"-option with space:/path/with a space/file.txt\"");
+    });
+
+    it("should verify BuildCommandLine with spaces in some", function() {
+        let cmd: string = "mycmd";
+        let path: string = "/path/with a space/file.txt";
+        let option: string = "option";
+        let builder: ArgumentBuilder = new ArgumentBuilder(cmd);
+        builder.Add(path);
+        builder.AddSwitch(option);
+        builder.AddSwitchWithValue(option, path, false);
+        assert.equal(builder.BuildCommandLine().trim(), "mycmd -noprompt \"/path/with a space/file.txt\" -option \"-option:/path/with a space/file.txt\"");
     });
 
     it("should verify interface implemented", function() {
@@ -87,6 +121,8 @@ describe("Tfvc-ArgumentBuilder", function() {
         assert.equal(args.length, 4);
         // GetArgumentsForDisplay
         assert.equal(argProvider.GetArgumentsForDisplay(), "mycmd -noprompt -collection:" + collectionUrl + " ********");
+        // GetCommandLine
+        assert.equal(argProvider.GetCommandLine(), "mycmd -noprompt -collection:" + collectionUrl + " -login:" + user + "," + pass + " \n");
         // AddProxySwitch
         argProvider.AddProxySwitch("TFSProxy");
         assert.equal(argProvider.GetArgumentsForDisplay(), "mycmd -noprompt -collection:" + collectionUrl + " ******** -proxy:TFSProxy");

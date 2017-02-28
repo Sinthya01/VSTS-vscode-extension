@@ -174,6 +174,9 @@ export class TfvcSCMProvider implements SCMProvider {
             //autoFetcher,
             //mergeDecorator
         );
+
+        // Refresh the model now that we are done setting up
+        this._model.Refresh();
     }
 
     private cleanup() {

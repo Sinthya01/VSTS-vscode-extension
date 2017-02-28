@@ -78,6 +78,36 @@ export class ArgumentBuilder implements IArgumentProvider {
         return this._arguments;
     }
 
+    /**
+     * This method builds all the arguments into a single command line. This is needed if
+     * a response file is needed for the commands.
+     */
+    public BuildCommandLine(): string {
+        let result: string = "";
+        this._arguments.forEach((arg) => {
+            const escapedArg = this.escapeArgument(arg);
+            result += escapedArg + " ";
+        });
+        result += "\n";
+        return result;
+    }
+
+    /**
+     * Command line arguments should have all embedded double quotes repeated to escape them.
+     * They should also be surrounded by double quotes if they contain a space (or other whitespace).
+     */
+    private escapeArgument(arg: string) {
+        if (!arg) {
+            return arg;
+        }
+
+        let escaped = arg.replace(/\"/g, "\"\"");
+        if (/\s/.test(escaped)) {
+            escaped = "\"" + escaped + "\"";
+        }
+        return escaped;
+    }
+
     public ToString(): string {
         let output: string = "";
         for (let i = 0; i < this._arguments.length; i++) {
@@ -99,6 +129,10 @@ export class ArgumentBuilder implements IArgumentProvider {
 
     public GetArguments(): string[] {
         return this.Build();
+    }
+
+    public GetCommandLine(): string {
+        return this.BuildCommandLine();
     }
 
     public GetArgumentsForDisplay(): string {
