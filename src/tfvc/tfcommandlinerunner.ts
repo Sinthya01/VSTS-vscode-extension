@@ -9,9 +9,9 @@ import { TeamServerContext } from "../contexts/servercontext";
 import { Logger } from "../helpers/logger";
 import { Strings } from "../helpers/strings";
 import { IDisposable, toDisposable, dispose } from "./util";
-import { IArgumentProvider, IExecutionResult, ITfvc } from "./interfaces";
+import { IArgumentProvider, IExecutionResult, ITfCommandLine } from "./interfaces";
 import { TfvcError, TfvcErrorCodes } from "./tfvcerror";
-import { Repository } from "./repository";
+import { TfvcRepository } from "./tfvcrepository";
 import { TfvcSettings } from "./tfvcsettings";
 import { TfvcVersion } from "./tfvcversion";
 import { TfvcOutput } from "./tfvcoutput";
@@ -26,16 +26,16 @@ import * as path from "path";
  * This is a static class that facilitates running the TFVC command line.
  * To use this class create a repository object or call Exec directly.
  */
-export class Tfvc {
+export class TfCommandLineRunner {
     /**
      * Call this method to get the repository object that allows you to perform TFVC commands.
      */
-    public static CreateRepository(serverContext: TeamServerContext, repositoryRootFolder: string, env: any = {}): Repository {
-        const tfvc: ITfvc = Tfvc.GetTfvc();
-        return new Repository(serverContext, tfvc, repositoryRootFolder, env);
+    public static CreateRepository(serverContext: TeamServerContext, repositoryRootFolder: string, env: any = {}): TfvcRepository {
+        const tfvc: ITfCommandLine = TfCommandLineRunner.GetCommandLine();
+        return new TfvcRepository(serverContext, tfvc, repositoryRootFolder, env);
     }
 
-    public static GetTfvc(localPath?: string): ITfvc {
+    public static GetCommandLine(localPath?: string): ITfCommandLine {
         Logger.LogDebug(`TFVC Creating Tfvc object with localPath='${localPath}'`);
         // Get Proxy from settings
         const settings = new TfvcSettings();
@@ -98,7 +98,7 @@ export class Tfvc {
      * This method checks the version of the CLC against the minimum version that we expect.
      * It throws an error if the version does not meet or exceed the minimum.
      */
-    public static CheckVersion(tfvc: ITfvc, version: string) {
+    public static CheckVersion(tfvc: ITfCommandLine, version: string) {
         if (!version) {
             // If the version isn't set just return
             Logger.LogDebug(`TFVC CheckVersion called without a version.`);
@@ -117,7 +117,7 @@ export class Tfvc {
         }
     }
 
-    public static async Exec(tfvc: ITfvc, cwd: string, args: IArgumentProvider, options: any = {}): Promise<IExecutionResult> {
+    public static async Exec(tfvc: ITfCommandLine, cwd: string, args: IArgumentProvider, options: any = {}): Promise<IExecutionResult> {
         // default to the cwd passed in, but allow options.cwd to overwrite it
         options = _.extend({ cwd }, options || {});
 
@@ -132,40 +132,38 @@ export class Tfvc {
             TfvcOutput.AppendLine(`tf ${args.GetArgumentsForDisplay()}`);
         }
 
-        return await TfRunner.Run(tfvc, args, options, tfvc.isExe);
+        return await TfCommandLineRunner.run(tfvc, args, options, tfvc.isExe);
     }
 
     public static DisposeStatics() {
-        TfRunner.DisposeStatics();
+        if (TfCommandLineRunner._runningInstance) {
+            TfCommandLineRunner._runningInstance.kill();
+            TfCommandLineRunner._runningInstance = undefined;
+        }
     }
-}
 
-class TfRunner {
+    /*********************************************************************************************
+     * The following private methods manage the TF process that we cache for faster load times.
+     * The static members are that cache.
+     *********************************************************************************************/
     private static _location: string;
     private static _options: any;
     private static _runningInstance: cp.ChildProcess;
-
-    public static DisposeStatics() {
-        if (TfRunner._runningInstance) {
-            TfRunner._runningInstance.kill();
-            TfRunner._runningInstance = undefined;
-        }
-    }
 
     /**
      * The Run method will attempt to use the cached TF process, if possible, to run the command and then
      * return the results. Whether it uses the cached one or starts a new TF process, we will immediately start
      * a new TF instance and for later use.
      */
-    public static async Run(tfvc: ITfvc, args: IArgumentProvider, options: any, isExe: boolean): Promise<IExecutionResult> {
+    private static async run(tfvc: ITfCommandLine, args: IArgumentProvider, options: any, isExe: boolean): Promise<IExecutionResult> {
         const start: number = new Date().getTime();
-        const tfInstance: cp.ChildProcess = await TfRunner.getMatchingTfInstance(tfvc, options);
+        const tfInstance: cp.ChildProcess = await TfCommandLineRunner.getMatchingTfInstance(tfvc, options);
         // now that we have the matching one, start a new process (but don't wait on it to finish)
-        TfRunner.startNewTfInstance(tfvc, options);
+        TfCommandLineRunner.startNewTfInstance(tfvc, options);
 
         // Use the tf instance to perform the command
         const argsForStandardInput: string = args.GetCommandLine();
-        const result: IExecutionResult = await TfRunner.runCommand(argsForStandardInput, tfInstance, isExe);
+        const result: IExecutionResult = await TfCommandLineRunner.runCommand(argsForStandardInput, tfInstance, isExe);
 
         // log the results
         const end: number = new Date().getTime();
@@ -179,25 +177,25 @@ class TfRunner {
      * has been requested, we simply return the cached instance.
      * If there isn't a match or there isn't one cached, we kill any existing running instance and created a new one.
      */
-    private static async getMatchingTfInstance(tfvc: ITfvc, options: any): Promise<cp.ChildProcess> {
-        if (!TfRunner._runningInstance || tfvc.path !== TfRunner._location || !TfRunner.optionsMatch(options, TfRunner._options)) {
-            if (TfRunner._runningInstance) {
-                TfRunner._runningInstance.kill();
+    private static async getMatchingTfInstance(tfvc: ITfCommandLine, options: any): Promise<cp.ChildProcess> {
+        if (!TfCommandLineRunner._runningInstance || tfvc.path !== TfCommandLineRunner._location || !TfCommandLineRunner.optionsMatch(options, TfCommandLineRunner._options)) {
+            if (TfCommandLineRunner._runningInstance) {
+                TfCommandLineRunner._runningInstance.kill();
             }
             // spawn a new instance of TF with these options
-            return await TfRunner.startNewTfInstance(tfvc, options);
+            return await TfCommandLineRunner.startNewTfInstance(tfvc, options);
         }
 
         // return the cached instance
-        return TfRunner._runningInstance;
+        return TfCommandLineRunner._runningInstance;
     }
 
-    private static async startNewTfInstance(tfvc: ITfvc, options: any): Promise<cp.ChildProcess> {
+    private static async startNewTfInstance(tfvc: ITfCommandLine, options: any): Promise<cp.ChildProcess> {
         // Start up a new instance of TF for later use
-        TfRunner._options = options;
-        TfRunner._location = tfvc.path;
-        TfRunner._runningInstance = await TfRunner.spawn(tfvc.path, options);
-        return TfRunner._runningInstance;
+        TfCommandLineRunner._options = options;
+        TfCommandLineRunner._location = tfvc.path;
+        TfCommandLineRunner._runningInstance = await TfCommandLineRunner.spawn(tfvc.path, options);
+        return TfCommandLineRunner._runningInstance;
     }
 
     private static optionsMatch(options1: any, options2: any): boolean {

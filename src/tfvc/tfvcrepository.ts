@@ -7,8 +7,8 @@
 import { TeamServerContext} from "../contexts/servercontext";
 import { Logger } from "../helpers/logger";
 import { ITfvcCommand, IExecutionResult } from "./interfaces";
-import { Tfvc } from "./tfvc";
-import { AutoResolveType, IArgumentProvider, IConflict, IItemInfo, IPendingChange, ISyncResults, ITfvc, IWorkspace } from "./interfaces";
+import { TfCommandLineRunner } from "./tfcommandlinerunner";
+import { AutoResolveType, IArgumentProvider, IConflict, IItemInfo, IPendingChange, ISyncResults, ITfCommandLine, IWorkspace } from "./interfaces";
 import { Add } from "./commands/add";
 import { Checkin } from "./commands/checkin";
 import { Delete } from "./commands/delete";
@@ -29,17 +29,17 @@ var _ = require("underscore");
  * The Repository class allows you to perform TFVC commands on the workspace represented 
  * by the repositoryRootFolder.
  */
-export class Repository {
+export class TfvcRepository {
     private _serverContext: TeamServerContext;
-    private _tfvc: ITfvc;
+    private _tfCommandLine: ITfCommandLine;
     private _repositoryRootFolder: string;
     private _env: any;
     private _versionAlreadyChecked = false;
 
-    public constructor(serverContext: TeamServerContext, tfvc: ITfvc, repositoryRootFolder: string, env: any = {}) {
+    public constructor(serverContext: TeamServerContext, tfCommandLine: ITfCommandLine, repositoryRootFolder: string, env: any = {}) {
         Logger.LogDebug(`TFVC Repository created with repositoryRootFolder='${repositoryRootFolder}'`);
         this._serverContext = serverContext;
-        this._tfvc = tfvc;
+        this._tfCommandLine = tfCommandLine;
         this._repositoryRootFolder = repositoryRootFolder;
         this._env = env;
 
@@ -50,7 +50,7 @@ export class Repository {
     }
 
     public get TfvcLocation(): string {
-        return this._tfvc.path;
+        return this._tfCommandLine.path;
     }
 
     public get HasContext(): boolean {
@@ -139,7 +139,7 @@ export class Repository {
             // Set the versionAlreadyChecked flag first in case one of the other lines throws
             this._versionAlreadyChecked = true;
             const version: string = await this.RunCommand<string>(new GetVersion());
-            Tfvc.CheckVersion(this._tfvc, version);
+            TfCommandLineRunner.CheckVersion(this._tfCommandLine, version);
             return version;
         }
 
@@ -147,7 +147,7 @@ export class Repository {
     }
 
     public async RunCommand<T>(cmd: ITfvcCommand<T>): Promise<T> {
-        if (this._tfvc.isExe) {
+        if (this._tfCommandLine.isExe) {
             //This is the tf.exe path
             const result: IExecutionResult = await this.exec(cmd.GetExeArguments(), cmd.GetExeOptions());
             // We will call ParseExeOutput to give the command a chance to handle any specific errors itself.
@@ -165,6 +165,6 @@ export class Repository {
     private async exec(args: IArgumentProvider, options: any = {}): Promise<IExecutionResult> {
         options.env = _.assign({}, options.env || {});
         options.env = _.assign(options.env, this._env);
-        return await Tfvc.Exec(this._tfvc, this._repositoryRootFolder, args, options);
+        return await TfCommandLineRunner.Exec(this._tfCommandLine, this._repositoryRootFolder, args, options);
     }
 }
