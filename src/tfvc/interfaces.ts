@@ -6,7 +6,7 @@
 
 import { ConflictType } from "./scm/status";
 
-export interface ITfvc {
+export interface ITfCommandLine {
     path: string;
     minVersion: string;
     proxy: string;

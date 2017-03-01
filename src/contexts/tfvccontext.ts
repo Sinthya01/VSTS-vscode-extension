@@ -5,8 +5,8 @@
 "use strict";
 
 import { IRepositoryContext, RepositoryType } from "./repositorycontext";
-import { Tfvc } from "../tfvc/tfvc";
-import { Repository } from "../tfvc/repository";
+import { TfCommandLineRunner } from "../tfvc/tfcommandlinerunner";
+import { TfvcRepository } from "../tfvc/tfvcrepository";
 import { IWorkspace } from "../tfvc/interfaces";
 import { RepoUtils } from "../helpers/repoutils";
 import { Logger } from "../helpers/logger";
@@ -20,7 +20,7 @@ export class TfvcContext implements IRepositoryContext {
     private _isTeamServicesUrl: boolean = false;
     private _isTeamFoundationServer: boolean = false;
     private _teamProjectName: string;
-    private _repo: Repository;
+    private _repo: TfvcRepository;
     private _tfvcWorkspace: IWorkspace;
 
     constructor(rootPath: string) {
@@ -30,7 +30,7 @@ export class TfvcContext implements IRepositoryContext {
     //Need to call tf.cmd to get TFVC information (and constructors can't be async)
     public async Initialize(settings: ISettings): Promise<boolean> {
         Logger.LogDebug(`Looking for TFVC repository at ${this._tfvcFolder}`);
-        this._repo = Tfvc.CreateRepository(undefined, this._tfvcFolder);
+        this._repo = TfCommandLineRunner.CreateRepository(undefined, this._tfvcFolder);
         this._tfvcWorkspace = await this._repo.FindWorkspace(this._tfvcFolder);
         this._tfvcRemoteUrl = this._tfvcWorkspace.server;
         this._isTeamServicesUrl = RepoUtils.IsTeamFoundationServicesRepo(this._tfvcRemoteUrl);
@@ -45,11 +45,11 @@ export class TfvcContext implements IRepositoryContext {
         return this._teamProjectName;
     }
 
-    public get TfvcRepository(): Repository {
+    public get TfvcRepository(): TfvcRepository {
         return this._repo;
     }
 
-    public set TfvcRepository(newRepository: Repository) {
+    public set TfvcRepository(newRepository: TfvcRepository) {
         // Don't let the repository be undefined
         if (newRepository) {
             this._repo = newRepository;

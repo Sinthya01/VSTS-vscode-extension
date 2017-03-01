@@ -7,7 +7,7 @@
 import { Uri, EventEmitter, Event, SCMResourceGroup, Disposable, window } from "vscode";
 import { Telemetry } from "../../services/telemetry";
 import { TfvcTelemetryEvents } from "../../helpers/constants";
-import { Repository } from "../repository";
+import { TfvcRepository } from "../tfvcrepository";
 import { filterEvent } from "../util";
 import { Resource } from "./resource";
 import { ResourceGroup, IncludedGroup, ExcludedGroup, ConflictsGroup } from "./resourcegroups";
@@ -20,7 +20,7 @@ import * as path from "path";
 export class Model implements Disposable {
     private _disposables: Disposable[] = [];
     private _repositoryRoot: string;
-    private _repository: Repository;
+    private _repository: TfvcRepository;
     private _statusAlreadyInProgress: boolean;
     private _explicitlyExcluded: string[] = [];
 
@@ -33,7 +33,7 @@ export class Model implements Disposable {
     private _includedGroup = new IncludedGroup([]);
     private _excludedGroup = new ExcludedGroup([]);
 
-    public constructor(repositoryRoot: string, repository: Repository, onWorkspaceChange: Event<Uri>) {
+    public constructor(repositoryRoot: string, repository: TfvcRepository, onWorkspaceChange: Event<Uri>) {
         this._repositoryRoot = repositoryRoot;
         this._repository = repository;
         // Ignore workspace changes that take place in the .tf or $tf folder (where path contains /.tf/ or \$tf\)

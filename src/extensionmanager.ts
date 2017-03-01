@@ -22,6 +22,7 @@ import { RepositoryInfoClient } from "./clients/repositoryinfoclient";
 import { UserInfo } from "./info/userinfo";
 import { CredentialInfo } from "./info/credentialinfo";
 import { TeamExtension } from "./team-extension";
+import { TfCommandLineRunner } from "./tfvc/tfcommandlinerunner";
 import { TfvcExtension } from "./tfvc/tfvc-extension";
 import { TfvcErrorCodes } from "./tfvc/tfvcerror";
 import { TfvcSCMProvider } from "./tfvc/tfvcscmprovider";
@@ -469,5 +470,7 @@ export class ExtensionManager implements Disposable {
             this._scmProvider.dispose();
             this._scmProvider = undefined;
         }
+        // Make sure we clean up any running instances of TF
+        TfCommandLineRunner.DisposeStatics();
     }
 }

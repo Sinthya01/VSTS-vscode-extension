@@ -17,13 +17,13 @@ import { Telemetry } from "../services/telemetry";
 import { Resource } from "./scm/resource";
 import { TfvcSCMProvider } from "./tfvcscmprovider";
 import { TfvcErrorCodes } from "./tfvcerror";
-import { Repository } from "./repository";
+import { TfvcRepository } from "./tfvcrepository";
 import { UIHelper } from "./uihelper";
 import { AutoResolveType, ICheckinInfo, IItemInfo, IPendingChange, ISyncResults } from "./interfaces";
 import { TfvcOutput } from "./tfvcoutput";
 
 export class TfvcExtension  {
-    private _repo: Repository;
+    private _repo: TfvcRepository;
     private _manager: ExtensionManager;
 
     constructor(manager: ExtensionManager) {

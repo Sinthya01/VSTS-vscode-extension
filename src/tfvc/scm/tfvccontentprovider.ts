@@ -7,17 +7,17 @@
 
 import { workspace, Uri, Disposable, Event, EventEmitter } from "vscode";
 import { TfvcSCMProvider } from "../tfvcscmprovider";
-import { Repository } from "../repository";
+import { TfvcRepository } from "../tfvcrepository";
 
 export class TfvcContentProvider {
-    private _tfvcRepository: Repository;
+    private _tfvcRepository: TfvcRepository;
     private _rootPath: string;
     private _disposables: Disposable[] = [];
 
     private _onDidChangeEmitter = new EventEmitter<Uri>();
     get onDidChange(): Event<Uri> { return this._onDidChangeEmitter.event; }
 
-    constructor(repository: Repository, rootPath: string, onTfvcChange: Event<Uri>) {
+    constructor(repository: TfvcRepository, rootPath: string, onTfvcChange: Event<Uri>) {
         this._tfvcRepository = repository;
         this._rootPath = rootPath;
         this._disposables.push(
