@@ -44,6 +44,7 @@ export class TfvcExtension  {
                 await this._repo.Checkin(checkinInfo.files, checkinInfo.comment, checkinInfo.workItemIds);
             TfvcOutput.AppendLine("Changeset " + changeset + " checked in.");
             TfvcSCMProvider.ClearCheckinMessage();
+            TfvcSCMProvider.Refresh();
         });
     }
 
