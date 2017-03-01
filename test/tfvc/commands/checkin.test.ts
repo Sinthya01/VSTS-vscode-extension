@@ -106,7 +106,8 @@ describe("Tfvc-CheckinCommand", function() {
         let files: string[] = ["/path/to/workspace/file.txt"];
         let cmd: Checkin = new Checkin(context, files, undefined, [1, 2, 3]);
 
-        assert.equal(cmd.GetExeArguments().GetArgumentsForDisplay(), "checkin -noprompt ******** " + files[0] + " -associate:1,2,3");
+        //Note that no associate option should be here (tf.exe doesn't support it)
+        assert.equal(cmd.GetExeArguments().GetArgumentsForDisplay(), "checkin -noprompt ******** " + files[0]);
     });
 
     it("should verify arguments with comment", function() {
@@ -134,7 +135,8 @@ describe("Tfvc-CheckinCommand", function() {
         let files: string[] = ["/path/to/workspace/file.txt"];
         let cmd: Checkin = new Checkin(context, files, "a comment", [1, 2, 3]);
 
-        assert.equal(cmd.GetExeArguments().GetArgumentsForDisplay(), "checkin -noprompt ******** " + files[0] + " -comment:a comment -associate:1,2,3");
+        //Note that no associate option should be here (tf.exe doesn't support it)
+        assert.equal(cmd.GetExeArguments().GetArgumentsForDisplay(), "checkin -noprompt ******** " + files[0] + " -comment:a comment");
     });
 
     it("should verify parse output - no output", async function() {
