@@ -31,15 +31,15 @@ var _ = require("underscore");
  */
 export class TfvcRepository {
     private _serverContext: TeamServerContext;
-    private _tfvc: ITfCommandLine;
+    private _tfCommandLine: ITfCommandLine;
     private _repositoryRootFolder: string;
     private _env: any;
     private _versionAlreadyChecked = false;
 
-    public constructor(serverContext: TeamServerContext, tfvc: ITfCommandLine, repositoryRootFolder: string, env: any = {}) {
+    public constructor(serverContext: TeamServerContext, tfCommandLine: ITfCommandLine, repositoryRootFolder: string, env: any = {}) {
         Logger.LogDebug(`TFVC Repository created with repositoryRootFolder='${repositoryRootFolder}'`);
         this._serverContext = serverContext;
-        this._tfvc = tfvc;
+        this._tfCommandLine = tfCommandLine;
         this._repositoryRootFolder = repositoryRootFolder;
         this._env = env;
 
@@ -50,7 +50,7 @@ export class TfvcRepository {
     }
 
     public get TfvcLocation(): string {
-        return this._tfvc.path;
+        return this._tfCommandLine.path;
     }
 
     public get HasContext(): boolean {
@@ -139,7 +139,7 @@ export class TfvcRepository {
             // Set the versionAlreadyChecked flag first in case one of the other lines throws
             this._versionAlreadyChecked = true;
             const version: string = await this.RunCommand<string>(new GetVersion());
-            TfCommandLineRunner.CheckVersion(this._tfvc, version);
+            TfCommandLineRunner.CheckVersion(this._tfCommandLine, version);
             return version;
         }
 
@@ -147,7 +147,7 @@ export class TfvcRepository {
     }
 
     public async RunCommand<T>(cmd: ITfvcCommand<T>): Promise<T> {
-        if (this._tfvc.isExe) {
+        if (this._tfCommandLine.isExe) {
             //This is the tf.exe path
             const result: IExecutionResult = await this.exec(cmd.GetExeArguments(), cmd.GetExeOptions());
             // We will call ParseExeOutput to give the command a chance to handle any specific errors itself.
@@ -165,6 +165,6 @@ export class TfvcRepository {
     private async exec(args: IArgumentProvider, options: any = {}): Promise<IExecutionResult> {
         options.env = _.assign({}, options.env || {});
         options.env = _.assign(options.env, this._env);
-        return await TfCommandLineRunner.Exec(this._tfvc, this._repositoryRootFolder, args, options);
+        return await TfCommandLineRunner.Exec(this._tfCommandLine, this._repositoryRootFolder, args, options);
     }
 }
