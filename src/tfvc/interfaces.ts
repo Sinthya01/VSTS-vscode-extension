@@ -118,6 +118,7 @@ export interface IArgumentProvider {
     AddProxySwitch(proxy: string);
     GetCommand(): string;
     GetArguments(): string[];
+    GetCommandLine(): string;
     GetArgumentsForDisplay(): string;
 }
 

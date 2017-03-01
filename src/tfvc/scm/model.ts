@@ -36,10 +36,9 @@ export class Model implements Disposable {
     public constructor(repositoryRoot: string, repository: Repository, onWorkspaceChange: Event<Uri>) {
         this._repositoryRoot = repositoryRoot;
         this._repository = repository;
-        // TODO handle $tf folder as well
-        const onNonGitChange = filterEvent(onWorkspaceChange, uri => !/\/\.tf\//.test(uri.fsPath));
+        // Ignore workspace changes that take place in the .tf or $tf folder (where path contains /.tf/ or \$tf\)
+        const onNonGitChange = filterEvent(onWorkspaceChange, uri => !/\/\.tf\//.test(uri.fsPath) && !/\\\$tf\\/.test(uri.fsPath));
         onNonGitChange(this.onFileSystemChange, this, this._disposables);
-        this.status();
     }
 
     public dispose() {
@@ -128,6 +127,7 @@ export class Model implements Disposable {
             await this.processDeletes(changes);
 
             // Get the list of conflicts
+            //TODO: Optimize out this call unless it is needed. This call takes over 4 times longer than the status call and is unecessary most of the time.
             foundConflicts = await this._repository.FindConflicts();
         }
 

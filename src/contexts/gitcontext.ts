@@ -95,6 +95,10 @@ export class GitContext implements IRepositoryContext {
         }
     }
 
+    public dispose() {
+        //nothing to do
+    }
+
     //constructor already initializes the GitContext
     public async Initialize(settings: ISettings): Promise<boolean> {
         return true;
