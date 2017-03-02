@@ -116,6 +116,7 @@ gulp.task('test-coverage', function() {
         ,'!out/src/clients/gitclient.js'
         ,'!out/src/clients/repositoryinfoclient.js'
         ,'!out/src/clients/witclient.js'
+        ,'!out/src/contexts/repocontextfactory.js'
         ,'!out/src/contexts/tfvccontext.js'
         ,'!out/src/helpers/settings.js'
         ,'!out/src/helpers/vscodeutils.js'
