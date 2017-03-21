@@ -7,6 +7,7 @@
 import { assert } from "chai";
 import { GetVersion } from "../../../src/tfvc/commands/getversion";
 import { IExecutionResult } from "../../../src/tfvc/interfaces";
+import { TfvcErrorCodes } from "../../../src/tfvc/tfvcerror";
 import { Strings } from "../../../src/helpers/strings";
 
 describe("Tfvc-GetVersionCommand", function() {
@@ -115,4 +116,47 @@ describe("Tfvc-GetVersionCommand", function() {
         }
     });
 
+    it("should verify parse EXE output - Spanish version", async function() {
+        let cmd: GetVersion = new GetVersion();
+        let executionResult: IExecutionResult = {
+            exitCode: 0,
+            stdout: "Microsoft (R) TF - Herramienta Control de versiones de Team Foundation, versi�n 14.102.25619.0",
+            stderr: undefined
+        };
+
+        try {
+            await cmd.ParseExeOutput(executionResult);
+        } catch (err) {
+            assert.equal(err.tfvcErrorCode, TfvcErrorCodes.NotAnEnuTfCommandLine);
+            assert.isTrue(err.message.startsWith(Strings.NotAnEnuTfCommandLine));
+        }
+    });
+
+    it("should verify parse EXE output - French version", async function() {
+        let cmd: GetVersion = new GetVersion();
+        let executionResult: IExecutionResult = {
+            exitCode: 0,
+            stdout: "Microsoft (R) TF�- Outil Team Foundation Version Control, version�14.102.25619.0",
+            stderr: undefined
+        };
+
+        try {
+            await cmd.ParseExeOutput(executionResult);
+        } catch (err) {
+            assert.equal(err.tfvcErrorCode, TfvcErrorCodes.NotAnEnuTfCommandLine);
+            assert.isTrue(err.message.startsWith(Strings.NotAnEnuTfCommandLine));
+        }
+    });
+
+    it("should verify parse EXE output - German version", async function() {
+        let cmd: GetVersion = new GetVersion();
+        let executionResult: IExecutionResult = {
+            exitCode: 0,
+            stdout: "Microsoft (R) TF - Team Foundation-Versionskontrolltool, Version 14.102.25619.0",
+            stderr: undefined
+        };
+
+        let version: string = await cmd.ParseExeOutput(executionResult);
+        assert.equal(version, "14.102.25619.0");
+    });
 });
