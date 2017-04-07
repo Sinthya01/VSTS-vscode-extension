@@ -118,7 +118,7 @@ export class GitClient extends BaseClient {
             let requests: BaseQuickPickItem[] = await this.getMyPullRequests();
             this._statusBarItem.tooltip = Strings.BrowseYourPullRequests;
             //Remove the default Strings.BrowseYourPullRequests item from the calculation
-            this._statusBarItem.text = GitClient.GetPullRequestStatusText(requests.length - 1);
+            this._statusBarItem.text = GitClient.GetPullRequestStatusText((requests.length - 1).toString());
         } catch (err) {
             this.handleError(err, GitClient.GetOfflinePullRequestStatusText(), true, "Attempting to poll my pull requests");
         }
@@ -135,7 +135,7 @@ export class GitClient extends BaseClient {
         let label: string = `$(icon ${icon}) `;
         requestItems.push({ label: label + Strings.BrowseYourPullRequests, description: undefined, id: undefined });
 
-        myPullRequests.forEach(pr => {
+        myPullRequests.forEach((pr) => {
             let score: PullRequestScore = GitVcService.GetPullRequestScore(pr);
             requestItems.push(this.getPullRequestLabel(pr.createdBy.displayName, pr.title, pr.description, pr.pullRequestId.toString(), score));
             requestIds.push(pr.pullRequestId);
@@ -145,7 +145,7 @@ export class GitClient extends BaseClient {
         Logger.LogInfo("Getting pull requests for which I'm a reviewer...");
         //Go get the active pull requests that I'm a reviewer for
         let myReviewPullRequests: GitPullRequest[] = await svc.GetPullRequests(this._serverContext.RepoInfo.RepositoryId, undefined, this._serverContext.UserInfo.Id, PullRequestStatus.Active);
-        myReviewPullRequests.forEach(pr => {
+        myReviewPullRequests.forEach((pr) => {
             let score: PullRequestScore = GitVcService.GetPullRequestScore(pr);
             if (requestIds.indexOf(pr.pullRequestId) < 0) {
                 requestItems.push(this.getPullRequestLabel(pr.createdBy.displayName, pr.title, pr.description, pr.pullRequestId.toString(), score));
@@ -154,7 +154,7 @@ export class GitClient extends BaseClient {
         Logger.LogInfo("Retrieved " + myReviewPullRequests.length + " pull requests that I'm the reviewer");
 
         //Remove the default Strings.BrowseYourPullRequests item from the calculation
-        this._statusBarItem.text = GitClient.GetPullRequestStatusText(requestItems.length - 1);
+        this._statusBarItem.text = GitClient.GetPullRequestStatusText((requestItems.length - 1).toString());
         this._statusBarItem.tooltip = Strings.BrowseYourPullRequests;
         this._statusBarItem.command = CommandNames.GetPullRequests;
 
@@ -178,14 +178,15 @@ export class GitClient extends BaseClient {
     }
 
     public static GetOfflinePullRequestStatusText() : string {
-        return `$(icon octicon-git-pull-request) ` + `???`;
+        return `$(icon octicon-git-pull-request) ???`;
     }
 
     //Sets the text on the pull request status bar
-    public static GetPullRequestStatusText(total: number) : string {
-        let octipullrequest: string = "octicon-git-pull-request";
-
-        return `$(icon ${octipullrequest}) ` + total.toString();
+    public static GetPullRequestStatusText(total?: string) : string {
+        if (!total) {
+            return `$(icon octicon-git-pull-request) $(icon octicon-dash)`;
+        }
+        return `$(icon octicon-git-pull-request) ${total.toString()}`;
     }
 
     //Ensure that we don't accidentally send non-Git (e.g., TFVC) contexts to the Git client
