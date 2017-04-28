@@ -200,12 +200,12 @@ the TFVC support.
 While the TEE CLC is primarily for macOS and Linux users it can also be used on Windows. In order to use the CLC on Windows, you need to do the following:
 - Download and install a version of [Java 8 for Windows](http://www.oracle.com/technetwork/java/javase/downloads/jre8-downloads-2133155.html).
   - Make sure to install the version (i.e., x86 or x64) that matches your processor architecture
-- Ensure that that path to `java.exe` is a part of your `PATH` environment variable.
+- Ensure the path to `java.exe` is a part of your `PATH` environment variable.
   - Check that you can successully run `java -version`
 - Download and unzip the [latest version](https://github.com/Microsoft/team-explorer-everywhere/releases) of the TEE CLC to a local folder of your choice.
   - The file you need to download is of the format `TEE-CLC-14.114.0.zip`
 - Open a command prompt and run `{path-to-tf.cmd} eula` and accept the End User License Agreement.
-- Update your `tfvc.location` to the full path to `tf.cmd` (e.g., `C:\TEE-CLC-14.111.1\tf.cmd`).
+- From within Visual Studio Code, update your `tfvc.location` setting to the full path to `tf.cmd` (e.g., `C:\TEE-CLC-14.111.1\tf.cmd`).
 - The last thing that you **must** do is run the `tf workspaces` command as detailed [here](#i-have-workspaces-created-with-visual-studio-can-i-use-the-tee-clc-to-work-with-them) so that the CLC is aware of the workspaces in the specified collection. (Each tool, tf.cmd and tf.exe, keeps its own local cache of workspaces.)
 
 Finally, there's also a [video](https://youtu.be/VPNaEIVZfr0) that shows how to do this on Linux (the same high-level steps apply on Windows).
