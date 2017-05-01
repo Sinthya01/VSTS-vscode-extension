@@ -1,5 +1,24 @@
 
 
+## [v1.117.1](https://github.com/Microsoft/vsts-vscode/tree/v1.117.1) (2017-05-01)
+[Full Changelog](https://github.com/Microsoft/vsts-vscode/compare/v1.117.0...v1.117.1)
+
+**Closed issues:**
+
+- Non-English version of the TF Executable [\#192](https://github.com/Microsoft/vsts-vscode/issues/192)
+- Wrong url for action "Team : View history" [\#189](https://github.com/Microsoft/vsts-vscode/issues/189)
+
+**Merged pull requests:**
+
+- Add message and telemetry for getting latest VS2015 Update [\#199](https://github.com/Microsoft/vsts-vscode/pull/199) ([jeffyoung](https://github.com/jeffyoung))
+- Fix finding version in a multiline stdout [\#198](https://github.com/Microsoft/vsts-vscode/pull/198) ([jeffyoung](https://github.com/jeffyoung))
+- Adding check for server workspaces [\#197](https://github.com/Microsoft/vsts-vscode/pull/197) ([jeffyoung](https://github.com/jeffyoung))
+- README and TFVC\_README updates [\#196](https://github.com/Microsoft/vsts-vscode/pull/196) ([jeffyoung](https://github.com/jeffyoung))
+- Update RemoteUrl if we have no collection in workspace [\#195](https://github.com/Microsoft/vsts-vscode/pull/195) ([jeffyoung](https://github.com/jeffyoung))
+- Fix TFVC history url [\#194](https://github.com/Microsoft/vsts-vscode/pull/194) ([jeffyoung](https://github.com/jeffyoung))
+- Handle signout properly [\#193](https://github.com/Microsoft/vsts-vscode/pull/193) ([jeffyoung](https://github.com/jeffyoung))
+- Removing ability to store token in User settings [\#190](https://github.com/Microsoft/vsts-vscode/pull/190) ([jeffyoung](https://github.com/jeffyoung))
+
 ## [v1.117.0](https://github.com/Microsoft/vsts-vscode/tree/v1.117.0) (2017-04-24)
 [Full Changelog](https://github.com/Microsoft/vsts-vscode/compare/v1.116.1...v1.117.0)
 
@@ -262,7 +281,10 @@
 - Limiting keywords to five \(latest vsce requirement\) [\#14](https://github.com/Microsoft/vsts-vscode/pull/14) ([jeffyoung](https://github.com/jeffyoung))
 
 ## [v1.99.0](https://github.com/Microsoft/vsts-vscode/tree/v1.99.0) (2016-04-14)
-[Full Changelog](https://github.com/Microsoft/vsts-vscode/compare/v1.98.0...v1.99.0)
+[Full Changelog](https://github.com/Microsoft/vsts-vscode/compare/1.99.0...v1.99.0)
+
+## [1.99.0](https://github.com/Microsoft/vsts-vscode/tree/1.99.0) (2016-04-14)
+[Full Changelog](https://github.com/Microsoft/vsts-vscode/compare/v1.98.0...1.99.0)
 
 **Implemented enhancements:**
 
