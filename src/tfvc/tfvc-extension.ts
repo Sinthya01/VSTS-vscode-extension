@@ -5,7 +5,7 @@
 "use strict";
 
 import * as path from "path";
-import { commands, Uri, window, workspace } from "vscode";
+import { commands, Uri, window } from "vscode";
 import { RepositoryType } from "../contexts/repositorycontext";
 import { TfvcContext } from "../contexts/tfvccontext";
 import { ExtensionManager } from "../extensionmanager";
@@ -21,7 +21,7 @@ import { TfvcSCMProvider } from "./tfvcscmprovider";
 import { TfvcErrorCodes } from "./tfvcerror";
 import { TfvcRepository } from "./tfvcrepository";
 import { UIHelper } from "./uihelper";
-import { AutoResolveType, ICheckinInfo, IItemInfo, IPendingChange, ISyncResults } from "./interfaces";
+import { AutoResolveType, ICheckinInfo, IItemInfo, ISyncResults } from "./interfaces";
 import { TfvcOutput } from "./tfvcoutput";
 
 export class TfvcExtension  {
@@ -42,10 +42,10 @@ export class TfvcExtension  {
                     return;
                 }
 
-                Telemetry.SendEvent(TfvcTelemetryEvents.Checkin);
+                Telemetry.SendEvent(this._repo.IsExe ? TfvcTelemetryEvents.CheckinExe : TfvcTelemetryEvents.CheckinClc);
                 const changeset: string =
                     await this._repo.Checkin(checkinInfo.files, checkinInfo.comment, checkinInfo.workItemIds);
-                TfvcOutput.AppendLine("Changeset " + changeset + " checked in.");
+                TfvcOutput.AppendLine(`Changeset ${changeset} checked in.`);
                 TfvcSCMProvider.ClearCheckinMessage();
                 TfvcSCMProvider.Refresh();
             },
@@ -169,7 +169,7 @@ export class TfvcExtension  {
                         const destination: string = path.join(dirName, newFilename);
 
                         try {
-                            //We decided not to send telemetry on file operations
+                            Telemetry.SendEvent(this._repo.IsExe ? TfvcTelemetryEvents.RenameExe : TfvcTelemetryEvents.RenameClc);
                             await this._repo.Rename(uri.fsPath, destination);
                         } catch (err) {
                             //Provide a better error message if the file to be renamed isn't in the workspace (e.g., it's a new file)
@@ -196,6 +196,7 @@ export class TfvcExtension  {
                     const basename: string = path.basename(localPath);
                     const message: string = `Are you sure you want to resolve changes in ${basename} as ${resolveTypeString}?`;
                     if (await UIHelper.PromptForConfirmation(message, resolveTypeString)) {
+                        Telemetry.SendEvent(this._repo.IsExe ? TfvcTelemetryEvents.ResolveConflictsExe : TfvcTelemetryEvents.ResolveConflictsClc);
                         await this._repo.ResolveConflicts([localPath], autoResolveType);
                         TfvcSCMProvider.Refresh();
                     }
@@ -211,30 +212,13 @@ export class TfvcExtension  {
     }
 
     /**
-     * This command runs a status command on the VSCode workspace folder and
-     * displays the results to the user. Selecting one of the files in the list will
-     * open the file in the editor.
-     */
-    public async Status(): Promise<void> {
-        this.displayErrors(
-            async () => {
-                Telemetry.SendEvent(TfvcTelemetryEvents.Status);
-                const chosenItem: IPendingChange = await UIHelper.ChoosePendingChange(await this._repo.GetStatus());
-                if (chosenItem) {
-                    window.showTextDocument(await workspace.openTextDocument(chosenItem.localItem));
-                }
-            },
-            "Status");
-    }
-
-    /**
      * This command runs a 'tf get' command on the VSCode workspace folder and
      * displays the results to the user.
      */
     public async Sync(): Promise<void> {
         this.displayErrors(
             async () => {
-                Telemetry.SendEvent(TfvcTelemetryEvents.Sync);
+                Telemetry.SendEvent(this._repo.IsExe ? TfvcTelemetryEvents.SyncExe : TfvcTelemetryEvents.SyncClc);
                 const results: ISyncResults = await this._repo.Sync([this._repo.Path], true);
                 await UIHelper.ShowSyncResults(results, results.hasConflicts || results.hasErrors, true);
             },
@@ -262,7 +246,7 @@ export class TfvcExtension  {
                             message = `Are you sure you want to undo changes to ${pathsToUndo.length.toString()} files?`;
                         }
                         if (await UIHelper.PromptForConfirmation(message, Strings.UndoChanges)) {
-                            //We decided not to send telemetry on file operations
+                            Telemetry.SendEvent(this._repo.IsExe ? TfvcTelemetryEvents.UndoExe : TfvcTelemetryEvents.UndoClc);
                             await this._repo.Undo(pathsToUndo);
                         }
                     }
@@ -282,7 +266,7 @@ export class TfvcExtension  {
                 if (TfvcSCMProvider.HasItems()) {
                     const message: string = `Are you sure you want to undo all changes?`;
                     if (await UIHelper.PromptForConfirmation(message, Strings.UndoChanges)) {
-                        //We decided not to send telemetry on file operations
+                        Telemetry.SendEvent(this._repo.IsExe ? TfvcTelemetryEvents.UndoAllExe : TfvcTelemetryEvents.UndoAllClc);
                         await this._repo.Undo(["*"]);
                     }
                 } else {

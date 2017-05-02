@@ -28,7 +28,6 @@ export class CommandNames {
     static OpenNewTask: string = CommandNames.CommandPrefix + "OpenNewTask";
     static OpenNewPullRequest: string = CommandNames.CommandPrefix + "OpenNewPullRequest";
     static OpenNewWorkItem: string = CommandNames.CommandPrefix + "OpenNewWorkItem";
-    static OpenPullRequestsPage: string = CommandNames.CommandPrefix + "OpenPullRequestsPage";
     static OpenTeamSite: string = CommandNames.CommandPrefix + "OpenTeamSite";
     static RefreshPollingStatus: string = CommandNames.CommandPrefix + "RefreshPollingStatus";
     static Reinitialize: string = CommandNames.CommandPrefix + "Reinitialize";
@@ -55,7 +54,6 @@ export class TfvcCommandNames {
     static ResolveKeepYours: string = TfvcCommandNames.CommandPrefix + "ResolveKeepYours";
     static ResolveTakeTheirs: string = TfvcCommandNames.CommandPrefix + "ResolveTakeTheirs";
     static ShowOutput: string = TfvcCommandNames.CommandPrefix + "ShowOutput";
-    static Status: string = TfvcCommandNames.CommandPrefix + "Status";
     static Sync: string = TfvcCommandNames.CommandPrefix + "Sync";
     static Undo: string = TfvcCommandNames.CommandPrefix + "Undo";
     static UndoAll: string = TfvcCommandNames.CommandPrefix + "UndoAll";
@@ -90,7 +88,6 @@ export class TelemetryEvents {
     static OpenNewWorkItem: string = TelemetryEvents.TelemetryPrefix + "opennewworkitem";
     static OpenRepositoryHistory: string = TelemetryEvents.TelemetryPrefix + "openrepohistory";
     static OpenTeamSite: string = TelemetryEvents.TelemetryPrefix + "openteamprojectweb";
-    static OpenPullRequestsPage: string = TelemetryEvents.TelemetryPrefix + "openpullrequestspage";
     static ReadmeLearnMoreClick: string = TelemetryEvents.TelemetryPrefix + "readmelearnmoreclick";
     static SendAFrown: string = TelemetryEvents.TelemetryPrefix + "sendafrown";
     static SendASmile: string = TelemetryEvents.TelemetryPrefix + "sendasmile";
@@ -108,19 +105,47 @@ export class TelemetryEvents {
     static VS2015U3CSR: string = TelemetryEvents.TelemetryPrefix + "vs2015u3csr";
 }
 
-export class TfvcTelemetryEvents {
+//Don't export this class. TfvcTelemetryEvents is the only one which should be used when sending telemetry
+class TfvcBaseTelemetryEvents {
     static TelemetryPrefix: string = "tfvc/";
-    static Checkin: string = TfvcTelemetryEvents.TelemetryPrefix + "checkin";
-    static NameAndContentConflict: string = TfvcTelemetryEvents.TelemetryPrefix + "nameandcontentconflict";
-    static OpenFileHistory: string = TfvcTelemetryEvents.TelemetryPrefix + "openfilehistory";
-    static OpenRepositoryHistory: string = TfvcTelemetryEvents.TelemetryPrefix + "openrepohistory";
-    static RenameConflict: string = TfvcTelemetryEvents.TelemetryPrefix + "renameconflict";
-    static RestrictWorkspace: string = TfvcTelemetryEvents.TelemetryPrefix + "restrictWorkspace";
-    static Status: string = TfvcTelemetryEvents.TelemetryPrefix + "status";
-    static StartUp: string = TfvcTelemetryEvents.TelemetryPrefix + "startup";
-    static Sync: string = TfvcTelemetryEvents.TelemetryPrefix + "sync";
-    static UsingClc: string = TfvcTelemetryEvents.TelemetryPrefix + "clc";
-    static UsingExe: string = TfvcTelemetryEvents.TelemetryPrefix + "exe";
+    static Clc: string = TfvcBaseTelemetryEvents.TelemetryPrefix + "clc";
+    static Exe: string = TfvcBaseTelemetryEvents.TelemetryPrefix + "exe";
+    static Checkin: string = "checkin";
+    static NameAndContentConflict: string = "nameandcontentconflict";
+    static OpenFileHistory: string = "openfilehistory";
+    static OpenRepositoryHistory: string = "openrepohistory";
+    static RenameConflict: string = "renameconflict";
+    static Rename: string = "rename";
+    static ResolveConflicts: string = "resolveconflicts";
+    static RestrictWorkspace: string = "restrictworkspace";
+    static StartUp: string = "startup";
+    static Sync: string = "sync";
+    static Undo: string = "undo";
+    static UndoAll: string = "undoall";
+}
+
+export class TfvcTelemetryEvents {
+    static UsingClc: string = TfvcBaseTelemetryEvents.Clc;
+    static UsingExe: string = TfvcBaseTelemetryEvents.Exe;
+    static NameAndContentConflict: string = TfvcBaseTelemetryEvents.TelemetryPrefix + TfvcBaseTelemetryEvents.NameAndContentConflict;
+    static OpenFileHistory: string = TfvcBaseTelemetryEvents.TelemetryPrefix + TfvcBaseTelemetryEvents.OpenFileHistory;
+    static OpenRepositoryHistory: string = TfvcBaseTelemetryEvents.TelemetryPrefix + TfvcBaseTelemetryEvents.OpenRepositoryHistory;
+    static RenameConflict: string = TfvcBaseTelemetryEvents.TelemetryPrefix + TfvcBaseTelemetryEvents.RenameConflict;
+    static RestrictWorkspace: string = TfvcBaseTelemetryEvents.TelemetryPrefix + TfvcBaseTelemetryEvents.RestrictWorkspace;
+    static StartUp: string = TfvcBaseTelemetryEvents.TelemetryPrefix + TfvcBaseTelemetryEvents.StartUp;
+    //Begin tooling-specific telemetry (tf.exe or CLC)
+    static CheckinExe: string = TfvcTelemetryEvents.UsingExe + "-" + TfvcBaseTelemetryEvents.Checkin;
+    static CheckinClc: string = TfvcTelemetryEvents.UsingClc + "-" + TfvcBaseTelemetryEvents.Checkin;
+    static RenameExe: string = TfvcTelemetryEvents.UsingExe + "-" + TfvcBaseTelemetryEvents.Rename;
+    static RenameClc: string = TfvcTelemetryEvents.UsingClc + "-" + TfvcBaseTelemetryEvents.Rename;
+    static ResolveConflictsExe: string = TfvcTelemetryEvents.UsingExe + "-" + TfvcBaseTelemetryEvents.ResolveConflicts;
+    static ResolveConflictsClc: string = TfvcTelemetryEvents.UsingClc + "-" + TfvcBaseTelemetryEvents.ResolveConflicts;
+    static SyncExe: string = TfvcTelemetryEvents.UsingExe + "-" + TfvcBaseTelemetryEvents.Sync;
+    static SyncClc: string = TfvcTelemetryEvents.UsingClc + "-" + TfvcBaseTelemetryEvents.Sync;
+    static UndoExe: string = TfvcTelemetryEvents.UsingExe + "-" + TfvcBaseTelemetryEvents.Undo;
+    static UndoClc: string = TfvcTelemetryEvents.UsingClc + "-" + TfvcBaseTelemetryEvents.Undo;
+    static UndoAllExe: string = TfvcTelemetryEvents.UsingExe + "-" + TfvcBaseTelemetryEvents.UndoAll;
+    static UndoAllClc: string = TfvcTelemetryEvents.UsingClc + "-" + TfvcBaseTelemetryEvents.UndoAll;
 }
 
 export class WellKnownRepositoryTypes {
