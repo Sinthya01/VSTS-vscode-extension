@@ -230,15 +230,16 @@ export class ExtensionManager implements Disposable {
         //it here.  This will allow us to log errors when we begin processing TFVC commands.
         this._settings = new Settings();
         Telemetry.Initialize(this._settings); //We don't have the serverContext just yet
+        Telemetry.SendEvent(TelemetryEvents.Installed); //Send event that the extension is installed (even if not used)
         this.logStart(this._settings.LoggingLevel, workspace.rootPath);
         this._teamServicesStatusBarItem = window.createStatusBarItem(StatusBarAlignment.Left, 100);
         this._feedbackStatusBarItem = window.createStatusBarItem(StatusBarAlignment.Left, 96);
-        this.showFeedbackItem();
 
         try {
             //RepositoryContext has some initial information about the repository (what we can get without authenticating with server)
             this._repoContext = await RepositoryContextFactory.CreateRepositoryContext(workspace.rootPath, this._settings);
             if (this._repoContext) {
+                this.showFeedbackItem();
                 this.setupFileSystemWatcherOnHead();
                 this._serverContext = new TeamServerContext(this._repoContext.RemoteUrl);
                 //Now that we have a server context, we can update it on the repository context
@@ -314,7 +315,7 @@ export class ExtensionManager implements Disposable {
                     // Now that everything else is ready, create the SCM provider
                     if (this._repoContext.Type === RepositoryType.TFVC) {
                         const tfvcContext: TfvcContext = <TfvcContext>this._repoContext;
-                        this.sendTfvcToolingTelemetry(tfvcContext.TfvcRepository);
+                        this.sendTfvcConfiguredTelemetry(tfvcContext.TfvcRepository);
                         Logger.LogInfo(`Sent TFVC tooling telemetry`);
                         if (!this._scmProvider) {
                             Logger.LogDebug(`Initializing the TfvcSCMProvider`);
@@ -326,6 +327,7 @@ export class ExtensionManager implements Disposable {
                             await this._scmProvider.Reinitialize();
                             Logger.LogDebug(`Re-initialized the TfvcSCMProvider`);
                         }
+                        this.sendTfvcConnectedTelemetry(tfvcContext.TfvcRepository);
                     }
                 }).fail((err) => {
                     this.setErrorStatus(Utils.GetMessageForStatusCode(err, err.message), (err.statusCode === 401 ? CommandNames.Signin : undefined), false);
@@ -358,18 +360,29 @@ export class ExtensionManager implements Disposable {
         Telemetry.SendEvent(event);
     }
 
-    //Sends telemetry based on values of the TfvcRepostiory (which TF tooling (Exe or CLC) is being used)
-    private sendTfvcToolingTelemetry(repository: TfvcRepository): void {
-        let event: string = TfvcTelemetryEvents.UsingExe;
+    //Sends telemetry based on values of the TfvcRepository (which TF tooling (Exe or CLC) is configured)
+    private sendTfvcConfiguredTelemetry(repository: TfvcRepository): void {
+        let event: string = TfvcTelemetryEvents.ExeConfigured;
 
         if (!repository.IsExe) {
-            event = TfvcTelemetryEvents.UsingClc;
+            event = TfvcTelemetryEvents.ClcConfigured;
         }
         Telemetry.SendEvent(event);
 
+        //For now, this is simply an indication that users have configured that feature
         if (repository.RestrictWorkspace) {
             Telemetry.SendEvent(TfvcTelemetryEvents.RestrictWorkspace);
         }
+    }
+
+    //Sends telemetry based on values of the TfvcRepository (which TF tooling (Exe or CLC) was connected)
+    private sendTfvcConnectedTelemetry(repository: TfvcRepository): void {
+        let event: string = TfvcTelemetryEvents.ExeConnected;
+
+        if (!repository.IsExe) {
+            event = TfvcTelemetryEvents.ClcConnected;
+        }
+        Telemetry.SendEvent(event);
     }
 
     //Determines which Tfvc errors to display in the status bar ui
