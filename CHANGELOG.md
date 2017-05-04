@@ -1,7 +1,30 @@
 
 
+## [v1.117.2](https://github.com/Microsoft/vsts-vscode/tree/v1.117.2) (2017-05-04)
+[Full Changelog](https://github.com/Microsoft/vsts-vscode/compare/v1.117.1...v1.117.2)
+
+**Fixed bugs:**
+
+- arg.startsWith is not a function [\#203](https://github.com/Microsoft/vsts-vscode/issues/203)
+
+**Merged pull requests:**
+
+- Updating README with Feedback changes [\#214](https://github.com/Microsoft/vsts-vscode/pull/214) ([jeffyoung](https://github.com/jeffyoung))
+- Telemetry tweaks [\#213](https://github.com/Microsoft/vsts-vscode/pull/213) ([jeffyoung](https://github.com/jeffyoung))
+- Ensure the feedback status item is always available [\#208](https://github.com/Microsoft/vsts-vscode/pull/208) ([jeffyoung](https://github.com/jeffyoung))
+- Credential Store: Ensure we reject promises on failure [\#207](https://github.com/Microsoft/vsts-vscode/pull/207) ([jeffyoung](https://github.com/jeffyoung))
+- Re-add Reinitialize [\#206](https://github.com/Microsoft/vsts-vscode/pull/206) ([jeffyoung](https://github.com/jeffyoung))
+- Fix 'args.startsWith is not a function' [\#205](https://github.com/Microsoft/vsts-vscode/pull/205) ([jeffyoung](https://github.com/jeffyoung))
+- Add Feedback icon to status bar [\#202](https://github.com/Microsoft/vsts-vscode/pull/202) ([jeffyoung](https://github.com/jeffyoung))
+- TFVC: Add telemetry specific to Exe and CLC [\#201](https://github.com/Microsoft/vsts-vscode/pull/201) ([jeffyoung](https://github.com/jeffyoung))
+- Miscellaneous fix-ups [\#200](https://github.com/Microsoft/vsts-vscode/pull/200) ([jeffyoung](https://github.com/jeffyoung))
+
 ## [v1.117.1](https://github.com/Microsoft/vsts-vscode/tree/v1.117.1) (2017-05-01)
 [Full Changelog](https://github.com/Microsoft/vsts-vscode/compare/v1.117.0...v1.117.1)
+
+**Implemented enhancements:**
+
+- Add a Changelog file to the repo to enable native Changelog view in VS Code [\#183](https://github.com/Microsoft/vsts-vscode/issues/183)
 
 **Closed issues:**
 
