@@ -1,5 +1,16 @@
 
 
+## [v1.117.3](https://github.com/Microsoft/vsts-vscode/tree/v1.117.3) (2017-05-05)
+[Full Changelog](https://github.com/Microsoft/vsts-vscode/compare/v1.117.2...v1.117.3)
+
+**Fixed bugs:**
+
+- team.Reinitialize not found [\#209](https://github.com/Microsoft/vsts-vscode/issues/209)
+
+**Merged pull requests:**
+
+- Re-fix duplicate icons [\#215](https://github.com/Microsoft/vsts-vscode/pull/215) ([jeffyoung](https://github.com/jeffyoung))
+
 ## [v1.117.2](https://github.com/Microsoft/vsts-vscode/tree/v1.117.2) (2017-05-04)
 [Full Changelog](https://github.com/Microsoft/vsts-vscode/compare/v1.117.1...v1.117.2)
 
@@ -125,7 +136,6 @@
 
 **Closed issues:**
 
-- duplicated icons in status bar [\#141](https://github.com/Microsoft/vsts-vscode/issues/141)
 - Pinned queries: Unknown configuration setting [\#98](https://github.com/Microsoft/vsts-vscode/issues/98)
 
 **Merged pull requests:**
