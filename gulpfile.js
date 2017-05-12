@@ -170,4 +170,12 @@ gulp.task('package', ['publishall'], function (cb) {
   });
 });
 
+gulp.task('vsce-version', function (cb) {
+  exec('vsce -Version', function (err, stdout, stderr) {
+    console.log(stdout);
+    console.log(stderr);
+    cb(err);
+  });
+});
+
 gulp.task('default', ['publishall']);
