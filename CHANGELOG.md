@@ -1,5 +1,29 @@
 
 
+## [v1.118.0](https://github.com/Microsoft/vsts-vscode/tree/v1.118.0) (2017-05-15)
+[Full Changelog](https://github.com/Microsoft/vsts-vscode/compare/v1.117.3...v1.118.0)
+
+**Fixed bugs:**
+
+- running the contributed command [\#204](https://github.com/Microsoft/vsts-vscode/issues/204)
+
+**Closed issues:**
+
+- Feature Request: VSTS Build Status Notifications [\#225](https://github.com/Microsoft/vsts-vscode/issues/225)
+- TF.exe missing??? [\#222](https://github.com/Microsoft/vsts-vscode/issues/222)
+- Workspace not detected? Cannot select SCM Provider [\#217](https://github.com/Microsoft/vsts-vscode/issues/217)
+- vsts-vscode no longer working with VS2017? [\#211](https://github.com/Microsoft/vsts-vscode/issues/211)
+- duplicated icons in status bar [\#141](https://github.com/Microsoft/vsts-vscode/issues/141)
+
+**Merged pull requests:**
+
+- Update package description to include mention of TFVC [\#230](https://github.com/Microsoft/vsts-vscode/pull/230) ([jeffyoung](https://github.com/jeffyoung))
+- Detect TEE CLC not recogizing workspace created by TF.exe [\#229](https://github.com/Microsoft/vsts-vscode/pull/229) ([jeffyoung](https://github.com/jeffyoung))
+- Handle \_JAVA\_OPTIONS env var \(used to address a Java heap error\) [\#228](https://github.com/Microsoft/vsts-vscode/pull/228) ([jeffyoung](https://github.com/jeffyoung))
+- Decode collection url and team project name [\#227](https://github.com/Microsoft/vsts-vscode/pull/227) ([jeffyoung](https://github.com/jeffyoung))
+- Ensure a folder is opened before running commands [\#220](https://github.com/Microsoft/vsts-vscode/pull/220) ([jeffyoung](https://github.com/jeffyoung))
+- Change extension category to `SCM Providers` [\#210](https://github.com/Microsoft/vsts-vscode/pull/210) ([joaomoreno](https://github.com/joaomoreno))
+
 ## [v1.117.3](https://github.com/Microsoft/vsts-vscode/tree/v1.117.3) (2017-05-05)
 [Full Changelog](https://github.com/Microsoft/vsts-vscode/compare/v1.117.2...v1.117.3)
 
