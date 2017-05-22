@@ -1,5 +1,29 @@
 
 
+## [v1.118.1](https://github.com/Microsoft/vsts-vscode/tree/v1.118.1) (2017-05-22)
+[Full Changelog](https://github.com/Microsoft/vsts-vscode/compare/v1.118.0...v1.118.1)
+
+**Fixed bugs:**
+
+- Sync not working as -collection specified in the command line [\#224](https://github.com/Microsoft/vsts-vscode/issues/224)
+- TFS2015 Update 3 could not find a project collection \(encoding issue\) [\#219](https://github.com/Microsoft/vsts-vscode/issues/219)
+
+**Closed issues:**
+
+- team.Reinitialize not found [\#221](https://github.com/Microsoft/vsts-vscode/issues/221)
+
+**Merged pull requests:**
+
+- Handle exceptions from TFVC Initialize/Reinitialize [\#239](https://github.com/Microsoft/vsts-vscode/pull/239) ([jeffyoung](https://github.com/jeffyoung))
+- formatting tweak [\#238](https://github.com/Microsoft/vsts-vscode/pull/238) ([vtbassmatt](https://github.com/vtbassmatt))
+- Check for 'core id' error \(TFS2013 RTM+\) [\#237](https://github.com/Microsoft/vsts-vscode/pull/237) ([jeffyoung](https://github.com/jeffyoung))
+- Handle error when required WIT api isn't present [\#236](https://github.com/Microsoft/vsts-vscode/pull/236) ([jeffyoung](https://github.com/jeffyoung))
+- Ensure messageOptions contains a value \(not undefined\) [\#235](https://github.com/Microsoft/vsts-vscode/pull/235) ([jeffyoung](https://github.com/jeffyoung))
+- Fix matching TF.exe \(.EXE, .exe\) [\#234](https://github.com/Microsoft/vsts-vscode/pull/234) ([jeffyoung](https://github.com/jeffyoung))
+- Add version of TFVC tooling to debug log file [\#233](https://github.com/Microsoft/vsts-vscode/pull/233) ([jeffyoung](https://github.com/jeffyoung))
+- Properly initialize MessageItems for showErrorMessage [\#232](https://github.com/Microsoft/vsts-vscode/pull/232) ([jeffyoung](https://github.com/jeffyoung))
+- TFVC Readme update \(How to acquire TF.exe\) [\#231](https://github.com/Microsoft/vsts-vscode/pull/231) ([jeffyoung](https://github.com/jeffyoung))
+
 ## [v1.118.0](https://github.com/Microsoft/vsts-vscode/tree/v1.118.0) (2017-05-15)
 [Full Changelog](https://github.com/Microsoft/vsts-vscode/compare/v1.117.3...v1.118.0)
 
