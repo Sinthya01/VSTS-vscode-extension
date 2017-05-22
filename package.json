@@ -2,7 +2,7 @@
   "name": "team",
   "displayName": "Visual Studio Team Services",
   "description": "Connect to Team Services including Team Foundation Version Control (TFVC). Monitor your builds and manage your pull requests and work items for your TFVC or Git source repositories",
-  "version": "1.118.0",
+  "version": "1.118.1",
   "publisher": "ms-vsts",
   "icon": "assets/team.png",
   "markdown": "standard",
