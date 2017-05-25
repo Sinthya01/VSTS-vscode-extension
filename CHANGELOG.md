@@ -1,5 +1,17 @@
 
 
+## [v1.118.2](https://github.com/Microsoft/vsts-vscode/tree/v1.118.2) (2017-05-25)
+[Full Changelog](https://github.com/Microsoft/vsts-vscode/compare/v1.118.1...v1.118.2)
+
+**Closed issues:**
+
+- Error: \(team\) Failed to find api location for area: core id: 603fe2ac-9723-48b9-88ad-09305aa6c6e1 [\#212](https://github.com/Microsoft/vsts-vscode/issues/212)
+
+**Merged pull requests:**
+
+- Generate consistent telemetry id [\#243](https://github.com/Microsoft/vsts-vscode/pull/243) ([jeffyoung](https://github.com/jeffyoung))
+- Replace deprecated node-uuid with uuid [\#242](https://github.com/Microsoft/vsts-vscode/pull/242) ([jeffyoung](https://github.com/jeffyoung))
+
 ## [v1.118.1](https://github.com/Microsoft/vsts-vscode/tree/v1.118.1) (2017-05-22)
 [Full Changelog](https://github.com/Microsoft/vsts-vscode/compare/v1.118.0...v1.118.1)
 
