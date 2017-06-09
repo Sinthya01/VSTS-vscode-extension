@@ -230,6 +230,9 @@ This error may mean you are attempting to access a workspace created by TF.exe f
 to help the CLC be aware of the workspaces in the specified collection. You may also need to run the `tf workfold` command from the local folder being accessed from Visual Studio Code. Running both commands should make the TEE CLC aware of the workspace and 
 as well as verify that access to it is possible.
 
+***Note:*** You will also have to do this if you move between versions of TF.exe (e.g., workspaces created with VS2015 will not be able to be detected with the TF.exe that ships with VS2017 until `tf workspaces` is run with the 2017 TF.exe; and vice-versa). Each major version of TF.exe stores its
+workspace information in a different folder on disk. This behavior is "by-design".
+
 ### *My TFS server requires associating work items to a check-in via check-in policies but I can't check in with TF.exe. What can I do?*
 Unfortunately, TF.exe doesn't provide the ability to associate work items on check in. The most TF.exe can do is submit a check in *comment* with a reference to the work item (which will not actually associate the work item). In order to enable checking in to 
 servers that have check-in policies enabled, you must use the TEE CLC (which does provide support for associating work items on check-in). Follow [these instructions](#how-do-i-set-up-the-clc-on-windows) to set up the TEE CLC on Windows.
