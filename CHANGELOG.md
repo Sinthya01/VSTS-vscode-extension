@@ -1,5 +1,33 @@
 
 
+## [v1.119.0](https://github.com/Microsoft/vsts-vscode/tree/v1.119.0) (2017-06-15)
+[Full Changelog](https://github.com/Microsoft/vsts-vscode/compare/v1.118.2...v1.119.0)
+
+**Implemented enhancements:**
+
+- Disable Team extension by workspace settings [\#23](https://github.com/Microsoft/vsts-vscode/issues/23)
+- Can we get this to work through a proxy? [\#19](https://github.com/Microsoft/vsts-vscode/issues/19)
+
+**Fixed bugs:**
+
+- 401 Unathorized when trying to connect to on-premises TFS2015 Update 2 \(SSL\) [\#59](https://github.com/Microsoft/vsts-vscode/issues/59)
+
+**Closed issues:**
+
+- What do the colored letter icons mean next to file names? [\#252](https://github.com/Microsoft/vsts-vscode/issues/252)
+- Unable to signin [\#247](https://github.com/Microsoft/vsts-vscode/issues/247)
+- Sync operation against TFS 2015 Update 2 fails unexpectedly. [\#223](https://github.com/Microsoft/vsts-vscode/issues/223)
+- Unauthorized access to Team Server when signing in [\#111](https://github.com/Microsoft/vsts-vscode/issues/111)
+- VSTS icon does not appear on Mac [\#58](https://github.com/Microsoft/vsts-vscode/issues/58)
+- Unable to connect to VSTS [\#51](https://github.com/Microsoft/vsts-vscode/issues/51)
+
+**Merged pull requests:**
+
+- Ensure Keep-Alive is true for HTTPS connections [\#253](https://github.com/Microsoft/vsts-vscode/pull/253) ([jeffyoung](https://github.com/jeffyoung))
+- Update Repository Url for Limited Refs [\#251](https://github.com/Microsoft/vsts-vscode/pull/251) ([jeffyoung](https://github.com/jeffyoung))
+- Add more helpful text for TFVC set up [\#250](https://github.com/Microsoft/vsts-vscode/pull/250) ([jeffyoung](https://github.com/jeffyoung))
+- Add delete menu to file explorer [\#249](https://github.com/Microsoft/vsts-vscode/pull/249) ([jeffyoung](https://github.com/jeffyoung))
+
 ## [v1.118.2](https://github.com/Microsoft/vsts-vscode/tree/v1.118.2) (2017-05-25)
 [Full Changelog](https://github.com/Microsoft/vsts-vscode/compare/v1.118.1...v1.118.2)
 
