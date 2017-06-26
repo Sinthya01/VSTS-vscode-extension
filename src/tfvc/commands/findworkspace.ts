@@ -113,8 +113,8 @@ export class FindWorkspace implements ITfvcCommand<IWorkspace> {
         //If we're restricting the workspace, find the proper teamProject name
         if (this._restrictWorkspace) {
             for (let i: number = 0; i < mappings.length; i++) {
-                const isInside: boolean = this.pathIsWithin(this._localPath, mappings[i].localPath);
-                if (isInside) {
+                const isWithin: boolean = this.pathIsWithin(this._localPath, mappings[i].localPath);
+                if (isWithin) {
                     const project: string = this.getTeamProject(mappings[i].serverPath); //maintain case in serverPath
                     teamProject = project;
                     break;
