@@ -250,7 +250,7 @@ export class FindWorkspace implements ITfvcCommand<IWorkspace> {
         openedPath = openedPath.toLowerCase();
         workspacePath = workspacePath.toLowerCase();
 
-        return openedPath.lastIndexOf(workspacePath, 0) === 0;
+        return openedPath.startsWith(workspacePath);
     };
 
     //If the path doesn't end with a separator, add one
