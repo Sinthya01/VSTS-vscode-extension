@@ -4,7 +4,6 @@
 *--------------------------------------------------------------------------------------------*/
 "use strict";
 
-import * as path from "path";
 import { Strings } from "../../helpers/strings";
 import { IButtonMessageItem } from "../../helpers/vscodeutils.interfaces";
 import { Constants, TfvcTelemetryEvents } from "../../helpers/constants";
@@ -113,15 +112,12 @@ export class FindWorkspace implements ITfvcCommand<IWorkspace> {
         }
         //If we're restricting the workspace, find the proper teamProject name
         if (this._restrictWorkspace) {
-            const folder: string = path.basename(this._localPath).toLowerCase();
-            //With tf.exe, folder and teamProject should match (TEE won't)
-            if (folder !== teamProject.toLowerCase()) {
-                for (let i: number = 0; i < mappings.length; i++) {
+            for (let i: number = 0; i < mappings.length; i++) {
+                const isWithin: boolean = this.pathIsWithin(this._localPath, mappings[i].localPath);
+                if (isWithin) {
                     const project: string = this.getTeamProject(mappings[i].serverPath); //maintain case in serverPath
-                    if (project.toLowerCase() === folder) {
-                        teamProject = project;
-                        break;
-                    }
+                    teamProject = project;
+                    break;
                 }
             }
         }
@@ -235,5 +231,33 @@ export class FindWorkspace implements ITfvcCommand<IWorkspace> {
         }
 
         return "";
+    }
+
+    //Checks to see if the openedPath (in VS Code) is within the workspacePath
+    //specified in the workspace. The funcation needs to ensure we get the
+    //"best" (most specific) match.
+    private pathIsWithin(openedPath: string, workspacePath: string): boolean {
+        //Replace all backslashes with forward slashes on both paths
+        openedPath = openedPath.replace(/\\/g, "/");
+        workspacePath = workspacePath.replace(/\\/g, "/");
+
+        //Add trailing separators to ensure they're included in the lastIndexOf
+        //(e.g., to ensure we match "/path2" with "/path2" and not "/path2" with "/path" first)
+        openedPath = this.addTrailingSeparator(openedPath, "/");
+        workspacePath = this.addTrailingSeparator(workspacePath, "/");
+
+        //Lowercase both paths (TFVC should be case-insensitive)
+        openedPath = openedPath.toLowerCase();
+        workspacePath = workspacePath.toLowerCase();
+
+        return openedPath.startsWith(workspacePath);
+    };
+
+    //If the path doesn't end with a separator, add one
+    private addTrailingSeparator(path: string, separator: string): string {
+        if (path[path.length - 1] !== separator) {
+            return path += separator;
+        }
+        return path;
     }
 }
