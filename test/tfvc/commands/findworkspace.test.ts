@@ -158,7 +158,7 @@ describe("Tfvc-FindWorkspaceCommand", function() {
     });
 
     it("should verify parse output - no errors - restrictWorkspace", async function() {
-        const localPath: string = "/path/to/workspace/project2";
+        const localPath: string = "/path2/to/workspace/project2";
         const cmd: FindWorkspace = new FindWorkspace(localPath, true);
         const executionResult: IExecutionResult = {
             exitCode: 0,
@@ -167,6 +167,56 @@ describe("Tfvc-FindWorkspaceCommand", function() {
                 "Collection: http://server:8080/tfs/\n" +
                 "$/project1: /path\n" +
                 "$/project2: /path2",
+            stderr: undefined
+        };
+
+        const workspace: IWorkspace = await cmd.ParseOutput(executionResult);
+        assert.equal(workspace.name, "MyWorkspace");
+        assert.equal(workspace.server, "http://server:8080/tfs/");
+        //This test should find project2 as the team project since the localPath contains project2 and we have restrictWorkspace
+        assert.equal(workspace.defaultTeamProject, "project2");
+        assert.equal(workspace.comment, undefined);
+        assert.equal(workspace.computer, undefined);
+        assert.equal(workspace.owner, undefined);
+        assert.equal(workspace.mappings.length, 2);
+    });
+
+    //The CLC will always return *all* server mappings in the workspace even if you pass a particular local folder
+    //TF.exe will only return the server mappings in the workspace that apply to the particular local folder
+    it("should verify parse output - no errors - restrictWorkspace - sub-folder", async function() {
+        const localPath: string = "/path2/to/workspace/project2/sub-folder";
+        const cmd: FindWorkspace = new FindWorkspace(localPath, true);
+        const executionResult: IExecutionResult = {
+            exitCode: 0,
+            stdout: "=====================================================================================================================================================\n" +
+                "Workspace:  MyWorkspace\n" +
+                "Collection: http://server:8080/tfs/\n" +
+                "$/project1: /path\n" +
+                "$/project2: /path2",
+            stderr: undefined
+        };
+
+        const workspace: IWorkspace = await cmd.ParseOutput(executionResult);
+        assert.equal(workspace.name, "MyWorkspace");
+        assert.equal(workspace.server, "http://server:8080/tfs/");
+        //This test should find project2 as the team project since the localPath contains project2 and we have restrictWorkspace
+        assert.equal(workspace.defaultTeamProject, "project2");
+        assert.equal(workspace.comment, undefined);
+        assert.equal(workspace.computer, undefined);
+        assert.equal(workspace.owner, undefined);
+        assert.equal(workspace.mappings.length, 2);
+    });
+
+    it("should verify parse output - no errors - restrictWorkspace - sub-folder - Windows path", async function() {
+        const localPath: string = "c:\\path2\\to\\workspace\\project2\\sub-folder\\";
+        const cmd: FindWorkspace = new FindWorkspace(localPath, true);
+        const executionResult: IExecutionResult = {
+            exitCode: 0,
+            stdout: "=====================================================================================================================================================\n" +
+                "Workspace:  MyWorkspace\n" +
+                "Collection: http://server:8080/tfs/\n" +
+                "$/project1: c:\\path\n" +
+                "$/project2: c:\\path2",
             stderr: undefined
         };
 
@@ -301,7 +351,7 @@ describe("Tfvc-FindWorkspaceCommand", function() {
     });
 
     it("should verify parse EXE output - no errors - restrictWorkspace", async function() {
-        const localPath: string = "/path/to/workspace/project2";
+        const localPath: string = "/path2/to/workspace/project2";
         const cmd: FindWorkspace = new FindWorkspace(localPath, true);
         const executionResult: IExecutionResult = {
             exitCode: 0,
@@ -322,6 +372,54 @@ describe("Tfvc-FindWorkspaceCommand", function() {
         assert.equal(workspace.computer, undefined);
         assert.equal(workspace.owner, undefined);
         assert.equal(workspace.mappings.length, 2);
+    });
+
+    it("should verify parse EXE output - no errors - restrictWorkspace - sub-folder", async function() {
+        const localPath: string = "/path2/to/workspace/project2/sub-folder";
+        const cmd: FindWorkspace = new FindWorkspace(localPath, true);
+        //TF.exe won't return "$/project1: /path1" if it's in the overall workspace (see the CLC test of the same scenario, above)
+        const executionResult: IExecutionResult = {
+            exitCode: 0,
+            stdout: "=====================================================================================================================================================\n" +
+                "Workspace:  MyWorkspace\n" +
+                "Collection: http://server:8080/tfs/\n" +
+                "$/project2: /path2",
+            stderr: undefined
+        };
+
+        const workspace: IWorkspace = await cmd.ParseExeOutput(executionResult);
+        assert.equal(workspace.name, "MyWorkspace");
+        assert.equal(workspace.server, "http://server:8080/tfs/");
+        //This test should find project2 as the team project since the localPath contains project2 and we have restrictWorkspace
+        assert.equal(workspace.defaultTeamProject, "project2");
+        assert.equal(workspace.comment, undefined);
+        assert.equal(workspace.computer, undefined);
+        assert.equal(workspace.owner, undefined);
+        assert.equal(workspace.mappings.length, 1);
+    });
+
+    it("should verify parse EXE output - no errors - restrictWorkspace - sub-folder - Windows path", async function() {
+        const localPath: string = "c:\\path2\\to\\workspace\\project2\\sub-folder\\";
+        const cmd: FindWorkspace = new FindWorkspace(localPath, true);
+        //TF.exe won't return "$/project1: c:\\path1" if it's in the overall workspace (see the CLC test of the same scenario, earlier)
+        const executionResult: IExecutionResult = {
+            exitCode: 0,
+            stdout: "=====================================================================================================================================================\n" +
+                "Workspace:  MyWorkspace\n" +
+                "Collection: http://server:8080/tfs/\n" +
+                "$/project2: c:\\path2",
+            stderr: undefined
+        };
+
+        const workspace: IWorkspace = await cmd.ParseExeOutput(executionResult);
+        assert.equal(workspace.name, "MyWorkspace");
+        assert.equal(workspace.server, "http://server:8080/tfs/");
+        //This test should find project2 as the team project since the localPath contains project2 and we have restrictWorkspace
+        assert.equal(workspace.defaultTeamProject, "project2");
+        assert.equal(workspace.comment, undefined);
+        assert.equal(workspace.computer, undefined);
+        assert.equal(workspace.owner, undefined);
+        assert.equal(workspace.mappings.length, 1);
     });
 
     it("should verify parse EXE output - no errors - encoded output", async function() {
