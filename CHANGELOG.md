@@ -1,5 +1,19 @@
 
 
+## [v1.119.2](https://github.com/Microsoft/vsts-vscode/tree/v1.119.2) (2017-07-06)
+[Full Changelog](https://github.com/Microsoft/vsts-vscode/compare/v1.119.1...v1.119.2)
+
+**Closed issues:**
+
+- Documentation: Location of TF.exe for Visual Studio 2017 install [\#269](https://github.com/Microsoft/vsts-vscode/issues/269)
+- "Logging is disabled" message in Console [\#263](https://github.com/Microsoft/vsts-vscode/issues/263)
+- Associate Work Items always shown, even when SCM Provider not VSTS [\#262](https://github.com/Microsoft/vsts-vscode/issues/262)
+- Non-English version of the TF executable [\#254](https://github.com/Microsoft/vsts-vscode/issues/254)
+
+**Merged pull requests:**
+
+- Prevent welcome message on re-initialization [\#278](https://github.com/Microsoft/vsts-vscode/pull/278) ([jeffyoung](https://github.com/jeffyoung))
+
 ## [v1.119.1](https://github.com/Microsoft/vsts-vscode/tree/v1.119.1) (2017-07-06)
 [Full Changelog](https://github.com/Microsoft/vsts-vscode/compare/v1.119.0...v1.119.1)
 
