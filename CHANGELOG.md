@@ -1,5 +1,34 @@
 
 
+## [v1.119.1](https://github.com/Microsoft/vsts-vscode/tree/v1.119.1) (2017-07-06)
+[Full Changelog](https://github.com/Microsoft/vsts-vscode/compare/v1.119.0...v1.119.1)
+
+**Fixed bugs:**
+
+- Pull Request URLs are incorrect for repositories with "limited refs" enabled [\#244](https://github.com/Microsoft/vsts-vscode/issues/244)
+- Including an add and a delete for the same file [\#241](https://github.com/Microsoft/vsts-vscode/issues/241)
+
+**Closed issues:**
+
+- TF10139: check-in policies have not been satisfied [\#266](https://github.com/Microsoft/vsts-vscode/issues/266)
+- TFS workspace detected, but cannot switch to SCM provider [\#260](https://github.com/Microsoft/vsts-vscode/issues/260)
+- EPIPE error, how to get more info? [\#257](https://github.com/Microsoft/vsts-vscode/issues/257)
+- Error: command 'team.signin' not found \[mapped drive\] [\#245](https://github.com/Microsoft/vsts-vscode/issues/245)
+- TFS 2017 on premise [\#65](https://github.com/Microsoft/vsts-vscode/issues/65)
+
+**Merged pull requests:**
+
+- Add details regarding .tfignore, location of tf.exe [\#276](https://github.com/Microsoft/vsts-vscode/pull/276) ([jeffyoung](https://github.com/jeffyoung))
+- Bump vscode engine version to 1.12.0 \(use withProgress\) [\#271](https://github.com/Microsoft/vsts-vscode/pull/271) ([jeffyoung](https://github.com/jeffyoung))
+- Handle cloaked folders in TFVC workspaces [\#270](https://github.com/Microsoft/vsts-vscode/pull/270) ([jeffyoung](https://github.com/jeffyoung))
+- Several miscellaneous fixes [\#268](https://github.com/Microsoft/vsts-vscode/pull/268) ([jeffyoung](https://github.com/jeffyoung))
+- Package file updates \(updates for 'Associate Work Items' menu option\) [\#267](https://github.com/Microsoft/vsts-vscode/pull/267) ([jeffyoung](https://github.com/jeffyoung))
+- Remove console.log message [\#265](https://github.com/Microsoft/vsts-vscode/pull/265) ([jeffyoung](https://github.com/jeffyoung))
+- Fix matching workspace folders \(primarily for 'restrictWorkspace'\) [\#264](https://github.com/Microsoft/vsts-vscode/pull/264) ([jeffyoung](https://github.com/jeffyoung))
+- Doc updates, initialize Telemetry earlier [\#259](https://github.com/Microsoft/vsts-vscode/pull/259) ([jeffyoung](https://github.com/jeffyoung))
+- Add Welcome message on installation [\#256](https://github.com/Microsoft/vsts-vscode/pull/256) ([jeffyoung](https://github.com/jeffyoung))
+- Add "More Details" button in scenario when Non-Enu TF.exe is configured [\#255](https://github.com/Microsoft/vsts-vscode/pull/255) ([jeffyoung](https://github.com/jeffyoung))
+
 ## [v1.119.0](https://github.com/Microsoft/vsts-vscode/tree/v1.119.0) (2017-06-15)
 [Full Changelog](https://github.com/Microsoft/vsts-vscode/compare/v1.118.2...v1.119.0)
 
