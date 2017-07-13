@@ -8,7 +8,7 @@
 export class Constants {
     static ExtensionName: string = "team";
     static ExtensionUserAgentName: string = "VSTSVSCode";
-    static ExtensionVersion: string = "1.121.0";
+    static ExtensionVersion: string = "1.121.1";
     static OAuth: string = "OAuth";
     static TokenLearnMoreUrl: string = "https://aka.ms/v9r4jt";
     static TokenShowMeUrl: string = "https://aka.ms/o2wkmo";
