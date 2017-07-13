@@ -1,5 +1,17 @@
 
 
+## [v1.121.0](https://github.com/Microsoft/vsts-vscode/tree/v1.121.0) (2017-07-13)
+[Full Changelog](https://github.com/Microsoft/vsts-vscode/compare/v1.119.2...v1.121.0)
+
+**Closed issues:**
+
+- Continual Info bar popup [\#277](https://github.com/Microsoft/vsts-vscode/issues/277)
+- TFS do not show or include files outside of currently opened project/folder [\#273](https://github.com/Microsoft/vsts-vscode/issues/273)
+
+**Merged pull requests:**
+
+- Add 'device flow' authentication option [\#282](https://github.com/Microsoft/vsts-vscode/pull/282) ([jeffyoung](https://github.com/jeffyoung))
+
 ## [v1.119.2](https://github.com/Microsoft/vsts-vscode/tree/v1.119.2) (2017-07-06)
 [Full Changelog](https://github.com/Microsoft/vsts-vscode/compare/v1.119.1...v1.119.2)
 
