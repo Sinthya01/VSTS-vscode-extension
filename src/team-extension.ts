@@ -126,6 +126,7 @@ export class TeamExtension  {
                         //Since we will cancel automatically after timeout, if we _do_ get an accessToken then we need to call clearTimeout
                         if (accessToken) {
                             clearTimeout(timer);
+                            Telemetry.SendEvent(TelemetryEvents.DeviceFlowPat);
                         }
                         return accessToken;
                     });
