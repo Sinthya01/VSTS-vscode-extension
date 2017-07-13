@@ -1,5 +1,8 @@
 
 
+## [v1.121.1](https://github.com/Microsoft/vsts-vscode/tree/v1.121.1) (2017-07-13)
+[Full Changelog](https://github.com/Microsoft/vsts-vscode/compare/v1.121.0...v1.121.1)
+
 ## [v1.121.0](https://github.com/Microsoft/vsts-vscode/tree/v1.121.0) (2017-07-13)
 [Full Changelog](https://github.com/Microsoft/vsts-vscode/compare/v1.119.2...v1.121.0)
 
