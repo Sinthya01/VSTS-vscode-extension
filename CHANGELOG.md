@@ -1,5 +1,19 @@
 
 
+## [v1.122.0](https://github.com/Microsoft/vsts-vscode/tree/v1.122.0) (2017-08-14)
+[Full Changelog](https://github.com/Microsoft/vsts-vscode/compare/v1.121.1...v1.122.0)
+
+**Closed issues:**
+
+- \[Help\] How to connect to my TFS account?  [\#294](https://github.com/Microsoft/vsts-vscode/issues/294)
+- Error:KEY\_TF\_BAD\_EXIT\_CODE error in android studio while cloning [\#275](https://github.com/Microsoft/vsts-vscode/issues/275)
+
+**Merged pull requests:**
+
+- Check for symlink, add telemetry [\#302](https://github.com/Microsoft/vsts-vscode/pull/302) ([jeffyoung](https://github.com/jeffyoung))
+- Two changes for Sprint 122 [\#300](https://github.com/Microsoft/vsts-vscode/pull/300) ([jeffyoung](https://github.com/jeffyoung))
+- Fix for tf.exe domain authentication [\#291](https://github.com/Microsoft/vsts-vscode/pull/291) ([dfrencham](https://github.com/dfrencham))
+
 ## [v1.121.1](https://github.com/Microsoft/vsts-vscode/tree/v1.121.1) (2017-07-13)
 [Full Changelog](https://github.com/Microsoft/vsts-vscode/compare/v1.121.0...v1.121.1)
 
